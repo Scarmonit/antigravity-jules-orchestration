@@ -16,11 +16,6 @@ services:
         fromDatabase:
           name: orchestrator-db
           property: connectionString
-      - key: REDIS_URL
-        fromService:
-          type: redis
-          name: orchestrator-redis
-          property: connectionString
       - key: SLACK_WEBHOOK_URL
         sync: false
     healthCheckPath: /api/v1/health
@@ -30,4 +25,3 @@ databases:
     databaseName: jules_orchestrator
     user: orchestrator
 
-  - name: orchestrator-redis
