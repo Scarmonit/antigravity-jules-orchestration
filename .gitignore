@@ -1,4 +1,37 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
 
-render-env-vars.txt
-# Google Cloud Service Account Key
+# Testing
+coverage
+
+# Production
+build
+dist
+
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Secrets & Keys (CRITICAL)
 jules-service-account-key.json
+RENDER_KEY_INSTRUCTIONS.md
+*.json
+!package.json
+!package-lock.json
+!antigravity-mcp-config.json
+!templates/*.json
+
+# Temporary Status Files
+GCLOUD_LOGIN_NEEDED.md
+GOOGLE_AUTH_QUICKSTART.md
