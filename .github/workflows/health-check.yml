@@ -1,0 +1,93 @@
+name: Service Health Check
+
+on:
+  schedule:
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [Scarmonit]
+
+jobs:
+  health-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check Root Endpoint
+        run: |
+          echo "Testing root endpoint..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://antigravity-jules-orchestration.onrender.com)
+          if [ $response -eq 200 ]; then
+            echo "✅ Root endpoint healthy (HTTP $response)"
+          else
+            echo "❌ Root endpoint failed (HTTP $response)"
+            exit 1
+          fi
+      
+      - name: Check Health Endpoint
+        run: |
+          echo "Testing health endpoint..."
+          response=$(curl -s https://antigravity-jules-orchestration.onrender.com/health)
+          echo "Response: $response"
+          
+          # Check if response contains expected fields
+          if echo "$response" | grep -q '"status":"ok"'; then
+            echo "✅ Health endpoint returned OK status"
+          else
+            echo "❌ Health endpoint did not return OK status"
+            exit 1
+          fi
+          
+          if echo "$response" | grep -q '"apiKeyConfigured":true'; then
+            echo "✅ API key is configured"
+          else
+            echo "❌ API key is not configured"
+            exit 1
+          fi
+      
+      - name: Measure Response Time
+        run: |
+          echo "Measuring response time..."
+          time=$(curl -s -o /dev/null -w "%{time_total}" https://antigravity-jules-orchestration.onrender.com)
+          echo "Response time: ${time}s"
+          
+          # Warn if response time is slow (cold start)
+          if (( $(echo "$time > 10" | bc -l) )); then
+            echo "⚠️ Slow response detected - service may be spinning up from cold start"
+          else
+            echo "✅ Response time acceptable"
+          fi
+      
+      - name: Verify Jules API Integration
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+        run: |
+          echo "Verifying Jules API key is configured..."
+          if [ -z "$JULES_API_KEY" ]; then
+            echo "❌ JULES_API_KEY secret not configured in GitHub"
+            exit 1
+          else
+            echo "✅ JULES_API_KEY secret is configured"
+          fi
+      
+      - name: Test Service Availability
+        run: |
+          echo "Running comprehensive availability test..."
+          for i in {1..3}; do
+            echo "Attempt $i/3..."
+            if curl -sf https://antigravity-jules-orchestration.onrender.com > /dev/null; then
+              echo "✅ Service is reachable"
+              exit 0
+            fi
+            echo "Retrying in 10 seconds..."
+            sleep 10
+          done
+          echo "❌ Service unreachable after 3 attempts"
+          exit 1
+      
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "🚨 Health check failed! Service may be down or experiencing issues."
+          echo "Check deployment logs: https://dashboard.render.com/web/srv-d4mlmna4d50c73ep70sg/logs"
+          echo "Service URL: https://antigravity-jules-orchestration.onrender.com"
