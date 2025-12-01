@@ -1,11 +1,42 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import https from 'https';
+import { GoogleAuth } from 'google-auth-library';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3323;
-const JULES_API_KEY = process.env.JULES_API_KEY;
+
+// Initialize Google Auth from service account JSON
+let auth;
+let authConfigured = false;
+
+try {
+  const credentialsJson = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  if (credentialsJson) {
+    const credentials = JSON.parse(credentialsJson);
+    auth = new GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/cloud-platform']
+    });
+    authConfigured = true;
+    console.log('Google Auth initialized from GOOGLE_APPLICATION_CREDENTIALS_JSON');
+  } else {
+    console.warn('GOOGLE_APPLICATION_CREDENTIALS_JSON not set - Jules API calls will fail');
+  }
+} catch (error) {
+  console.error('Failed to initialize Google Auth:', error.message);
+}
+
+// Get fresh OAuth2 access token
+async function getAccessToken() {
+  if (!auth) {
+    throw new Error('Google Auth not configured - set GOOGLE_APPLICATION_CREDENTIALS_JSON');
+  }
+  const client = await auth.getClient();
+  const tokenResponse = await client.getAccessToken();
+  return tokenResponse.token;
+}
 
 const app = express();
 app.use(express.json());
@@ -15,9 +46,10 @@ app.get('/', (req, res) => {
   res.json({
     status: 'healthy',
     service: 'Jules MCP Server',
-    version: '1.1.0',
+    version: '1.2.0',
     timestamp: new Date().toISOString(),
-    capabilities: ['sessions', 'tasks', 'orchestration', 'mcp-protocol']
+    capabilities: ['sessions', 'tasks', 'orchestration', 'mcp-protocol'],
+    authMethod: 'google-oauth2'
   });
 });
 
@@ -25,7 +57,20 @@ app.get('/', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
-    apiKeyConfigured: !!JULES_API_KEY,
+    googleAuthConfigured: authConfigured,
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Extended health check
+app.get('/api/v1/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    version: '1.2.0',
+    services: {
+      julesApi: authConfigured ? 'configured' : 'not configured',
+      database: 'not required'
+    },
     timestamp: new Date().toISOString()
   });
 });
@@ -91,6 +136,8 @@ app.post('/mcp/execute', async (req, res) => {
 
 // Jules API integration functions
 async function createJulesSession(config) {
+  const accessToken = await getAccessToken();
+
   const sessionData = {
     repository: config.repository,
     task: config.task || 'Autonomous development workflow',
@@ -109,7 +156,7 @@ async function createJulesSession(config) {
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': data.length,
-        'Authorization': 'Bearer ' + JULES_API_KEY
+        'Authorization': 'Bearer ' + accessToken
       }
     };
 
@@ -132,13 +179,15 @@ async function createJulesSession(config) {
 }
 
 async function listJulesSessions() {
+  const accessToken = await getAccessToken();
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'jules.googleapis.com',
       port: 443,
       path: '/v1alpha/sessions',
       method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + JULES_API_KEY }
+      headers: { 'Authorization': 'Bearer ' + accessToken }
     };
 
     const req = https.request(options, (response) => {
@@ -159,13 +208,15 @@ async function listJulesSessions() {
 }
 
 async function getJulesSession(sessionId) {
+  const accessToken = await getAccessToken();
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'jules.googleapis.com',
       port: 443,
       path: '/v1alpha/sessions/' + sessionId,
       method: 'GET',
-      headers: { 'Authorization': 'Bearer ' + JULES_API_KEY }
+      headers: { 'Authorization': 'Bearer ' + accessToken }
     };
 
     const req = https.request(options, (response) => {
@@ -189,7 +240,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('Jules MCP Server running on port ' + PORT);
   console.log('Health check: http://localhost:' + PORT + '/health');
   console.log('MCP Tools: http://localhost:' + PORT + '/mcp/tools');
-  console.log('Jules API Key configured: ' + (JULES_API_KEY ? 'Yes' : 'No'));
+  console.log('Google Auth configured: ' + (authConfigured ? 'Yes' : 'No'));
 });
 
 process.on('SIGTERM', () => {
