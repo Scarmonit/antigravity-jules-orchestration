@@ -1,0 +1,89 @@
+{
+  "mcpServers": {
+    "jules-orchestration": {
+      "name": "Jules Orchestration MCP Server",
+      "description": "Autonomous AI orchestration server combining Google Antigravity with Jules API",
+      "baseUrl": "https://antigravity-jules-orchestration.onrender.com",
+      "protocol": "https",
+      "apiVersion": "1.0.0",
+      "endpoints": {
+        "health": "/health",
+        "root": "/"
+      },
+      "authentication": {
+        "type": "apiKey",
+        "headerName": "X-Jules-API-Key",
+        "envVariable": "JULES_API_KEY"
+      },
+      "capabilities": [
+        "health-check",
+        "service-orchestration",
+        "autonomous-execution",
+        "mcp-protocol"
+      ],
+      "deployment": {
+        "platform": "Render",
+        "region": "us-west (Oregon)",
+        "instanceType": "free",
+        "autoScale": false,
+        "coldStartTime": "~50s"
+      },
+      "monitoring": {
+        "healthCheckInterval": 900,
+        "alerting": "github-actions",
+        "logs": "https://dashboard.render.com/web/srv-d4mlmna4d50c73ep70sg/logs"
+      }
+    }
+  },
+  "antigravityConfig": {
+    "browserExtension": {
+      "name": "Google Antigravity",
+      "mcpIntegrationEnabled": true,
+      "defaultServer": "jules-orchestration",
+      "agentMode": "autonomous",
+      "parallelExecution": true
+    },
+    "connection": {
+      "timeout": 30000,
+      "retryAttempts": 3,
+      "retryDelay": 5000,
+      "keepAlive": true
+    },
+    "features": {
+      "browserAutomation": true,
+      "domCapture": true,
+      "screenshotRecording": true,
+      "taskListManagement": true,
+      "approvalWorkflows": true,
+      "mcpStoreIntegration": true
+    }
+  },
+  "integrationInstructions": {
+    "setup": [
+      "1. Install Google Antigravity browser extension",
+      "2. Open extension settings and navigate to MCP Configuration",
+      "3. Click 'Add MCP Server' and select 'Import from JSON'",
+      "4. Upload this configuration file",
+      "5. Enter your JULES_API_KEY in the authentication settings",
+      "6. Click 'Test Connection' to verify setup",
+      "7. Enable 'Autonomous Mode' for hands-free operation"
+    ],
+    "verification": [
+      "Visit: https://antigravity-jules-orchestration.onrender.com/health",
+      "Expected response: {\"status\":\"ok\",\"apiKeyConfigured\":true}",
+      "GitHub Actions health checks run every 15 minutes"
+    ],
+    "troubleshooting": {
+      "coldStart": "First request may take up to 50 seconds due to free tier spin-down",
+      "apiKeyError": "Ensure JULES_API_KEY environment variable is set in both Render and GitHub",
+      "connectionTimeout": "Service may be spinning up - wait 60 seconds and retry",
+      "healthCheckFailing": "Check GitHub Actions workflow results for detailed logs"
+    }
+  },
+  "documentation": {
+    "repository": "https://github.com/Scarmonit/antigravity-jules-orchestration",
+    "deploymentGuide": "DEPLOYMENT.md",
+    "architecture": "README.md",
+    "workflowAutomation": ".github/workflows/health-check.yml"
+  }
+}
