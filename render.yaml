@@ -31,4 +31,3 @@ databases:
     user: orchestrator
 
   - name: orchestrator-redis
-    plan: starter
