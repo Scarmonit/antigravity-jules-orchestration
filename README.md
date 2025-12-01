@@ -47,6 +47,9 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
 ## Contents
 
 *   **[ARCHITECTURE.md](ARCHITECTURE.md)**: Detailed overview of the system design, event triggers, and integration points.
+*   **[docs/orchestration/](docs/orchestration/)**: MCP Tool Discovery & Orchestration documentation.
+    *   `MCP_TOOL_DISCOVERY.md`: Comprehensive guide for tool discovery and chaining.
+    *   `ORCHESTRATION_PROMPT.md`: Prompt template for AI assistant orchestration.
 *   **[templates/](templates/)**: JSON definitions for concrete workflows.
     *   `dependency-update.json`: Weekly automated dependency maintenance.
     *   `bugfix-from-issue.json`: Triggered by `bug-auto` label, requires approval.
