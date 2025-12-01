@@ -61,7 +61,7 @@ else
     exit 1
 fi
 
-# Step 3: Inventory MCP Tools (Step 3 from workflow)
+# Step 3: Inventory MCP Tools (corresponds to Step 3 in MCP_TOOL_DISCOVERY.md)
 echo -e "\n${YELLOW}Step 3: Inventory MCP Servers & Tools${NC}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
