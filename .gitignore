@@ -31,6 +31,7 @@ RENDER_KEY_INSTRUCTIONS.md
 !package-lock.json
 !antigravity-mcp-config.json
 !templates/*.json
+!.claude/*.json
 
 # Temporary Status Files
 GCLOUD_LOGIN_NEEDED.md
