@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 
+// Auto-diagnostics guard
+const { execSync } = require('child_process');
+if (!process.env.AUTO_DIAG) {
+  process.env.AUTO_DIAG = '1';
+  try {
+    execSync('powershell -File scripts/quick-check.ps1', { stdio: 'inherit' });
+  } catch {
+    process.exit(1);
+  }
+}
+
 /**
  * Jules API Automation Wrapper
  * Autonomous session manager for hands-free development workflows

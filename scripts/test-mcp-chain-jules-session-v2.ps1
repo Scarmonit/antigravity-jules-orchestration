@@ -1,4 +1,11 @@
-﻿# Test MCP Tool Chain: Complete Jules Session Lifecycle
+﻿# Auto-diagnostics guard
+if (!$env:AUTO_DIAG) {
+    $env:AUTO_DIAG = 1
+    & "$PSScriptRoot/quick-check.ps1"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+}
+
+# Test MCP Tool Chain: Complete Jules Session Lifecycle
 # Chain: list_sources → create_session → approve_plan → monitor → get_activities
 # Request-scoped logging with traceId correlation
 

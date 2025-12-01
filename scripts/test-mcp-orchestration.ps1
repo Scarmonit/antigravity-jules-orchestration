@@ -1,5 +1,9 @@
-﻿# Auto-diagnostics: runs quick-check on first use in this shell session
-if (!$env:AUTO_DIAG) { $env:AUTO_DIAG = 1; &"$PSScriptRoot/quick-check.ps1"; if ($LASTEXITCODE -ne 0) { exit 1 } }
+﻿# Auto-diagnostics guard
+if (!$env:AUTO_DIAG) {
+    $env:AUTO_DIAG = 1
+    & "$PSScriptRoot/quick-check.ps1"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+}
 
 # MCP Tool Chain Orchestration Master Script
 # Executes all MCP tool chain demonstrations with unified traceId correlation

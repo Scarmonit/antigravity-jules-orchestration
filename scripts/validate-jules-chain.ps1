@@ -1,4 +1,11 @@
-﻿# MCP Tool Chain Validation Test
+﻿# Auto-diagnostics guard
+if (!$env:AUTO_DIAG) {
+    $env:AUTO_DIAG = 1
+    & "$PSScriptRoot/quick-check.ps1"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+}
+
+# MCP Tool Chain Validation Test
 # Automated validation of Jules session lifecycle chain
 # Tests: Syntax, environment, connectivity, error handling, correlation
 

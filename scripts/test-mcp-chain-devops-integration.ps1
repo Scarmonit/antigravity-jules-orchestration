@@ -1,4 +1,11 @@
-﻿# Test MCP Tool Chain: DevOps + Jules Integration
+﻿# Auto-diagnostics guard
+if (!$env:AUTO_DIAG) {
+    $env:AUTO_DIAG = 1
+    & "$PSScriptRoot/quick-check.ps1"
+    if ($LASTEXITCODE -ne 0) { exit 1 }
+}
+
+# Test MCP Tool Chain: DevOps + Jules Integration
 # Chain: init_project → create_github_workflow → create_optimized_dockerfile → health_check
 
 param(
