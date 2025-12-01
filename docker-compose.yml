@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  jules-api:
+    build: ./orchestrator-api
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://user:password@postgres:5432/jules
+      - REDIS_URL=redis://redis:6379
+      - JULES_API_KEY=${JULES_API_KEY:-mock_key}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-mock_token}
+      - NODE_ENV=development
+    depends_on:
+      - postgres
+      - redis
+
+  dashboard:
+    image: nginx:alpine
+    volumes:
+      - ./dashboard/dist:/usr/share/nginx/html
+    ports:
+      - "8080:80"
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: jules
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d jules"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./orchestrator-api/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
