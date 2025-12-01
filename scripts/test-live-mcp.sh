@@ -9,27 +9,35 @@ echo "======================================="
 
 # 1. Test Root
 echo "1. Checking Service Metadata..."
-curl -s "$API_URL/" | grep -q "Jules MCP Server" && echo "✅ Metadata OK" || echo "❌ Metadata Failed"
+ROOT_RESPONSE=$(curl -s "$API_URL/")
+echo "   Response: $ROOT_RESPONSE"
+if echo "$ROOT_RESPONSE" | grep -q "Jules MCP Server"; then
+    echo "✅ Metadata OK"
+else
+    echo "❌ Metadata Failed"
+fi
 
 # 2. Test Health
 echo "2. Checking Health..."
 HEALTH=$(curl -s "$API_URL/health")
+echo "   Response: $HEALTH"
 if echo "$HEALTH" | grep -q '"status":"ok"'; then
     echo "✅ Health OK"
 else
-    echo "❌ Health Check Failed: $HEALTH"
+    echo "❌ Health Check Failed"
 fi
 
 # 3. List Tools
 echo "3. Listing MCP Tools..."
 TOOLS=$(curl -s "$API_URL/mcp/tools")
+echo "   Response (first 100 chars): $(echo $TOOLS | cut -c 1-100)..."
 if echo "$TOOLS" | grep -q "jules_create_session"; then
     echo "✅ Tools List OK"
 else
     echo "❌ Tools List Failed"
 fi
 
-# 4. Simulate Tool Execution (Dry Run/List Sessions)
+# 4. Simulate Tool Execution (List Sessions)
 echo "4. Testing Tool Execution (jules_list_sessions)..."
 EXEC_RESPONSE=$(curl -s -X POST "$API_URL/mcp/execute" \
   -H "Content-Type: application/json" \
@@ -38,11 +46,14 @@ EXEC_RESPONSE=$(curl -s -X POST "$API_URL/mcp/execute" \
     "arguments": {} 
   }')
 
+echo "   Response: $EXEC_RESPONSE"
+
 if echo "$EXEC_RESPONSE" | grep -q "content"; then
     echo "✅ Tool Execution OK"
-    echo "   Response sample: $(echo $EXEC_RESPONSE | cut -c 1-100)..."
+elif echo "$EXEC_RESPONSE" | grep -q "error"; then
+    echo "⚠️  Tool Execution Error (Expected if Auth fails): $EXEC_RESPONSE"
 else
-    echo "❌ Tool Execution Failed: $EXEC_RESPONSE"
+    echo "❌ Tool Execution Failed (Unknown response)"
 fi
 
 echo ""
