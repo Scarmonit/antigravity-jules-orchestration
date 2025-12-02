@@ -12,7 +12,11 @@
     "mcp:diagnostics": "node scripts/mcp-real-execution.js",
     "mcp:simulated": "MCP_MODE=SIMULATED node scripts/mcp-real-execution.js",
     "test:logger": "node scripts/test-logger.js",
-    "test:logger:pretty": "LOG_FORMAT=pretty node scripts/test-logger.js"
+    "test:logger:pretty": "LOG_FORMAT=pretty node scripts/test-logger.js",
+    "audit": "node scripts/audit-repo.js .",
+    "audit:analyze": "node scripts/analyze-patterns.js .",
+    "audit:generate": "node scripts/generate-configs.js .",
+    "audit:dry-run": "node scripts/audit-repo.js . --dry-run"
   },
   "keywords": [
     "mcp",
