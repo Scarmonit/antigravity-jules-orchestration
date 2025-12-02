@@ -1,0 +1,284 @@
+{
+  "version": "1.0.0",
+  "description": "Repository patterns discovered from analyzing popular open-source projects",
+  "referenceRepositories": {
+    "round1": [
+      "nodejs/node",
+      "expressjs/express",
+      "facebook/react",
+      "vuejs/core",
+      "vercel/next.js",
+      "microsoft/TypeScript",
+      "nestjs/nest",
+      "fastify/fastify",
+      "angular/angular",
+      "nuxt/nuxt"
+    ],
+    "round2": [
+      "vitejs/vite",
+      "withastro/astro",
+      "prisma/prisma",
+      "trpc/trpc",
+      "drizzle-team/drizzle-orm",
+      "vercel/turborepo",
+      "pnpm/pnpm",
+      "oven-sh/bun",
+      "colinhacks/zod",
+      "honojs/hono",
+      "elysiajs/elysia"
+    ],
+    "round3": [
+      "sveltejs/svelte",
+      "solidjs/solid",
+      "BuilderIO/qwik",
+      "remix-run/remix",
+      "sveltejs/kit",
+      "nuxt/nuxt",
+      "unjs/nitro",
+      "unjs/unjs",
+      "vitest-dev/vitest",
+      "microsoft/playwright"
+    ]
+  },
+  "patterns": {
+    "critical": {
+      "description": "Must-have patterns for any production repository",
+      "items": [
+        {
+          "id": "license",
+          "name": "LICENSE file",
+          "path": "LICENSE",
+          "type": "file",
+          "template": "mit-license"
+        },
+        {
+          "id": "readme",
+          "name": "README.md",
+          "path": "README.md",
+          "type": "file"
+        },
+        {
+          "id": "security",
+          "name": "SECURITY.md",
+          "path": "SECURITY.md",
+          "type": "file",
+          "template": "security-policy"
+        },
+        {
+          "id": "gitignore",
+          "name": ".gitignore",
+          "path": ".gitignore",
+          "type": "file"
+        }
+      ]
+    },
+    "high": {
+      "description": "High-priority patterns for maintainability",
+      "items": [
+        {
+          "id": "changelog",
+          "name": "CHANGELOG.md",
+          "path": "CHANGELOG.md",
+          "type": "file",
+          "template": "changelog"
+        },
+        {
+          "id": "contributing",
+          "name": "CONTRIBUTING.md",
+          "path": "CONTRIBUTING.md",
+          "type": "file",
+          "template": "contributing"
+        },
+        {
+          "id": "codeofconduct",
+          "name": "CODE_OF_CONDUCT.md",
+          "path": "CODE_OF_CONDUCT.md",
+          "type": "file",
+          "template": "code-of-conduct"
+        },
+        {
+          "id": "editorconfig",
+          "name": ".editorconfig",
+          "path": ".editorconfig",
+          "type": "file",
+          "template": "editorconfig"
+        },
+        {
+          "id": "nvmrc",
+          "name": ".nvmrc",
+          "path": ".nvmrc",
+          "type": "file",
+          "template": "nvmrc"
+        },
+        {
+          "id": "npmrc",
+          "name": ".npmrc",
+          "path": ".npmrc",
+          "type": "file",
+          "template": "npmrc"
+        },
+        {
+          "id": "dockerignore",
+          "name": ".dockerignore",
+          "path": ".dockerignore",
+          "type": "file",
+          "template": "dockerignore"
+        }
+      ]
+    },
+    "medium": {
+      "description": "Medium-priority patterns for better DX",
+      "items": [
+        {
+          "id": "issue-bug",
+          "name": "Bug Report Template",
+          "path": ".github/ISSUE_TEMPLATE/bug_report.md",
+          "type": "file",
+          "template": "issue-bug"
+        },
+        {
+          "id": "issue-feature",
+          "name": "Feature Request Template",
+          "path": ".github/ISSUE_TEMPLATE/feature_request.md",
+          "type": "file",
+          "template": "issue-feature"
+        },
+        {
+          "id": "pr-template",
+          "name": "Pull Request Template",
+          "path": ".github/PULL_REQUEST_TEMPLATE.md",
+          "type": "file",
+          "template": "pr-template"
+        },
+        {
+          "id": "codeowners",
+          "name": "CODEOWNERS",
+          "path": ".github/CODEOWNERS",
+          "type": "file",
+          "template": "codeowners"
+        },
+        {
+          "id": "funding",
+          "name": "FUNDING.yml",
+          "path": ".github/FUNDING.yml",
+          "type": "file",
+          "template": "funding"
+        },
+        {
+          "id": "dependabot",
+          "name": "Dependabot Configuration",
+          "path": ".github/dependabot.yml",
+          "type": "file",
+          "template": "dependabot"
+        },
+        {
+          "id": "vscode-settings",
+          "name": "VSCode Settings",
+          "path": ".vscode/settings.json",
+          "type": "file",
+          "template": "vscode-settings"
+        },
+        {
+          "id": "vscode-extensions",
+          "name": "VSCode Extensions",
+          "path": ".vscode/extensions.json",
+          "type": "file",
+          "template": "vscode-extensions"
+        }
+      ]
+    },
+    "low": {
+      "description": "Nice-to-have patterns for completeness",
+      "items": [
+        {
+          "id": "labeler",
+          "name": "PR Labeler Workflow",
+          "path": ".github/workflows/labeler.yml",
+          "type": "file",
+          "template": "workflow-labeler"
+        },
+        {
+          "id": "stale",
+          "name": "Stale Issues Workflow",
+          "path": ".github/workflows/stale.yml",
+          "type": "file",
+          "template": "workflow-stale"
+        },
+        {
+          "id": "release-drafter",
+          "name": "Release Drafter Workflow",
+          "path": ".github/workflows/release-drafter.yml",
+          "type": "file",
+          "template": "workflow-release-drafter"
+        },
+        {
+          "id": "release-drafter-config",
+          "name": "Release Drafter Config",
+          "path": ".github/release-drafter.yml",
+          "type": "file",
+          "template": "release-drafter-config"
+        },
+        {
+          "id": "codeql",
+          "name": "CodeQL Security Scanning",
+          "path": ".github/workflows/codeql.yml",
+          "type": "file",
+          "template": "workflow-codeql"
+        }
+      ]
+    }
+  },
+  "packageJsonFields": {
+    "required": ["name", "version", "description", "main", "license"],
+    "recommended": [
+      {
+        "field": "engines",
+        "template": { "node": ">=20.0.0", "npm": ">=10.0.0" }
+      },
+      {
+        "field": "repository",
+        "template": { "type": "git", "url": "git+https://github.com/{owner}/{repo}.git" }
+      },
+      {
+        "field": "bugs",
+        "template": { "url": "https://github.com/{owner}/{repo}/issues" }
+      },
+      {
+        "field": "homepage",
+        "template": "https://github.com/{owner}/{repo}#readme"
+      },
+      {
+        "field": "keywords",
+        "minItems": 3
+      },
+      {
+        "field": "author"
+      },
+      {
+        "field": "publishConfig",
+        "template": { "provenance": true, "access": "public" }
+      }
+    ],
+    "recommendedScripts": [
+      { "name": "dev", "description": "Development mode with watch" },
+      { "name": "build", "description": "Build for production" },
+      { "name": "test", "description": "Run tests" },
+      { "name": "test:unit", "description": "Run unit tests" },
+      { "name": "test:integration", "description": "Run integration tests" },
+      { "name": "lint", "description": "Run linter" },
+      { "name": "format", "description": "Format code" },
+      { "name": "format:check", "description": "Check formatting" },
+      { "name": "clean", "description": "Clean build artifacts" },
+      { "name": "validate", "description": "Run all checks" },
+      { "name": "ci", "description": "CI pipeline command" }
+    ]
+  },
+  "scoring": {
+    "critical": 25,
+    "high": 10,
+    "medium": 5,
+    "low": 2,
+    "packageJsonField": 3,
+    "packageJsonScript": 2
+  }
+}
