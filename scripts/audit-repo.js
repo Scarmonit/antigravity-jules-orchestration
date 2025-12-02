@@ -18,6 +18,7 @@ import { fileURLToPath } from 'url';
 import { execSync, spawn } from 'child_process';
 import { analyzePatterns, generateReport } from './analyze-patterns.js';
 import { generateConfigs, updatePackageJson, generateSummaryReport } from './generate-configs.js';
+import { safeParseJSON, containsTabs } from './lib/utils.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -49,10 +50,12 @@ function validateConfigs(repoPath) {
 
     try {
       const content = readFileSync(filePath, 'utf-8');
-      // Remove BOM if present
-      const cleanContent = content.replace(/^\uFEFF/, '');
-      JSON.parse(cleanContent);
-      results.valid.push({ file });
+      const parsed = safeParseJSON(content);
+      if (parsed !== null) {
+        results.valid.push({ file });
+      } else {
+        results.invalid.push({ file, error: 'Invalid JSON' });
+      }
     } catch (err) {
       results.invalid.push({ file, error: err.message });
     }
@@ -78,7 +81,7 @@ function validateConfigs(repoPath) {
     try {
       const content = readFileSync(filePath, 'utf-8');
       // Basic YAML validation - check for common issues
-      if (content.includes('\t')) {
+      if (containsTabs(content)) {
         results.invalid.push({ file, error: 'Contains tabs (YAML requires spaces)' });
       } else if (!content.trim()) {
         results.invalid.push({ file, error: 'Empty file' });

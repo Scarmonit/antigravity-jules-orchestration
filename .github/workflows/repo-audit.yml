@@ -57,19 +57,19 @@ jobs:
         id: analyze
         run: |
           echo "🔍 Analyzing repository patterns..."
-          node scripts/analyze-patterns.js . --json > /tmp/analysis.json 2>&1 || true
           
-          # Extract score from output
+          # Run analysis and capture score directly
           SCORE=$(node -e "
-            const fs = require('fs');
-            try {
-              const data = JSON.parse(fs.readFileSync('/tmp/analysis.json', 'utf-8').split('--- JSON Output ---')[1] || '{}');
-              console.log(data.score?.percentage || 0);
-            } catch { console.log(0); }
-          ")
+            import { analyzePatterns } from './scripts/analyze-patterns.js';
+            const results = analyzePatterns('.');
+            console.log(results.score.percentage);
+          " 2>/dev/null || echo "0")
           
           echo "score=$SCORE" >> $GITHUB_OUTPUT
           echo "Current score: $SCORE%"
+          
+          # Also run the full analysis for display
+          node scripts/analyze-patterns.js . || true
 
       - name: Generate configurations
         if: inputs.dry_run != 'true' && github.event_name != 'schedule'
@@ -93,25 +93,43 @@ jobs:
         run: |
           echo "✅ Validating configurations..."
           
-          # Validate JSON files
-          for file in package.json .vscode/settings.json .vscode/extensions.json; do
-            if [ -f "$file" ]; then
-              node -e "JSON.parse(require('fs').readFileSync('$file', 'utf-8').replace(/^\uFEFF/, ''))" && \
-                echo "  ✓ $file is valid" || \
-                echo "  ✗ $file is invalid"
-            fi
-          done
-          
-          # Validate YAML files (basic check)
-          for file in .github/dependabot.yml .github/workflows/*.yml; do
-            if [ -f "$file" ]; then
-              if grep -q $'\t' "$file" 2>/dev/null; then
-                echo "  ✗ $file contains tabs"
-              else
-                echo "  ✓ $file appears valid"
-              fi
-            fi
-          done
+          # Use Node.js with shared utilities for consistent validation
+          node -e "
+            import { readFileSync, existsSync } from 'fs';
+            import { safeParseJSON, containsTabs } from './scripts/lib/utils.js';
+            
+            const jsonFiles = ['package.json', '.vscode/settings.json', '.vscode/extensions.json'];
+            const yamlFiles = ['.github/dependabot.yml'];
+            
+            let valid = 0, invalid = 0;
+            
+            for (const file of jsonFiles) {
+              if (!existsSync(file)) continue;
+              const content = readFileSync(file, 'utf-8');
+              if (safeParseJSON(content) !== null) {
+                console.log('  ✓', file, 'is valid');
+                valid++;
+              } else {
+                console.log('  ✗', file, 'is invalid');
+                invalid++;
+              }
+            }
+            
+            for (const file of yamlFiles) {
+              if (!existsSync(file)) continue;
+              const content = readFileSync(file, 'utf-8');
+              if (containsTabs(content)) {
+                console.log('  ✗', file, 'contains tabs');
+                invalid++;
+              } else {
+                console.log('  ✓', file, 'appears valid');
+                valid++;
+              }
+            }
+            
+            console.log('\\nValidation:', valid, 'passed,', invalid, 'failed');
+            if (invalid > 0) process.exit(1);
+          "
 
       - name: Create Pull Request
         if: inputs.dry_run != 'true' && (inputs.create_pr == 'true' || github.event_name == 'schedule')
