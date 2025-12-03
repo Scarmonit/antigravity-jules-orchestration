@@ -2,7 +2,10 @@ version: '3.8'
 
 services:
   jules-api:
-    build: ./orchestrator-api
+    build: 
+      context: ./orchestrator-api
+      dockerfile: Dockerfile
+    container_name: jules-orchestrator
     ports:
       - "3000:3000"
     environment:
@@ -12,24 +15,47 @@ services:
       - GITHUB_TOKEN=${GITHUB_TOKEN:-mock_token}
       - NODE_ENV=development
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   dashboard:
     image: nginx:alpine
+    container_name: jules-dashboard
     volumes:
-      - ./dashboard/dist:/usr/share/nginx/html
+      - ./dashboard/dist:/usr/share/nginx/html:ro
     ports:
       - "8080:80"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    depends_on:
+      - jules-api
 
   postgres:
-    image: postgres:15
+    image: postgres:15-alpine
+    container_name: orchestrator-db
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: jules
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d jules"]
       interval: 10s
@@ -37,20 +63,64 @@ services:
       retries: 5
 
   redis:
-    image: redis:7
+    image: redis:7-alpine
+    container_name: orchestrator-redis
+    volumes:
+      - redis-data:/data
     ports:
       - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   prometheus:
     image: prom/prometheus:latest
+    container_name: orchestrator-prometheus
     volumes:
-      - ./orchestrator-api/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./orchestrator-api/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
     ports:
       - "9090:9090"
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
 
   grafana:
     image: grafana/grafana:latest
+    container_name: orchestrator-grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
     ports:
       - "3001:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+    networks:
+      - orchestrator-network
+    depends_on:
+      - prometheus
+
+networks:
+  orchestrator-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  prometheus-data:
+    driver: local
+  grafana-data:
+    driver: local
