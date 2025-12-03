@@ -1,0 +1,128 @@
+{
+  "name": "quality-gate-validation",
+  "version": "1.0.0",
+  "description": "Automated quality gate validation before merge using SonarQube MCP Server",
+  "trigger": {
+    "event": "pull_request.opened",
+    "conditions": [
+      "base_branch == 'main' || base_branch == 'master'"
+    ]
+  },
+  "dependencies": {
+    "mcpServers": ["sonarqube"],
+    "tools": ["sonarqube.analyze_file_list", "sonarqube.get_project_quality_gate_status"]
+  },
+  "steps": [
+    {
+      "id": "analyze_changes",
+      "action": "sonarqube.analyze_file_list",
+      "description": "Analyze changed files in pull request",
+      "params": {
+        "file_absolute_paths": "{{pr.changed_files}}"
+      },
+      "timeout": 300,
+      "retry": {
+        "maxAttempts": 2,
+        "backoffMs": 5000
+      }
+    },
+    {
+      "id": "check_quality_gate",
+      "action": "sonarqube.get_project_quality_gate_status",
+      "description": "Check if quality gate passes",
+      "params": {
+        "projectKey": "{{repository.sonarqube_key}}",
+        "pullRequest": "{{pr.number}}"
+      },
+      "timeout": 60
+    },
+    {
+      "id": "search_critical_issues",
+      "action": "sonarqube.search_sonar_issues_in_projects",
+      "description": "Find critical and high severity issues",
+      "params": {
+        "projects": ["{{repository.sonarqube_key}}"],
+        "pullRequestId": "{{pr.number}}",
+        "severities": ["BLOCKER", "HIGH"],
+        "ps": 100
+      },
+      "condition": "quality_gate.status != 'OK'"
+    },
+    {
+      "id": "handle_failure",
+      "action": "conditional",
+      "condition": "quality_gate.status != 'OK'",
+      "then": [
+        {
+          "id": "format_issues",
+          "action": "transform",
+          "description": "Format SonarQube issues for GitHub comment",
+          "transform": {
+            "template": "## ❌ Quality Gate Failed\\n\\n**Status**: {{quality_gate.status}}\\n**Conditions Failed**: {{quality_gate.conditions_failed}}\\n\\n### Critical Issues\\n{{#each critical_issues}}\\n- **{{this.rule}}**: {{this.message}} ([{{this.component}}:{{this.line}}]({{this.sonarqube_url}}))\\n{{/each}}\\n\\n### Metrics\\n- Coverage: {{quality_gate.metrics.coverage}}%\\n- Duplications: {{quality_gate.metrics.duplications}}%\\n- Code Smells: {{quality_gate.metrics.code_smells}}\\n- Bugs: {{quality_gate.metrics.bugs}}\\n- Vulnerabilities: {{quality_gate.metrics.vulnerabilities}}\\n\\n**Action Required**: Fix these issues before merge approval."
+          }
+        },
+        {
+          "id": "post_failure_comment",
+          "action": "github.comment",
+          "description": "Post quality gate failure to PR",
+          "params": {
+            "pr_number": "{{pr.number}}",
+            "body": "{{formatted_issues}}"
+          }
+        },
+        {
+          "id": "request_changes",
+          "action": "github.request_changes",
+          "description": "Block merge until quality gate passes",
+          "params": {
+            "pr_number": "{{pr.number}}",
+            "body": "Code quality issues detected by SonarQube. Quality gate must pass before merge."
+          }
+        },
+        {
+          "id": "add_label",
+          "action": "github.add_labels",
+          "params": {
+            "pr_number": "{{pr.number}}",
+            "labels": ["quality-gate-failed", "needs-fixes"]
+          }
+        }
+      ],
+      "else": [
+        {
+          "id": "post_success_comment",
+          "action": "github.comment",
+          "description": "Confirm quality gate passed",
+          "params": {
+            "pr_number": "{{pr.number}}",
+            "body": "## ✅ Quality Gate Passed\\n\\nAll code quality checks passed successfully!\\n\\n### Metrics\\n- Coverage: {{quality_gate.metrics.coverage}}%\\n- Duplications: {{quality_gate.metrics.duplications}}%\\n- Code Smells: {{quality_gate.metrics.code_smells}}\\n- Bugs: {{quality_gate.metrics.bugs}}\\n- Vulnerabilities: {{quality_gate.metrics.vulnerabilities}}"
+          }
+        },
+        {
+          "id": "add_success_label",
+          "action": "github.add_labels",
+          "params": {
+            "pr_number": "{{pr.number}}",
+            "labels": ["quality-gate-passed"]
+          }
+        }
+      ]
+    }
+  ],
+  "notifications": {
+    "onSuccess": {
+      "channels": ["github_comment"],
+      "message": "Quality gate validation completed successfully"
+    },
+    "onFailure": {
+      "channels": ["github_comment", "slack"],
+      "message": "Quality gate validation failed - manual review required"
+    }
+  },
+  "metadata": {
+    "author": "Scarmonit",
+    "created": "2025-12-03",
+    "tags": ["quality", "sonarqube", "automation", "ci-cd"],
+    "category": "code-quality"
+  }
+}
