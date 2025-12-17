@@ -38,10 +38,10 @@ jobs:
             exit 1
           fi
 
-          if echo "$response" | grep -q '"julesApi":"configured'; then
-            echo "✅ API key is configured"
+          if echo "$response" | grep -q '"julesApi":"configured"'; then
+            echo "✅ Jules API is configured"
           else
-            echo "❌ API key is not configured"
+            echo "❌ Jules API is not configured"
             exit 1
           fi
 
@@ -63,7 +63,7 @@ jobs:
           JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
         run: |
           echo "Verifying Jules API key configuration..."
-          # Runtime API key validated by /health endpoint (apiKeyConfigured)
+          # Runtime API key validated by /health endpoint
           # GitHub secret check is non-blocking - just informational
           if [ -z "$JULES_API_KEY" ]; then
             echo "⚠️ JULES_API_KEY secret not configured in GitHub Actions"
