@@ -8,6 +8,25 @@ const router = express.Router();
 const { createSession, listSessions } = require('../../scripts/jules-auto');
 
 /**
+ * Middleware: Verify Jules API key
+ * IMPORTANT: Must be defined BEFORE routes to protect all endpoints
+ */
+router.use((req, res, next) => {
+  const apiKey = req.headers['x-jules-api-key'] || process.env.JULES_API_KEY;
+
+  if (!apiKey) {
+    return res.status(401).json({
+      error: 'Authentication required',
+      message: 'X-Jules-API-Key header or JULES_API_KEY environment variable required'
+    });
+  }
+
+  // Store API key on request object (not mutating global process.env)
+  req.julesApiKey = apiKey;
+  next();
+});
+
+/**
  * POST /api/jules/create
  * Create a new Jules coding session
  */
@@ -115,24 +134,6 @@ router.get('/status/:sessionId', async (req, res) => {
       message: error.message
     });
   }
-});
-
-/**
- * Middleware: Verify Jules API key
- */
-router.use((req, res, next) => {
-  const apiKey = req.headers['x-jules-api-key'] || process.env.JULES_API_KEY;
-  
-  if (!apiKey) {
-    return res.status(401).json({
-      error: 'Authentication required',
-      message: 'X-Jules-API-Key header or JULES_API_KEY environment variable required'
-    });
-  }
-
-  // Set API key for downstream use
-  process.env.JULES_API_KEY = apiKey;
-  next();
 });
 
 module.exports = router;

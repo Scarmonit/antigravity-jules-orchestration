@@ -4,26 +4,90 @@ import https from 'https';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
+import { ollamaCompletion, listOllamaModels, ollamaCodeGeneration, ollamaChat } from './lib/ollama.js';
+import { ragIndexDirectory, ragQuery, ragStatus, ragClear } from './lib/rag.js';
 
 dotenv.config();
 
 const PORT = process.env.PORT || 3323;
 const JULES_API_KEY = process.env.JULES_API_KEY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
-const VERSION = '2.0.0';
+const VERSION = '2.3.0';
 
 const app = express();
 app.use(express.json());
+
+// Circuit Breaker for Jules API
+const circuitBreaker = {
+  failures: 0,
+  lastFailure: null,
+  threshold: 5,        // Trip after 5 consecutive failures
+  resetTimeout: 60000, // Reset after 1 minute
+  isOpen() {
+    if (this.failures >= this.threshold) {
+      const timeSinceFailure = Date.now() - this.lastFailure;
+      if (timeSinceFailure < this.resetTimeout) {
+        return true; // Circuit is open, reject requests
+      }
+      this.failures = 0; // Reset after timeout
+    }
+    return false;
+  },
+  recordSuccess() {
+    this.failures = 0;
+  },
+  recordFailure() {
+    this.failures++;
+    this.lastFailure = Date.now();
+  }
+};
+
+// Rate limiting - Simple in-memory implementation
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX = 100; // 100 requests per minute
+
+app.use('/mcp/', (req, res, next) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW;
+
+  if (!rateLimitStore.has(ip)) {
+    rateLimitStore.set(ip, []);
+  }
+
+  const requests = rateLimitStore.get(ip).filter(time => time > windowStart);
+  requests.push(now);
+  rateLimitStore.set(ip, requests);
+
+  if (requests.length > RATE_LIMIT_MAX) {
+    return res.status(429).json({
+      error: 'Too many requests',
+      retryAfter: Math.ceil(RATE_LIMIT_WINDOW / 1000),
+      hint: 'Please wait before making more requests'
+    });
+  }
+
+  res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX);
+  res.setHeader('X-RateLimit-Remaining', RATE_LIMIT_MAX - requests.length);
+  next();
+});
 
 // Initialize modules
 let batchProcessor = null;
 let sessionMonitor = null;
 
-// CORS middleware for browser clients
+// CORS - Secure whitelist configuration
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'http://localhost:3000,http://localhost:5173,https://antigravity-jules-orchestration.onrender.com').split(',');
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key');
+  const origin = req.headers.origin;
+  if (ALLOWED_ORIGINS.includes(origin) || !origin) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, X-API-Key, X-Request-ID, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
@@ -35,7 +99,7 @@ app.get('/', (req, res) => {
     service: 'Jules MCP Server',
     version: VERSION,
     timestamp: new Date().toISOString(),
-    capabilities: ['sessions', 'tasks', 'orchestration', 'mcp-protocol', 'sources', 'batch', 'monitor', 'github'],
+    capabilities: ['sessions', 'tasks', 'orchestration', 'mcp-protocol', 'sources', 'batch', 'monitor', 'github', 'qwen'],
     authMethod: 'api-key',
     endpoints: {
       health: '/health',
@@ -48,29 +112,42 @@ app.get('/', (req, res) => {
 });
 
 // Health check endpoint (required by Render)
-app.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    apiKeyConfigured: !!JULES_API_KEY,
-    githubConfigured: !!GITHUB_TOKEN,
-    version: VERSION,
-    timestamp: new Date().toISOString()
-  });
-});
-
-// Extended health check
-app.get('/api/v1/health', (req, res) => {
-  res.json({
+app.get(['/health', '/api/v1/health'], async (req, res) => {
+  const health = {
     status: 'ok',
     version: VERSION,
-    services: {
-      julesApi: JULES_API_KEY ? 'configured' : 'not configured',
-      github: GITHUB_TOKEN ? 'configured' : 'public access only',
-      database: 'not required'
-    },
+    timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    timestamp: new Date().toISOString()
-  });
+    memory: {
+      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024) + 'MB',
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024) + 'MB'
+    },
+    services: {
+      julesApi: 'unknown',
+      database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
+      github: GITHUB_TOKEN ? 'configured' : 'not_configured'
+    },
+    circuitBreaker: {
+      failures: circuitBreaker.failures,
+      isOpen: circuitBreaker.isOpen()
+    }
+  };
+
+  // Quick test Jules API if configured
+  if (JULES_API_KEY) {
+    try {
+      health.services.julesApi = circuitBreaker.isOpen() ? 'circuit_open' : 'configured';
+    } catch (e) {
+      health.services.julesApi = 'error';
+    }
+  } else {
+    health.services.julesApi = 'not_configured';
+  }
+
+  const allHealthy = health.services.julesApi !== 'error' && !circuitBreaker.isOpen();
+  health.status = allHealthy ? 'ok' : 'degraded';
+
+  res.status(allHealthy ? 200 : 503).json(health);
 });
 
 // ============ NEW API ENDPOINTS ============
@@ -230,6 +307,66 @@ app.get('/mcp/tools', (req, res) => {
         parameters: {
           sessionId: { type: 'string', required: true, description: 'Session ID' }
         }
+      },
+      // NEW: Ollama Local LLM Integration
+      {
+        name: 'ollama_list_models',
+        description: 'List available local Ollama models',
+        parameters: {}
+      },
+      {
+        name: 'ollama_completion',
+        description: 'Generate text using local Ollama models',
+        parameters: {
+          prompt: { type: 'string', required: true, description: 'Text prompt' },
+          model: { type: 'string', required: false, description: 'Model name (default: qwen2.5-coder:7b)' },
+          systemPrompt: { type: 'string', required: false, description: 'System prompt' }
+        }
+      },
+      {
+        name: 'ollama_code_generation',
+        description: 'Generate code using local Qwen2.5-Coder model',
+        parameters: {
+          task: { type: 'string', required: true, description: 'Code generation task' },
+          language: { type: 'string', required: false, description: 'Programming language (default: javascript)' },
+          context: { type: 'string', required: false, description: 'Additional context' }
+        }
+      },
+      {
+        name: 'ollama_chat',
+        description: 'Multi-turn chat with local Ollama model',
+        parameters: {
+          messages: { type: 'array', required: true, description: 'Array of {role, content} messages' },
+          model: { type: 'string', required: false, description: 'Model name (default: qwen2.5-coder:7b)' }
+        }
+      },
+      // NEW: RAG (Retrieval-Augmented Generation)
+      {
+        name: 'ollama_rag_index',
+        description: 'Index a directory for RAG-powered codebase queries',
+        parameters: {
+          directory: { type: 'string', required: true, description: 'Directory path to index' },
+          maxFiles: { type: 'number', required: false, description: 'Max files to index (default: 100)' }
+        }
+      },
+      {
+        name: 'ollama_rag_query',
+        description: 'Query the indexed codebase with context-aware LLM responses',
+        parameters: {
+          query: { type: 'string', required: true, description: 'Question about the codebase' },
+          model: { type: 'string', required: false, description: 'Model to use (default: qwen2.5-coder:7b)' },
+          topK: { type: 'number', required: false, description: 'Number of context chunks (default: 5)' }
+        }
+      },
+      {
+        name: 'ollama_rag_status',
+        description: 'Get RAG index status and indexed files',
+        parameters: {}
+      },
+      {
+        name: 'ollama_rag_clear',
+        description: 'Clear the RAG index',
+        parameters: {}
       }
     ]
   });
@@ -304,6 +441,34 @@ app.post('/mcp/execute', async (req, res) => {
         result = await sessionMonitor.getSessionTimeline(parameters.sessionId);
         break;
 
+      // NEW: Ollama Local LLM Integration
+      case 'ollama_list_models':
+        result = await listOllamaModels();
+        break;
+      case 'ollama_completion':
+        result = await ollamaCompletion(parameters);
+        break;
+      case 'ollama_code_generation':
+        result = await ollamaCodeGeneration(parameters);
+        break;
+      case 'ollama_chat':
+        result = await ollamaChat(parameters);
+        break;
+
+      // NEW: RAG Tools
+      case 'ollama_rag_index':
+        result = await ragIndexDirectory(parameters);
+        break;
+      case 'ollama_rag_query':
+        result = await ragQuery(parameters);
+        break;
+      case 'ollama_rag_status':
+        result = ragStatus();
+        break;
+      case 'ollama_rag_clear':
+        result = ragClear();
+        break;
+
       default:
         return res.status(400).json({ error: 'Unknown tool: ' + tool });
     }
@@ -319,6 +484,11 @@ app.post('/mcp/execute', async (req, res) => {
 
 // Jules API helper - make authenticated request
 function julesRequest(method, path, body = null) {
+  // Circuit breaker check
+  if (circuitBreaker.isOpen()) {
+    return Promise.reject(new Error('Circuit breaker is open - Jules API temporarily unavailable'));
+  }
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'jules.googleapis.com',
@@ -335,22 +505,40 @@ function julesRequest(method, path, body = null) {
 
     const req = https.request(options, (response) => {
       let data = '';
-      response.on('data', chunk => data += chunk);
+      const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10MB limit
+      response.on('data', chunk => {
+        data += chunk;
+        if (data.length > MAX_RESPONSE_SIZE) {
+          response.destroy();
+          circuitBreaker.recordFailure();
+          reject(new Error('Response too large (exceeded 10MB limit)'));
+        }
+      });
       response.on('end', () => {
         if (response.statusCode >= 200 && response.statusCode < 300) {
+          circuitBreaker.recordSuccess();
           try {
             resolve(JSON.parse(data));
           } catch {
             resolve(data);
           }
         } else {
+          circuitBreaker.recordFailure();
           console.error('[Jules API] Error', response.statusCode + ':', data);
           reject(new Error('Jules API error: ' + response.statusCode + ' - ' + data));
         }
       });
     });
 
+    // 30 second timeout to prevent hanging requests
+    req.setTimeout(30000, () => {
+      req.destroy();
+      circuitBreaker.recordFailure();
+      reject(new Error('Request timeout after 30 seconds'));
+    });
+
     req.on('error', (err) => {
+      circuitBreaker.recordFailure();
       console.error('[Jules API] Request error:', err.message);
       reject(err);
     });
@@ -490,6 +678,33 @@ async function createSessionsFromLabel(params) {
 }
 
 // ============ SERVER STARTUP ============
+
+// Global error handler - catches all unhandled errors
+app.use((err, req, res, next) => {
+  const requestId = req.requestId || 'unknown';
+  console.error(`[ERROR][${requestId}] ${err.message}`, err.stack);
+
+  const statusCode = err.statusCode || err.status || 500;
+  res.status(statusCode).json({
+    success: false,
+    error: {
+      message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
+      requestId,
+      statusCode
+    }
+  });
+});
+
+// 404 handler for unknown routes
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    error: {
+      message: `Route ${req.method} ${req.path} not found`,
+      statusCode: 404
+    }
+  });
+});
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log('Jules MCP Server v' + VERSION + ' running on port ' + PORT);

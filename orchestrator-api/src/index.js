@@ -9,6 +9,13 @@ import * as metrics from './metrics.js';
 
 const app = express();
 
+// Request ID middleware for tracing
+app.use((req, res, next) => {
+  req.requestId = req.headers['x-request-id'] || `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  res.setHeader('X-Request-ID', req.requestId);
+  next();
+});
+
 // 1. Middleware: JSON parsing MUST be first
 app.use(express.json());
 
@@ -130,21 +137,33 @@ app.get('/mcp/tools', (req, res) => {
   });
 });
 
-// MCP Tool Execution
+// MCP Tool Execution with input validation
 app.post('/mcp/execute', async (req, res) => {
-  console.log('MCP Execution Request Body:', JSON.stringify(req.body));
+  const startTime = Date.now();
+  console.log(`[${req.requestId}] MCP Execution Request`);
+
   const { name, arguments: args, tool, parameters } = req.body;
-  
+
   // Support both MCP formats
   const toolName = name || tool;
   const toolArgs = args || parameters || {};
-  
+
+  // Input validation
   if (!toolName) {
-    console.error('MCP Error: Missing tool name in', req.body);
-    return res.status(400).json({ 
-        error: 'Tool name required (use "name" or "tool" field)', 
-        received: req.body,
+    console.error(`[${req.requestId}] MCP Error: Missing tool name`);
+    return res.status(400).json({
+        error: 'Tool name required (use "name" or "tool" field)',
+        requestId: req.requestId,
         hint: 'Ensure Content-Type is application/json'
+    });
+  }
+
+  // Validate tool name format (alphanumeric and underscores only)
+  if (!/^[a-z_][a-z0-9_]*$/i.test(toolName)) {
+    return res.status(400).json({
+      error: 'Invalid tool name format',
+      requestId: req.requestId,
+      hint: 'Tool names must be alphanumeric with underscores'
     });
   }
   

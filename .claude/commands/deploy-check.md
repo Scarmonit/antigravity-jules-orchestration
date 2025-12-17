@@ -34,6 +34,33 @@ Verify health check endpoints are properly configured:
 - Verify `orchestrator-api` health endpoint
 - Check Render health check path in `render.yaml`
 
+### Agent 5: Live Service Health
+Run comprehensive health checks across all services:
+
+**Local MCP Server:**
+```bash
+curl -s http://localhost:3323/health | jq .
+```
+Verify: Status "ok", API key configured, version current
+
+**Local Orchestrator API:**
+```bash
+curl -s http://localhost:3000/health | jq .
+curl -s http://localhost:3000/api/v1/health | jq .
+```
+Verify: Database connection, Jules API config, GitHub API config
+
+**Live Render Deployment:**
+```bash
+curl -s https://antigravity-jules-orchestration.onrender.com/health
+```
+Verify: Service responding, no cold start issues, API key configured
+
+**GitHub Actions Status:**
+- Review recent workflow runs
+- Check health-check workflow results
+- Verify deployment status
+
 ## Output
 
 Provide a deployment readiness report with:
@@ -41,3 +68,13 @@ Provide a deployment readiness report with:
 - List of blocking issues
 - Warnings and recommendations
 - Files modified since last deployment
+
+Health status dashboard:
+```
+Service                    Status    Details
+-----------------------    ------    --------
+Local MCP Server           [OK/FAIL] ...
+Local Orchestrator API     [OK/FAIL] ...
+Render Production          [OK/FAIL] ...
+GitHub Actions             [OK/FAIL] ...
+```

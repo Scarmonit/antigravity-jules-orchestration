@@ -28,13 +28,37 @@ Analyze package dependencies:
 - Identify security vulnerabilities in dependencies
 - Review for unused dependencies
 
-### Agent 4: API Endpoint Review
-Review all API endpoints:
-- Verify `/health`, `/mcp/tools`, `/mcp/execute` endpoints
-- Check request validation
-- Review response formats
-- Check rate limiting
-- Verify proper HTTP status codes
+### Agent 4: API Endpoint Testing
+Test and review all API endpoints with live requests:
+
+**Main MCP Server (localhost:3323):**
+```bash
+curl http://localhost:3323/
+curl http://localhost:3323/health
+curl http://localhost:3323/mcp/tools
+curl -X POST http://localhost:3323/mcp/execute \
+  -H "Content-Type: application/json" \
+  -d '{"tool": "jules_list_sources"}'
+```
+
+**Orchestrator API (localhost:3000):**
+```bash
+curl http://localhost:3000/health
+curl http://localhost:3000/mcp/tools
+curl http://localhost:3000/api/v1/metrics
+```
+
+**Live Render Deployment:**
+```bash
+curl https://antigravity-jules-orchestration.onrender.com/health
+curl https://antigravity-jules-orchestration.onrender.com/mcp/tools
+```
+
+Check:
+- Request validation and error handling
+- Response formats and HTTP status codes
+- Response times and performance
+- Rate limiting implementation
 
 ### Agent 5: Documentation Completeness
 Check documentation coverage:
