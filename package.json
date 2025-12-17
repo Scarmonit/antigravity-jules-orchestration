@@ -7,7 +7,10 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:load": "node tests/load/rate-limiter-load-test.js",
     "mcp:real-execution": "node scripts/mcp-real-execution.js",
     "mcp:diagnostics": "node scripts/mcp-real-execution.js",
     "mcp:simulated": "MCP_MODE=SIMULATED node scripts/mcp-real-execution.js",
@@ -28,6 +31,11 @@
     "axios": "^1.13.2",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "lru-cache": "^10.0.0",
+    "redis": "^4.6.0",
     "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "vitest": "^1.0.0"
   }
 }
