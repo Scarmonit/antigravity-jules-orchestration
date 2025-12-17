@@ -1,7 +1,26 @@
 // dashboard/src/App.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './App.css';
 import { RateLimiterMetrics } from './RateLimiterMetrics';
+
+// Status color and icon maps - defined outside component to avoid recreation
+const STATUS_COLORS = {
+  pending: '#ffa500',
+  running: '#2196f3',
+  awaiting_approval: '#ff9800',
+  executing: '#4caf50',
+  completed: '#4caf50',
+  failed: '#f44336'
+};
+
+const STATUS_ICONS = {
+  pending: '⏳',
+  running: '🔄',
+  awaiting_approval: '⏸️',
+  executing: '⚡',
+  completed: '✅',
+  failed: '❌'
+};
 
 function App() {
   const [workflows, setWorkflows] = useState([]);
@@ -12,66 +31,52 @@ function App() {
     // Fetch initial workflows
     fetch('/api/v1/workflows')
       .then(res => res.json())
-      .then(data => setWorkflows(data));
+      .then(data => setWorkflows(data))
+      .catch(() => setWorkflows([])); // Graceful error handling
 
     // Connect WebSocket for real-time updates
     const websocket = new WebSocket('wss://agent.scarmonit.com/ws');
-    
+
     websocket.onmessage = (event) => {
       const update = JSON.parse(event.data);
-      
+
       if (update.type === 'workflow_update') {
-        setWorkflows(prev => 
-          prev.map(w => w.id === update.workflow_id 
-            ? { ...w, ...update.data } 
+        setWorkflows(prev =>
+          prev.map(w => w.id === update.workflow_id
+            ? { ...w, ...update.data }
             : w
           )
         );
       }
-      
+
       if (update.type === 'stats_update') {
         setStats(update.data);
       }
     };
-    
+
     setWs(websocket);
-    
+
     return () => websocket.close();
   }, []);
 
-  const executeWorkflow = async (templateName, context) => {
-    const response = await fetch('/api/v1/workflows/execute', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ template_name: templateName, context })
-    });
-    const data = await response.json();
-    alert(`Workflow ${data.workflow_id} started`);
-  };
+  // Memoized callback to prevent recreation on every render
+  const executeWorkflow = useCallback(async (templateName, context) => {
+    try {
+      const response = await fetch('/api/v1/workflows/execute', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ template_name: templateName, context })
+      });
+      const data = await response.json();
+      console.log(`Workflow ${data.workflow_id} started`); // Replace alert with console
+    } catch (err) {
+      console.error('Failed to execute workflow:', err);
+    }
+  }, []);
 
-  const getStatusColor = (status) => {
-    const colors = {
-      pending: '#ffa500',
-      running: '#2196f3',
-      awaiting_approval: '#ff9800',
-      executing: '#4caf50',
-      completed: '#4caf50',
-      failed: '#f44336'
-    };
-    return colors[status] || '#999';
-  };
-
-  const getStatusIcon = (status) => {
-    const icons = {
-      pending: '⏳',
-      running: '🔄',
-      awaiting_approval: '⏸️',
-      executing: '⚡',
-      completed: '✅',
-      failed: '❌'
-    };
-    return icons[status] || '•';
-  };
+  // Memoized helper functions - O(1) lookup
+  const getStatusColor = useCallback((status) => STATUS_COLORS[status] || '#999', []);
+  const getStatusIcon = useCallback((status) => STATUS_ICONS[status] || '•', []);
 
   return (
     <div className="App">

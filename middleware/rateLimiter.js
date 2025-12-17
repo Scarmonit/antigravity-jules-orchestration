@@ -20,6 +20,45 @@ import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+/**
+ * Simple LRU Cache implementation for failover
+ * O(1) get/set with proper eviction of least recently used entries
+ */
+class LRUCache {
+  constructor(maxSize) {
+    this.maxSize = maxSize;
+    this.cache = new Map();
+  }
+
+  get(key) {
+    if (!this.cache.has(key)) return undefined;
+    // Move to end (most recently used)
+    const value = this.cache.get(key);
+    this.cache.delete(key);
+    this.cache.set(key, value);
+    return value;
+  }
+
+  set(key, value) {
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    } else if (this.cache.size >= this.maxSize) {
+      // Evict oldest (first entry)
+      const oldestKey = this.cache.keys().next().value;
+      this.cache.delete(oldestKey);
+    }
+    this.cache.set(key, value);
+  }
+
+  has(key) {
+    return this.cache.has(key);
+  }
+
+  get size() {
+    return this.cache.size;
+  }
+}
 /**
  * Validate Redis URL uses TLS in production
  */
@@ -74,7 +113,8 @@ export class RedisRateLimiter {
     this.scriptHash = null;
     this.luaScript = null;
     this.isConnected = false;
-    this.failoverCache = new Map();
+    // LRU cache for failover - O(1) eviction of least recently used entries
+    this.failoverCache = new LRUCache(config.failover?.localCacheSize || 10000);
 
     // Metrics
     this.metrics = {
@@ -269,13 +309,8 @@ export class RedisRateLimiter {
     const now = Date.now();
     const cacheKey = `${keyHash}:${Math.floor(now / config.windowMs)}`;
 
+    // LRU cache handles eviction automatically
     if (!this.failoverCache.has(cacheKey)) {
-      // Clean old entries (evict multiple if needed)
-      while (this.failoverCache.size >= this.config.failover.localCacheSize) {
-        const oldestKey = this.failoverCache.keys().next().value;
-        this.failoverCache.delete(oldestKey);
-      }
-
       this.failoverCache.set(cacheKey, {
         count: 0,
         windowStart: now
