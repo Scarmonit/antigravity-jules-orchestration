@@ -40,7 +40,8 @@ class LRUCache {
     return item.value;
   }
   set(key, value, ttl = this.defaultTTL) {
-    if (this.cache.size >= this.maxSize) {
+    // Fix: only evict if key doesn't already exist
+    if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
       const firstKey = this.cache.keys().next().value;
       this.cache.delete(firstKey);
     }
@@ -53,22 +54,31 @@ class LRUCache {
 
 // Session Queue with Priority
 class SessionQueue {
-  constructor() { this.queue = []; this.processing = false; }
+  constructor(maxRetained = 100) { this.queue = []; this.processing = false; this.maxRetained = maxRetained; }
   add(config, priority = 5) {
     const id = `queue_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
     const item = { id, config, priority, addedAt: new Date().toISOString(), status: 'pending' };
     this.queue.push(item);
     this.queue.sort((a, b) => a.priority - b.priority);
+    this._cleanup(); // Clean old completed/failed items
     return item;
   }
   remove(id) { const idx = this.queue.findIndex(i => i.id === id); return idx >= 0 ? this.queue.splice(idx, 1)[0] : null; }
   getNext() { return this.queue.find(i => i.status === 'pending'); }
   markProcessing(id) { const item = this.queue.find(i => i.id === id); if (item) item.status = 'processing'; }
-  markComplete(id, sessionId) { const item = this.queue.find(i => i.id === id); if (item) { item.status = 'completed'; item.sessionId = sessionId; item.completedAt = new Date().toISOString(); } }
-  markFailed(id, error) { const item = this.queue.find(i => i.id === id); if (item) { item.status = 'failed'; item.error = error; } }
+  markComplete(id, sessionId) { const item = this.queue.find(i => i.id === id); if (item) { item.status = 'completed'; item.sessionId = sessionId; item.completedAt = new Date().toISOString(); } this._cleanup(); }
+  markFailed(id, error) { const item = this.queue.find(i => i.id === id); if (item) { item.status = 'failed'; item.error = error; item.failedAt = new Date().toISOString(); } this._cleanup(); }
   list() { return this.queue.map(i => ({ id: i.id, title: i.config.title || 'Untitled', priority: i.priority, status: i.status, addedAt: i.addedAt, sessionId: i.sessionId })); }
   stats() { return { total: this.queue.length, pending: this.queue.filter(i => i.status === 'pending').length, processing: this.queue.filter(i => i.status === 'processing').length, completed: this.queue.filter(i => i.status === 'completed').length, failed: this.queue.filter(i => i.status === 'failed').length }; }
-  clear() { const cleared = this.queue.length; this.queue = []; return cleared; }
+  clear() { const cleared = this.queue.filter(i => i.status === 'pending').length; this.queue = this.queue.filter(i => i.status !== 'pending'); return cleared; }
+  // Fix memory leak: remove old completed/failed items, keep only maxRetained
+  _cleanup() {
+    const terminal = this.queue.filter(i => i.status === 'completed' || i.status === 'failed');
+    if (terminal.length > this.maxRetained) {
+      const toRemove = terminal.slice(0, terminal.length - this.maxRetained);
+      toRemove.forEach(item => { const idx = this.queue.indexOf(item); if (idx >= 0) this.queue.splice(idx, 1); });
+    }
+  }
 }
 
 const apiCache = new LRUCache(100, 10000);
@@ -840,9 +850,12 @@ async function cancelAllActiveSessions(confirm) {
 }
 
 // Session Templates
+const MAX_TEMPLATES = 100;
 function createTemplate(name, description, config) {
   if (!name || !config) throw new Error('Template name and config required');
   if (sessionTemplates.has(name)) throw new Error(`Template "${name}" already exists`);
+  if (sessionTemplates.size >= MAX_TEMPLATES) throw new Error(`Template limit reached (max ${MAX_TEMPLATES}). Delete unused templates first.`);
+  if (typeof name !== 'string' || name.length > 100) throw new Error('Template name must be a string under 100 characters');
   const template = { name, description: description || '', config, createdAt: new Date().toISOString(), usageCount: 0 };
   sessionTemplates.set(name, template);
   return { success: true, template };
@@ -886,25 +899,66 @@ async function searchSessions(query = null, state = null, limit = 20) {
   return { sessions: sessions.slice(0, limit), total: sessions.length, filters: { query, state, limit } };
 }
 
-// PR Integration
+// PR Integration - Input Validation
+const VALID_MERGE_METHODS = ['merge', 'squash', 'rebase'];
+const GITHUB_OWNER_PATTERN = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,37}[a-zA-Z0-9])?$/;
+const GITHUB_REPO_PATTERN = /^[a-zA-Z0-9._-]{1,100}$/;
+const MAX_COMMENT_LENGTH = 10000;
+
+function validateGitHubParams(owner, repo, prNumber) {
+  if (!owner || typeof owner !== 'string' || !GITHUB_OWNER_PATTERN.test(owner)) {
+    throw new Error('Invalid GitHub owner: must be alphanumeric with hyphens, 1-39 chars');
+  }
+  if (!repo || typeof repo !== 'string' || !GITHUB_REPO_PATTERN.test(repo)) {
+    throw new Error('Invalid GitHub repository: must be alphanumeric with dots/hyphens/underscores, 1-100 chars');
+  }
+  if (owner.includes('..') || repo.includes('..') || owner.includes('/') || repo.includes('/')) {
+    throw new Error('Invalid parameters: path traversal not allowed');
+  }
+  if (!Number.isInteger(prNumber) || prNumber < 1 || prNumber > 999999) {
+    throw new Error('Invalid PR number: must be integer between 1-999999');
+  }
+}
+
 async function getPrStatus(sessionId) {
   const session = await julesRequest('GET', `/sessions/${sessionId}`);
   const activities = await julesRequest('GET', `/sessions/${sessionId}/activities`);
   const prActivity = activities.activities?.find(a => a.prCreated);
   if (!prActivity) return { sessionId, prCreated: false, message: 'No PR created' };
   const prUrl = prActivity.prCreated.url;
-  const prMatch = prUrl?.match(/github\.com\/([^/]+)\/([^/]+)\/pull\/(\d+)/);
-  return { sessionId, prCreated: true, prUrl, owner: prMatch?.[1], repo: prMatch?.[2], prNumber: prMatch?.[3] ? parseInt(prMatch[3]) : null, sessionState: session.state };
+  // Validate URL format before parsing
+  if (!prUrl || typeof prUrl !== 'string' || prUrl.length > 500) {
+    return { sessionId, prCreated: true, prUrl, error: 'Invalid PR URL format' };
+  }
+  try {
+    const url = new URL(prUrl);
+    if (url.hostname !== 'github.com') return { sessionId, prCreated: true, prUrl, error: 'Not a GitHub URL' };
+    const parts = url.pathname.split('/').filter(Boolean);
+    if (parts.length !== 4 || parts[2] !== 'pull') return { sessionId, prCreated: true, prUrl, error: 'Invalid PR URL structure' };
+    const [owner, repo, , prNum] = parts;
+    const prNumber = parseInt(prNum, 10);
+    return { sessionId, prCreated: true, prUrl, owner, repo, prNumber: Number.isNaN(prNumber) ? null : prNumber, sessionState: session.state };
+  } catch { return { sessionId, prCreated: true, prUrl, error: 'Failed to parse PR URL' }; }
 }
 
 async function mergePr(owner, repo, prNumber, mergeMethod = 'squash') {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN not configured');
+  validateGitHubParams(owner, repo, prNumber);
+  if (!VALID_MERGE_METHODS.includes(mergeMethod)) {
+    throw new Error(`Invalid merge method: must be one of ${VALID_MERGE_METHODS.join(', ')}`);
+  }
   return new Promise((resolve, reject) => {
     const req = https.request({ hostname: 'api.github.com', path: `/repos/${owner}/${repo}/pulls/${prNumber}/merge`, method: 'PUT',
       headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Jules-MCP-Server', 'Content-Type': 'application/json' }
     }, (res) => {
       let data = ''; res.on('data', chunk => data += chunk);
-      res.on('end', () => { if (res.statusCode >= 200 && res.statusCode < 300) resolve({ success: true, merged: true, prNumber }); else reject(new Error(`GitHub API error: ${res.statusCode}`)); });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve({ success: true, merged: true, prNumber });
+        else {
+          const errMsg = res.statusCode === 403 ? 'Permission denied' : res.statusCode === 404 ? 'PR not found' : res.statusCode === 422 ? 'PR cannot be merged' : 'Merge failed';
+          reject(new Error(errMsg));
+        }
+      });
     });
     req.on('error', reject);
     req.write(JSON.stringify({ merge_method: mergeMethod }));
@@ -914,12 +968,25 @@ async function mergePr(owner, repo, prNumber, mergeMethod = 'squash') {
 
 async function addPrComment(owner, repo, prNumber, comment) {
   if (!GITHUB_TOKEN) throw new Error('GITHUB_TOKEN not configured');
+  validateGitHubParams(owner, repo, prNumber);
+  if (typeof comment !== 'string' || comment.trim().length === 0) {
+    throw new Error('Comment cannot be empty');
+  }
+  if (comment.length > MAX_COMMENT_LENGTH) {
+    throw new Error(`Comment exceeds maximum length of ${MAX_COMMENT_LENGTH} characters`);
+  }
   return new Promise((resolve, reject) => {
     const req = https.request({ hostname: 'api.github.com', path: `/repos/${owner}/${repo}/issues/${prNumber}/comments`, method: 'POST',
       headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Jules-MCP-Server', 'Content-Type': 'application/json' }
     }, (res) => {
       let data = ''; res.on('data', chunk => data += chunk);
-      res.on('end', () => { if (res.statusCode >= 200 && res.statusCode < 300) resolve({ success: true, commentId: JSON.parse(data).id, prNumber }); else reject(new Error(`GitHub API error: ${res.statusCode}`)); });
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve({ success: true, commentId: JSON.parse(data).id, prNumber });
+        else {
+          const errMsg = res.statusCode === 403 ? 'Permission denied' : res.statusCode === 404 ? 'PR not found' : 'Failed to add comment';
+          reject(new Error(errMsg));
+        }
+      });
     });
     req.on('error', reject);
     req.write(JSON.stringify({ body: comment }));
