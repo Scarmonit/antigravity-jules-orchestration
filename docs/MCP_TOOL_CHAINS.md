@@ -11,7 +11,7 @@ This document catalogs all 35+ Model Context Protocol (MCP) tools across 5 conne
 ## MCP Server Inventory
 
 ### 1. Jules Orchestration Server
-**Base URL:** `https://antigravity-jules-orchestration.onrender.com`  
+**Base URL:** `https://scarmonit.com`  
 **Protocol:** HTTPS  
 **Tools:** 7
 
@@ -729,7 +729,7 @@ app.get('/api/chains/:chainId/stream', async (req, res) => {
 **Symptom:** 401/403 errors when executing Jules tools  
 **Diagnosis:**
 ```javascript
-const health = await fetch('https://antigravity-jules-orchestration.onrender.com/health');
+const health = await fetch('https://scarmonit.com/health');
 const data = await health.json();
 console.log('API Key Configured:', data.apiKeyConfigured);
 ```

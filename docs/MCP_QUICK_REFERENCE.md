@@ -171,7 +171,7 @@ $env:JULES_API_KEY = "your-api-key-here"
 | llm-framework-devops | stdio | N/A |
 | llm-framework-filesystem | stdio | N/A |
 | llm-framework-self-improve | stdio + ChromaDB | localhost:8000 |
-| jules-orchestration | HTTPS | antigravity-jules-orchestration.onrender.com |
+| jules-orchestration | HTTPS | scarmonit.com |
 
 ---
 
@@ -182,7 +182,7 @@ $env:JULES_API_KEY = "your-api-key-here"
 Invoke-RestMethod -Uri http://localhost:8000/api/v1/heartbeat
 
 # Jules API health
-Invoke-RestMethod -Uri https://antigravity-jules-orchestration.onrender.com/health
+Invoke-RestMethod -Uri https://scarmonit.com/health
 
 # Docker containers
 docker ps

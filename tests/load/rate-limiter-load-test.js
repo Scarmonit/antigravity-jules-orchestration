@@ -375,7 +375,7 @@ ${colorize('Arguments:', 'yellow')}
 
 ${colorize('Examples:', 'yellow')}
   node tests/load/rate-limiter-load-test.js http://localhost:3323
-  node tests/load/rate-limiter-load-test.js https://antigravity-jules-orchestration.onrender.com
+  node tests/load/rate-limiter-load-test.js https://scarmonit.com
 
 ${colorize('Tests:', 'yellow')}
   1. Under Limit:  50 requests in 10 seconds  - expects all 200s

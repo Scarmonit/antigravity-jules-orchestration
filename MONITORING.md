@@ -4,7 +4,7 @@ The Jules Orchestrator exposes Prometheus-compatible metrics to track system hea
 
 ## Metrics Endpoint
 
-**URL:** `https://antigravity-jules-orchestration.onrender.com/api/v1/metrics`
+**URL:** `https://scarmonit.com/api/v1/metrics`
 
 This endpoint returns plain text metrics including:
 - `workflow_total`: Counter of started/completed/failed workflows

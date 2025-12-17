@@ -2,7 +2,7 @@
 # Tests actual MCP protocol calls via HTTP (not simulated)
 
 param(
-    [string]$BaseUrl = "https://antigravity-jules-orchestration.onrender.com",
+    [string]$BaseUrl = "https://scarmonit.com",
     [int]$TimeoutSec = 45
 )
 

@@ -4,7 +4,7 @@
 This document serves as a verification checklist for the Antigravity-Jules Orchestration integration. It confirms that the MCP server is correctly deployed, authenticated, and responding to standard protocol requests.
 
 ## 1. Service Status
-- **URL**: `https://antigravity-jules-orchestration.onrender.com`
+- **URL**: `https://scarmonit.com`
 - **Version**: 1.2.0 (Target)
 - **Health Check**: `GET /health` -> `{"status":"ok", ...}`
 
@@ -34,7 +34,7 @@ Run `scripts/test-live-mcp.sh` to verify current connectivity.
 
 ### Manual Curl Test
 ```bash
-curl -X POST https://antigravity-jules-orchestration.onrender.com/mcp/execute \
+curl -X POST https://scarmonit.com/mcp/execute \
   -H "Content-Type: application/json" \
   -d 
     "{

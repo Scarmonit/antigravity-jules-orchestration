@@ -2,7 +2,7 @@
 # scripts/wait-for-deploy.sh
 # Waits for version 1.3.1 to be live
 
-API_URL="https://antigravity-jules-orchestration.onrender.com"
+API_URL="https://scarmonit.com"
 TARGET_VERSION="1.3.1"
 
 echo "⏳ Waiting for deployment of version $TARGET_VERSION at $API_URL..."

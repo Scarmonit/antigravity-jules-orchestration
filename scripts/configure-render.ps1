@@ -91,7 +91,7 @@ Write-Host ""
 Write-Host "⏱️  After saving, wait for redeploy to complete" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "🎯 Verify with:" -ForegroundColor Cyan
-Write-Host "   curl https://antigravity-jules-orchestration.onrender.com/health" -ForegroundColor Gray
+Write-Host "   curl https://scarmonit.com/health" -ForegroundColor Gray
 Write-Host ""
 Write-Host "═══════════════════════════════════════════════════════" -ForegroundColor Magenta
 
@@ -107,7 +107,7 @@ Write-Host "🔍 Verifying deployment..." -ForegroundColor Cyan
 Start-Sleep -Seconds 5
 
 try {
-    $health = Invoke-RestMethod -Uri "https://antigravity-jules-orchestration.onrender.com/health" -TimeoutSec 10
+    $health = Invoke-RestMethod -Uri "https://scarmonit.com/health" -TimeoutSec 10
     
     Write-Host "✅ Service is responding!" -ForegroundColor Green
     Write-Host ""

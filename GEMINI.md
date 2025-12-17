@@ -70,7 +70,7 @@ npm run dev
 
 ### Deployment
 The project is configured for deployment on **Render**.
-- **Live URL:** `https://antigravity-jules-orchestration.onrender.com`
+- **Live URL:** `https://scarmonit.com`
 - **Deployment Scripts:** See `scripts/` directory for `deploy-render.ps1` or `deploy.sh`.
 
 ## Conventions

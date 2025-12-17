@@ -191,7 +191,7 @@ Once deployment completes, test the service:
 
 ```bash
 # Test health endpoint
-curl https://antigravity-jules-orchestration.onrender.com/health
+curl https://scarmonit.com/health
 
 # Expected response:
 # {
@@ -327,7 +327,7 @@ You'll know setup is complete when:
 
 ```bash
 # Test service health
-curl https://antigravity-jules-orchestration.onrender.com/health
+curl https://scarmonit.com/health
 
 # View Render logs
 # (Use Render Dashboard)

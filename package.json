@@ -1,14 +1,14 @@
 {
   "name": "antigravity-jules-orchestration",
-  "version": "1.5.0",
+  "version": "2.3.0",
   "description": "MCP server for Jules API integration with Antigravity",
   "main": "index.js",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "test": "vitest run",
-    "test:unit": "vitest run tests/unit",
+    "test": "node --test tests/unit/*.test.js",
+    "test:unit": "node --test tests/unit/*.test.js",
     "test:integration": "vitest run tests/integration",
     "test:load": "node tests/load/rate-limiter-load-test.js",
     "mcp:real-execution": "node scripts/mcp-real-execution.js",
@@ -26,7 +26,7 @@
   "author": "Scarmonit",
   "license": "MIT",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.5.0",
+    "@modelcontextprotocol/sdk": "^1.25.1",
     "@octokit/rest": "^22.0.1",
     "axios": "^1.13.2",
     "dotenv": "^16.3.1",
@@ -36,6 +36,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "vitest": "^1.0.0"
+    "@vitejs/plugin-react": "^5.1.2",
+    "vitest": "^1.6.1"
   }
 }

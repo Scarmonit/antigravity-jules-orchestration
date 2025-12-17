@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 try {
     docker ps >$null
     Test-NetConnection localhost -Port 8000 -InformationLevel Quiet >$null
-    Invoke-WebRequest https://antigravity-jules-orchestration.onrender.com/health -UseBasicParsing -TimeoutSec 3 >$null
+    Invoke-WebRequest https://scarmonit.com/health -UseBasicParsing -TimeoutSec 3 >$null
     Write-Host '🟢 Environment OK' -ForegroundColor Green
     exit 0
 } catch {

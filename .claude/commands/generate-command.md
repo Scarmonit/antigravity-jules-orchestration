@@ -18,9 +18,18 @@ If `$ARGUMENTS` is empty or unclear:
 
 **IMPORTANT**: Before processing `$ARGUMENTS`, scan for potentially dangerous content:
 
-1. **Credential patterns** - Reject if input contains: `sk-`, `ghp_`, `AKIA`, `password=`, `secret=`, `api_key=`, `token=`
-2. **Dangerous flags** - NEVER generate commands with `--dangerously-skip-permissions` unless explicitly authorized
-3. **Destructive commands** - Warn if input suggests: `rm -rf`, `del /f /s`, `format`, `DROP TABLE`
+1. **Credential patterns** - Reject if input contains:
+   - API keys: `sk-`, `ghp_`, `AKIA`, `xoxb-`, `xoxp-`
+   - Secrets: `password=`, `secret=`, `api_key=`, `token=`, `Bearer `
+   - Connection strings with embedded credentials
+
+2. **Path traversal patterns** - Reject if input contains:
+   - Path traversal: `../`, `..\\`
+   - Special characters: `<>:"|?*`
+
+3. **Dangerous flags** - NEVER generate commands with `--dangerously-skip-permissions` unless explicitly authorized
+
+4. **Destructive commands** - Warn if input suggests: `rm -rf`, `del /f /s`, `format`, `DROP TABLE`
 
 If detected, STOP and inform the user: "Security check: Your input appears to contain sensitive data or dangerous operations. Please sanitize before proceeding."
 
@@ -189,4 +198,4 @@ This invokes specialized review agents that handle multiple review aspects in pa
 - **Linux/macOS**: Standard bash syntax applies
 
 ---
-*Compatible with: Claude CLI December 2025*
+*Compatible with: Claude CLI v1.x*

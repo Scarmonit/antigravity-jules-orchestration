@@ -2,7 +2,7 @@
 
 This guide explains how to connect various AI clients to the Antigravity-Jules Orchestration MCP Server.
 
-**Server URL:** `https://antigravity-jules-orchestration.onrender.com`
+**Server URL:** `https://scarmonit.com`
 
 ## 1. Claude Desktop Configuration
 
@@ -22,7 +22,7 @@ To use the Jules orchestration tools within Claude Desktop, edit your configurat
         "-y",
         "@modelcontextprotocol/server-sse-client",
         "--url",
-        "https://antigravity-jules-orchestration.onrender.com/mcp/sse"
+        "https://scarmonit.com/mcp/sse"
       ]
     }
   }
@@ -34,7 +34,7 @@ To use the Jules orchestration tools within Claude Desktop, edit your configurat
 
 If your client supports direct HTTP MCP endpoints:
 
-- **Server URL:** `https://antigravity-jules-orchestration.onrender.com/mcp`
+- **Server URL:** `https://scarmonit.com/mcp`
 - **Auth:** No additional auth required (handled by server-side API keys)
 
 ## 2. Cursor Integration
@@ -45,7 +45,7 @@ If your client supports direct HTTP MCP endpoints:
 4. Enter:
    - **Name:** Jules Orchestrator
    - **Type:** HTTP / SSE
-   - **URL:** `https://antigravity-jules-orchestration.onrender.com/mcp/sse`
+   - **URL:** `https://scarmonit.com/mcp/sse`
 
 ## 3. Google Antigravity Configuration
 
@@ -58,7 +58,7 @@ Antigravity natively supports this orchestration layer.
    {
      "id": "jules",
      "type": "streamable-http",
-     "url": "https://antigravity-jules-orchestration.onrender.com/mcp"
+     "url": "https://scarmonit.com/mcp"
    }
    ```
 

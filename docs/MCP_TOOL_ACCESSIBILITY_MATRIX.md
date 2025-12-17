@@ -58,7 +58,7 @@ This matrix documents production-verified MCP tool accessibility based on **real
 
 #### Jules Orchestration Server
 
-**Base URL:** `https://antigravity-jules-orchestration.onrender.com`  
+**Base URL:** `https://scarmonit.com`  
 **Auth:** X-API-Key header (JULES_API_KEY)  
 **Test Script:** `test-real-mcp-http.ps1` ✅ Created
 

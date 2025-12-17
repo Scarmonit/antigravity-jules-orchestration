@@ -72,7 +72,7 @@ Write-Host ""
 Write-Host "7️⃣  Wait for automatic redeploy (~2-3 minutes)" -ForegroundColor White
 Write-Host ""
 Write-Host "8️⃣  Verify deployment:" -ForegroundColor White
-Write-Host "   curl https://antigravity-jules-orchestration.onrender.com/health" -ForegroundColor Gray
+Write-Host "   curl https://scarmonit.com/health" -ForegroundColor Gray
 Write-Host ""
 
 # Open browser

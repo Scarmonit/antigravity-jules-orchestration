@@ -17,8 +17,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// 1. Middleware: JSON parsing MUST be first
-app.use(express.json());
+// SECURITY FIX: JSON parsing with raw body capture for webhook verification
+app.use(express.json({
+  verify: (req, res, buf) => {
+    // Capture raw body for GitHub webhook signature verification
+    if (req.path.startsWith('/api/v1/webhooks/github')) {
+      req.rawBody = buf;
+    }
+  }
+}));
 
 // Config
 const JULES_API_KEY = process.env.JULES_API_KEY;
@@ -31,13 +38,24 @@ const PORT = process.env.PORT || 3000;
 function verifyGitHubWebhook(req) {
   if (!GITHUB_WEBHOOK_SECRET) {
     console.warn('[Security] GITHUB_WEBHOOK_SECRET not configured - webhook verification disabled');
-    return true;
+    return true; // Allow if no secret configured (dev mode)
   }
+
   const signature = req.headers['x-hub-signature-256'];
-  if (!signature) return false;
+  if (!signature) {
+    return false;
+  }
+
+  // CRITICAL: Use raw body buffer for HMAC - not JSON.stringify which can differ
+  const body = req.rawBody || Buffer.from(JSON.stringify(req.body));
   const hmac = crypto.createHmac('sha256', GITHUB_WEBHOOK_SECRET);
-  const digest = 'sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex');
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+  const digest = 'sha256=' + hmac.update(body).digest('hex');
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+  } catch (e) {
+    return false;
+  }
 }
 
 // Initialize database (optional - graceful fallback)
@@ -56,7 +74,7 @@ app.get('/api/v1/metrics', async (req, res) => {
 // Jules API client (Simple Auth for Stability)
 const julesClient = axios.create({
   baseURL: 'https://jules.googleapis.com/v1alpha',
-  timeout: 30000, // 30s timeout to prevent hung requests
+  timeout: 30000, // 30 second timeout to prevent hung requests
   headers: {
     'Content-Type': 'application/json'
   }
@@ -217,46 +235,67 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 const clients = new Set();
-const HEARTBEAT_INTERVAL = 30000;
+
+// WebSocket heartbeat to detect dead connections and prevent memory leaks
+const HEARTBEAT_INTERVAL = 30000; // 30 seconds
 
 wss.on('connection', (ws) => {
   ws.isAlive = true;
   clients.add(ws);
   console.log('WebSocket client connected');
 
-  ws.on('pong', () => { ws.isAlive = true; });
-  ws.on('close', () => { clients.delete(ws); console.log('WebSocket client disconnected'); });
-  ws.on('error', (err) => { console.error('WebSocket error:', err.message); clients.delete(ws); });
+  ws.on('pong', () => {
+    ws.isAlive = true;
+  });
+
+  ws.on('close', () => {
+    clients.delete(ws);
+    console.log('WebSocket client disconnected');
+  });
+
+  ws.on('error', (err) => {
+    console.error('WebSocket error:', err.message);
+    clients.delete(ws);
+  });
 });
 
-// Heartbeat to clean up dead connections
+// Heartbeat interval to clean up dead connections
 const heartbeatInterval = setInterval(() => {
   wss.clients.forEach((ws) => {
-    if (!ws.isAlive) { clients.delete(ws); return ws.terminate(); }
+    if (!ws.isAlive) {
+      clients.delete(ws);
+      return ws.terminate();
+    }
     ws.isAlive = false;
     ws.ping();
   });
 }, HEARTBEAT_INTERVAL);
 
-wss.on('close', () => clearInterval(heartbeatInterval));
+wss.on('close', () => {
+  clearInterval(heartbeatInterval);
+});
 
 function broadcast(data) {
-  const payload = JSON.stringify(data); // Single serialization
+  const payload = JSON.stringify(data); // Single serialization for O(1) vs O(n)
   clients.forEach(client => {
-    if (client.readyState === 1) client.send(payload);
+    if (client.readyState === 1) {
+      client.send(payload);
+    }
   });
 }
 
 // GitHub Webhook Receiver with signature verification
 app.post('/api/v1/webhooks/github', async (req, res) => {
+  // CRITICAL: Verify webhook signature to prevent spoofing
   if (!verifyGitHubWebhook(req)) {
-    console.error('[Security] Invalid webhook signature - rejecting');
+    console.error('[Security] Invalid webhook signature - rejecting request');
     return res.status(401).json({ error: 'Invalid webhook signature' });
   }
 
   const event = req.headers['x-github-event'];
   console.log('Received GitHub webhook: ' + event);
 
+  // Async broadcast to avoid blocking response
   setImmediate(() => {
     broadcast({
       type: 'github_webhook',

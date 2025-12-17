@@ -61,7 +61,7 @@ The MCP Tool Chain Orchestration framework has been successfully validated end-t
 
 #### TEST 3: Connectivity Check ✅
 - **Jules MCP Server:** Reachable
-- **Base URL:** `https://antigravity-jules-orchestration.onrender.com`
+- **Base URL:** `https://scarmonit.com`
 - **HTTP Status:** 200 OK
 - **Response Time:** < 2 seconds
 
@@ -302,7 +302,7 @@ for ($i = 0; $i -lt $MaxRetries; $i++) {
 
 **Required:**
 - PowerShell 5.1+ or PowerShell Core 7+
-- Network access to `https://antigravity-jules-orchestration.onrender.com`
+- Network access to `https://scarmonit.com`
 - JULES_API_KEY environment variable (for write operations)
 
 **Optional:**

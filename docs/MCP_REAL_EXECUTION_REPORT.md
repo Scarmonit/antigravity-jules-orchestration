@@ -124,7 +124,7 @@ Successfully tested and validated the MCP Tool Chain Orchestration framework wit
 
 ### Test 3: HTTP MCP Server Test (Jules) 🔄 IN PROGRESS
 
-**Server:** `https://antigravity-jules-orchestration.onrender.com`  
+**Server:** `https://scarmonit.com`  
 **Test Script Created:** `scripts/test-real-mcp-http.ps1`
 
 **Planned Tests:**

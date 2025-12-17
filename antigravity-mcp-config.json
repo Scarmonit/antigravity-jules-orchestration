@@ -3,7 +3,7 @@
     "jules-orchestration": {
       "name": "Jules Orchestration MCP Server",
       "description": "Autonomous AI orchestration server combining Google Antigravity with Jules API",
-      "baseUrl": "https://antigravity-jules-orchestration.onrender.com",
+      "baseUrl": "https://scarmonit.com",
       "protocol": "https",
       "apiVersion": "1.0.0",
       "endpoints": {

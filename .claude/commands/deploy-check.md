@@ -52,7 +52,7 @@ Verify: Database connection, Jules API config, GitHub API config
 
 **Live Render Deployment:**
 ```bash
-curl -s https://antigravity-jules-orchestration.onrender.com/health
+curl -s https://scarmonit.com/health
 ```
 Verify: Service responding, no cold start issues, API key configured
 

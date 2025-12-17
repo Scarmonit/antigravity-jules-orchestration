@@ -72,7 +72,7 @@ if ($env:JULES_API_KEY) {
 # TEST 3: Connectivity Check
 Write-Host "`nTEST 3: Connectivity Check" -ForegroundColor Cyan
 try {
-    $baseUrl = "https://antigravity-jules-orchestration.onrender.com"
+    $baseUrl = "https://scarmonit.com"
     $response = Invoke-WebRequest -Uri $baseUrl -Method GET -TimeoutSec 10 -UseBasicParsing
     Write-Host "  ✅ Jules MCP server is reachable (status: $($response.StatusCode))" -ForegroundColor Green
     $validationResults.Connectivity = $true
@@ -109,7 +109,7 @@ $testParams = @{
     Detailed = $true
     TraceId = [guid]::NewGuid().ToString()
     ParentChain = "test-suite"
-    BaseUrl = "https://antigravity-jules-orchestration.onrender.com"
+    BaseUrl = "https://scarmonit.com"
     Prompt = "Test prompt for validation"
     SourcePattern = "test-pattern"
 }

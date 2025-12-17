@@ -54,7 +54,7 @@ Successfully completed comprehensive MCP (Model Context Protocol) tool discovery
 ## MCP Server Inventory
 
 ### 1. Jules Orchestration Server (7 tools)
-**Base URL:** https://antigravity-jules-orchestration.onrender.com
+**Base URL:** https://scarmonit.com
 
 | Tool | Purpose | Input | Output |
 |------|---------|-------|--------|

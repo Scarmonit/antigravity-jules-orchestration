@@ -91,7 +91,7 @@ Located in `generated-artifacts/`:
 ## 🔧 MCP Servers & Tools
 
 ### 1. Jules Orchestration (7 tools)
-`https://antigravity-jules-orchestration.onrender.com`
+`https://scarmonit.com`
 - jules_list_sources
 - jules_create_session
 - jules_list_sessions
@@ -219,7 +219,7 @@ See [MCP_QUICK_REFERENCE.md](docs/MCP_QUICK_REFERENCE.md) for:
 
 ### Common Issues
 1. **Jules API Not Responding**
-   - Check: `https://antigravity-jules-orchestration.onrender.com/health`
+   - Check: `https://scarmonit.com/health`
    - Verify: `$env:JULES_API_KEY`
    
 2. **MCP Server Cold Start**

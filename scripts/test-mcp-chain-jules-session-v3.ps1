@@ -14,7 +14,7 @@ param(
     [switch]$Detailed,
     [string]$TraceId = [guid]::NewGuid().ToString(),
     [string]$ParentChain = "standalone",
-    [string]$BaseUrl = "https://antigravity-jules-orchestration.onrender.com",
+    [string]$BaseUrl = "https://scarmonit.com",
     [string]$Prompt = "Add a new health check endpoint at /api/v2/health that returns more detailed system information",
     [string]$SourcePattern = "antigravity-jules-orchestration",
     [int]$MaxPollAttempts = 60,  # 5 minutes with 5s intervals

@@ -11,7 +11,7 @@ Google Antigravity (Browser Agent)
           ↓
     MCP Protocol
           ↓
-Render Service (antigravity-jules-orchestration.onrender.com)
+Render Service (scarmonit.com)
           ↓
    Jules API (jules.googleapis.com/v1alpha)
           ↓
@@ -32,7 +32,7 @@ Render Service (antigravity-jules-orchestration.onrender.com)
 First, verify the service is running:
 
 ```bash
-curl https://antigravity-jules-orchestration.onrender.com/health
+curl https://scarmonit.com/health
 ```
 
 Expected response:
@@ -50,7 +50,7 @@ Expected response:
 #### Create a New Session
 
 ```bash
-curl -X POST https://antigravity-jules-orchestration.onrender.com/api/jules/create \
+curl -X POST https://scarmonit.com/api/jules/create \
   -H "Content-Type: application/json" \
   -H "X-Jules-API-Key: YOUR_JULES_API_KEY" \
   -d '{
@@ -77,7 +77,7 @@ Expected response:
 #### List Active Sessions
 
 ```bash
-curl https://antigravity-jules-orchestration.onrender.com/api/jules/list \
+curl https://scarmonit.com/api/jules/list \
   -H "X-Jules-API-Key": YOUR_JULES_API_KEY
 ```
 
@@ -93,7 +93,7 @@ Expected response:
 #### Get Session Status
 
 ```bash
-curl https://antigravity-jules-orchestration.onrender.com/api/jules/status/SESSION_ID \
+curl https://scarmonit.com/api/jules/status/SESSION_ID \
   -H "X-Jules-API-Key: YOUR_JULES_API_KEY"
 ```
 
@@ -122,7 +122,7 @@ Add the MCP configuration to your Antigravity settings:
 {
   "mcpServers": {
     "jules-orchestration": {
-      "baseUrl": "https://antigravity-jules-orchestration.onrender.com",
+      "baseUrl": "https://scarmonit.com",
       "endpoints": {
         "health": "/health",
         "julesCreate": "/api/jules/create",

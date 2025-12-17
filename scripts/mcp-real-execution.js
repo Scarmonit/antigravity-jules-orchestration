@@ -54,7 +54,7 @@ class MCPRealExecutionFramework extends EventEmitter {
       'jules-orchestration': {
         name: 'Jules Orchestration MCP',
         type: 'HTTP_API',
-        url: 'https://antigravity-jules-orchestration.onrender.com',
+        url: 'https://scarmonit.com',
         tools: ['jules_list_sources', 'jules_list_sessions', 'jules_get_session',
                 'jules_create_session', 'jules_send_message', 'jules_approve_plan',
                 'jules_get_activities']

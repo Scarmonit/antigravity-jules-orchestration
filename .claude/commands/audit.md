@@ -50,8 +50,8 @@ curl http://localhost:3000/api/v1/metrics
 
 **Live Render Deployment:**
 ```bash
-curl https://antigravity-jules-orchestration.onrender.com/health
-curl https://antigravity-jules-orchestration.onrender.com/mcp/tools
+curl https://scarmonit.com/health
+curl https://scarmonit.com/mcp/tools
 ```
 
 Check:

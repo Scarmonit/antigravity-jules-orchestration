@@ -43,7 +43,7 @@ Environment Loading: Functional
 #### Test 3: Connectivity Check ✅
 ```
 Jules MCP Server: Reachable
-Base URL: https://antigravity-jules-orchestration.onrender.com
+Base URL: https://scarmonit.com
 HTTP Status: 200 OK
 Response Time: < 2s
 ```

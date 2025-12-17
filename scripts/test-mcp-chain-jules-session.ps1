@@ -266,7 +266,7 @@ $ErrorActionPreference = "Stop"
 )
     [string]$SourcePattern = "antigravity-jules-orchestration"
     [string]$Prompt = "Add a new health check endpoint at /api/v2/health that returns more detailed system information",
-    [string]$BaseUrl = "https://antigravity-jules-orchestration.onrender.com",
+    [string]$BaseUrl = "https://scarmonit.com",
 param(
 
 # Chain: list_sources → create_session → get_session → approve_plan → get_activities

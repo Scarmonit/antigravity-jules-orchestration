@@ -2,7 +2,7 @@
 # scripts/test-live-mcp.sh
 # Test the live Jules MCP Server endpoints
 
-API_URL="https://antigravity-jules-orchestration.onrender.com"
+API_URL="https://scarmonit.com"
 
 echo "Testing Jules MCP Server at $API_URL"
 echo "======================================="
