@@ -17,8 +17,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// 1. Middleware: JSON parsing MUST be first
-app.use(express.json());
+// SECURITY FIX: JSON parsing with raw body capture for webhook verification
+app.use(express.json({
+  verify: (req, res, buf) => {
+    // Capture raw body for GitHub webhook signature verification
+    if (req.path.startsWith('/api/v1/webhooks/github')) {
+      req.rawBody = buf;
+    }
+  }
+}));
 
 // Config
 const JULES_API_KEY = process.env.JULES_API_KEY;
@@ -39,13 +46,16 @@ function verifyGitHubWebhook(req) {
     return false;
   }
 
+  // CRITICAL: Use raw body buffer for HMAC - not JSON.stringify which can differ
+  const body = req.rawBody || Buffer.from(JSON.stringify(req.body));
   const hmac = crypto.createHmac('sha256', GITHUB_WEBHOOK_SECRET);
-  const digest = 'sha256=' + hmac.update(JSON.stringify(req.body)).digest('hex');
+  const digest = 'sha256=' + hmac.update(body).digest('hex');
 
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(digest)
-  );
+  try {
+    return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+  } catch (e) {
+    return false;
+  }
 }
 
 // Initialize database (optional - graceful fallback)
