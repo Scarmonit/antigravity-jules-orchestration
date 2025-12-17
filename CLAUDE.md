@@ -71,15 +71,34 @@ cd dashboard && npm run build
 - Health Check: `/health`
 - Live URL: `https://antigravity-jules-orchestration.onrender.com`
 
-## Parallel Workflow Agents
+## Slash Commands (Consolidated)
 
-Use these slash commands for parallel agent workflows:
+Optimized command set with no redundancy:
 
-- `/audit` - Run full security and code audit
-- `/deploy` - Deploy with pre-flight checks
-- `/review` - Code review across components
-- `/test-api` - Test all API endpoints
-- `/health` - Check all service health
+| Command | Purpose |
+|---------|---------|
+| `/audit` | Comprehensive security, code quality, dependencies, and API testing |
+| `/review` | Unified MCP, workflow, and architecture review |
+| `/deploy-check` | Pre-deployment validation with live health checks |
+| `/fix-issues` | Auto-diagnose and fix common issues |
+| `/implement-feature` | Feature implementation workflow with planning |
+| `/generate-command` | Generate optimized Claude CLI commands using best practices |
+| `/learn-pattern` | Save successful command patterns to memory for reuse |
+
+### Typical Development Workflow
+```
+1. /implement-feature [description]  - Plan feature
+2. [Write code]                      - Implement
+3. /review                           - Review implementation
+4. /fix-issues                       - Auto-fix issues
+5. /deploy-check                     - Verify ready
+6. [Deploy]                          - Push to Scarmonit
+```
+
+### Maintenance Cycle
+- **Before deploy**: `/deploy-check`
+- **Monthly**: `/audit`
+- **PR reviews**: `/review`
 
 ## Code Style
 
