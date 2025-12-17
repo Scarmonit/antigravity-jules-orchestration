@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",
-    "test": "vitest run",
-    "test:unit": "vitest run tests/unit",
+    "test": "node --test tests/unit/*.test.js",
+    "test:unit": "node --test tests/unit/*.test.js",
     "test:integration": "vitest run tests/integration",
     "test:load": "node tests/load/rate-limiter-load-test.js",
     "mcp:real-execution": "node scripts/mcp-real-execution.js",
@@ -36,6 +36,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "vitest": "^1.0.0"
+    "@vitejs/plugin-react": "^5.1.2",
+    "vitest": "^1.6.1"
   }
 }
