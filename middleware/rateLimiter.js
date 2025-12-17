@@ -70,8 +70,6 @@ function validateRedisUrl(url) {
   return url;
 }
 
-
-
 /**
  * Rate Limit Error with proper headers
  */
@@ -330,7 +328,7 @@ export class RedisRateLimiter {
   /**
    * Handle failover when Redis is unavailable
    */
-  handleFailover(req, res, next, error) {
+  handleFailover(req, res, next, _error) {
     const strategy = this.config.failover.strategy;
 
     if (strategy === 'fail-open') {
@@ -361,7 +359,7 @@ export class RedisRateLimiter {
     res.status(429).json({
       error: {
         code: 'RATE_LIMIT_EXCEEDED',
-        message: `Rate limit exceeded. You have made too many requests.`,
+        message: 'Rate limit exceeded. You have made too many requests.',
         type: 'https://api.example.com/errors/rate-limit-exceeded'
       },
       rateLimit: {
@@ -413,7 +411,7 @@ export class RedisRateLimiter {
     const apiKey =
       req.headers['x-api-key'] ||
       req.headers.authorization?.replace(/^Bearer\s+/i, '') ||
-      req.socket?.remoteAddress ||  // Direct socket - not spoofable
+      req.socket?.remoteAddress || // Direct socket - not spoofable
       req.connection?.remoteAddress ||
       'anonymous';
 

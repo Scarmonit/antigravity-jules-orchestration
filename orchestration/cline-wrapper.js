@@ -4,9 +4,8 @@
  * @version 1.0.0
  */
 
-const { spawn } = require('child_process');
-const EventEmitter = require('events');
-const axios = require('axios');
+import { spawn } from 'child_process';
+import EventEmitter from 'events';
 
 /**
  * Configuration for Cline CLI instances
@@ -31,7 +30,7 @@ class ClineWrapper extends EventEmitter {
       autoRecovery: process.env.CLINE_AUTO_RECOVERY === 'true',
       ...config
     };
-    
+
     this.instances = new Map();
     this.taskQueue = [];
     this.healthCheckTimer = null;
@@ -46,7 +45,7 @@ class ClineWrapper extends EventEmitter {
   async createTask(taskConfig) {
     try {
       const instanceId = this.generateInstanceId();
-      
+
       if (this.instances.size >= this.config.maxInstances) {
         this.emit('queue', { instanceId, reason: 'max_instances_reached' });
         return { status: 'queued', instanceId, message: 'Task queued: max instances reached' };
@@ -54,7 +53,7 @@ class ClineWrapper extends EventEmitter {
 
       const instance = await this.spawnInstance(instanceId, taskConfig);
       this.instances.set(instanceId, instance);
-      
+
       this.emit('task_created', { instanceId, taskConfig });
       return { status: 'running', instanceId, instance };
     } catch (error) {
@@ -119,7 +118,7 @@ class ClineWrapper extends EventEmitter {
    */
   async monitorTask(taskId) {
     const instance = this.instances.get(taskId);
-    
+
     if (!instance) {
       return { status: 'not_found', taskId };
     }
@@ -140,7 +139,7 @@ class ClineWrapper extends EventEmitter {
    * @returns {Array<Object>} List of instance summaries
    */
   listInstances() {
-    return Array.from(this.instances.values()).map(instance => ({
+    return Array.from(this.instances.values()).map((instance) => ({
       id: instance.id,
       status: instance.status,
       startTime: instance.startTime,
@@ -157,14 +156,14 @@ class ClineWrapper extends EventEmitter {
    */
   async killInstance(instanceId) {
     const instance = this.instances.get(instanceId);
-    
+
     if (!instance) {
       return false;
     }
 
     try {
       instance.process.kill('SIGTERM');
-      
+
       // Force kill after 5 seconds
       setTimeout(() => {
         if (this.instances.has(instanceId)) {
@@ -205,7 +204,7 @@ class ClineWrapper extends EventEmitter {
       for (const [instanceId, instance] of this.instances) {
         if (!this.isInstanceHealthy(instance)) {
           this.emit('health_check_failed', { instanceId, instance });
-          
+
           if (this.config.autoRecovery) {
             this.recoverInstance(instanceId, instance);
           }
@@ -221,7 +220,7 @@ class ClineWrapper extends EventEmitter {
   async recoverInstance(instanceId, instance) {
     try {
       await this.killInstance(instanceId);
-      
+
       // Recreate with original config
       if (instance.config) {
         await this.createTask(instance.config);
@@ -245,15 +244,15 @@ class ClineWrapper extends EventEmitter {
    */
   async shutdown() {
     clearInterval(this.healthCheckTimer);
-    
+
     const killPromises = [];
     for (const instanceId of this.instances.keys()) {
       killPromises.push(this.killInstance(instanceId));
     }
-    
+
     await Promise.all(killPromises);
     this.emit('shutdown_complete');
   }
 }
 
-module.exports = ClineWrapper;
+export default ClineWrapper;

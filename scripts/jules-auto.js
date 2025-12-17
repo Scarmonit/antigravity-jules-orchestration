@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 // Auto-diagnostics guard
-const { execSync } = require('child_process');
+import { execSync } from 'child_process';
+import https from 'https';
+import { fileURLToPath } from 'url';
+
 if (!process.env.AUTO_DIAG) {
   process.env.AUTO_DIAG = '1';
   try {
@@ -16,9 +19,8 @@ if (!process.env.AUTO_DIAG) {
  * Autonomous session manager for hands-free development workflows
  */
 
-const https = require('https');
-
-const JULES_API_BASE = 'https://jules.googleapis.com/v1alpha';
+// Base URL for Jules API (for reference)
+const _JULES_API_BASE = 'https://jules.googleapis.com/v1alpha';
 const API_KEY = process.env.JULES_API_KEY;
 
 if (!API_KEY) {
@@ -43,7 +45,7 @@ async function createSession(config = {}) {
 
   return new Promise((resolve, reject) => {
     const data = JSON.stringify(sessionData);
-    
+
     const options = {
       hostname: 'jules.googleapis.com',
       port: 443,
@@ -58,11 +60,11 @@ async function createSession(config = {}) {
 
     const req = https.request(options, (res) => {
       let body = '';
-      
+
       res.on('data', (chunk) => {
         body += chunk;
       });
-      
+
       res.on('end', () => {
         if (res.statusCode === 200 || res.statusCode === 201) {
           try {
@@ -93,7 +95,7 @@ async function createSession(config = {}) {
  */
 async function listSessions() {
   console.log('📋 Fetching active sessions...');
-  
+
   return new Promise((resolve, reject) => {
     const options = {
       hostname: 'jules.googleapis.com',
@@ -107,11 +109,11 @@ async function listSessions() {
 
     const req = https.request(options, (res) => {
       let body = '';
-      
+
       res.on('data', (chunk) => {
         body += chunk;
       });
-      
+
       res.on('end', () => {
         if (res.statusCode === 200) {
           try {
@@ -151,12 +153,12 @@ async function main() {
         const session = await createSession(config);
         console.log(JSON.stringify(session, null, 2));
         break;
-        
+
       case 'list':
         const sessions = await listSessions();
         console.log(JSON.stringify(sessions, null, 2));
         break;
-        
+
       default:
         console.log(`
 Jules API Automation Wrapper
@@ -176,8 +178,12 @@ Examples:
   }
 }
 
-if (require.main === module) {
+// Check if file is being run directly (ES module equivalent of require.main === module)
+const isMainModule = import.meta.url === `file://${process.argv[1]}` ||
+                     fileURLToPath(import.meta.url) === process.argv[1];
+
+if (isMainModule) {
   main();
 }
 
-module.exports = { createSession, listSessions };
+export { createSession, listSessions };

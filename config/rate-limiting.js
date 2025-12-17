@@ -16,7 +16,7 @@ export const RATE_LIMIT_CONFIG = {
     free: {
       requestsPerMinute: 100,
       burstCapacity: 150,
-      refillRate: 1.67,           // tokens per second (100/60)
+      refillRate: 1.67, // tokens per second (100/60)
       windowMs: 60000,
       costPerRequest: 1,
       bypassRateLimiting: false
@@ -24,7 +24,7 @@ export const RATE_LIMIT_CONFIG = {
     pro: {
       requestsPerMinute: 1000,
       burstCapacity: 1500,
-      refillRate: 16.67,          // tokens per second (1000/60)
+      refillRate: 16.67, // tokens per second (1000/60)
       windowMs: 60000,
       costPerRequest: 1,
       bypassRateLimiting: false
@@ -32,10 +32,10 @@ export const RATE_LIMIT_CONFIG = {
     enterprise: {
       requestsPerMinute: 10000,
       burstCapacity: 15000,
-      refillRate: 166.67,         // tokens per second (10000/60)
+      refillRate: 166.67, // tokens per second (10000/60)
       windowMs: 60000,
       costPerRequest: 1,
-      bypassRateLimiting: true    // Enterprise can bypass rate limits
+      bypassRateLimiting: true // Enterprise can bypass rate limits
     }
   },
 

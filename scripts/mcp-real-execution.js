@@ -9,6 +9,7 @@
 
 import { EventEmitter } from 'events';
 import https from 'https';
+// eslint-disable-next-line no-unused-vars
 import http from 'http';
 import logger from '../utils/logger.js';
 
@@ -39,7 +40,7 @@ class MCPRealExecutionFramework extends EventEmitter {
         name: 'Scarmonit ARC MCP',
         type: 'IDE_CLIENT',
         tools: ['check_system_status', 'list_agents', 'get_agent_instructions',
-                'diagnose_agents', 'check_datalore_status']
+          'diagnose_agents', 'check_datalore_status']
       },
       'llm-framework': {
         name: 'LLM Framework MCP',
@@ -56,8 +57,8 @@ class MCPRealExecutionFramework extends EventEmitter {
         type: 'HTTP_API',
         url: 'https://antigravity-jules-orchestration.onrender.com',
         tools: ['jules_list_sources', 'jules_list_sessions', 'jules_get_session',
-                'jules_create_session', 'jules_send_message', 'jules_approve_plan',
-                'jules_get_activities']
+          'jules_create_session', 'jules_send_message', 'jules_approve_plan',
+          'jules_get_activities']
       }
     };
   }
@@ -192,7 +193,7 @@ class MCPRealExecutionFramework extends EventEmitter {
     }
   }
 
-  async _executeToolAttempt(server, tool, parameters, attempt) {
+  async _executeToolAttempt(server, tool, parameters, _attempt) {
     const serverConfig = this.servers[server];
 
     if (!serverConfig) {
@@ -217,7 +218,7 @@ class MCPRealExecutionFramework extends EventEmitter {
     throw new Error(`Unknown server type: ${serverConfig.type}`);
   }
 
-  async _executeViaIDEClient(server, tool, parameters) {
+  async _executeViaIDEClient(server, tool, _parameters) {
     // These are the validated working MCP tools from earlier execution
     // Return structure matches actual MCP responses
 
@@ -364,7 +365,7 @@ class MCPRealExecutionFramework extends EventEmitter {
     });
   }
 
-  async _executeSimulated(server, tool, parameters) {
+  async _executeSimulated(server, tool, _parameters) {
     await this._sleep(100); // Simulate network delay
 
     return {
@@ -425,7 +426,7 @@ class MCPRealExecutionFramework extends EventEmitter {
         healthScore,
         executionTime: duration,
         toolsExecuted: 4,
-        toolsSuccessful: [systemStatus, agents, health, projectInfo].filter(r => r.success).length,
+        toolsSuccessful: [systemStatus, agents, health, projectInfo].filter((r) => r.success).length,
         validation,
         data: {
           systemStatus: systemStatus.data,
@@ -500,7 +501,7 @@ class MCPRealExecutionFramework extends EventEmitter {
     }
 
     // Overall validation status
-    const validCount = Object.values(validation).filter(v => v === true).length;
+    const validCount = Object.values(validation).filter((v) => v === true).length;
     if (validCount === 4) {
       validation.status = 'VALID';
     } else if (validCount >= 2) {
@@ -527,7 +528,7 @@ class MCPRealExecutionFramework extends EventEmitter {
 
     // DevOps tools (25 points)
     if (data.health?.success) {
-      const availableTools = data.health.data?.status?.filter(t => t.available).length || 0;
+      const availableTools = data.health.data?.status?.filter((t) => t.available).length || 0;
       const totalTools = data.health.data?.status?.length || 5;
       score += Math.round((availableTools / totalTools) * 25);
     }
@@ -582,7 +583,7 @@ class MCPRealExecutionFramework extends EventEmitter {
   }
 
   _sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   getMetrics() {
@@ -637,11 +638,11 @@ async function main() {
       console.log(`📊 Health Score: ${result.healthScore}/100`);
       console.log(`⏱️  Execution Time: ${result.executionTime}ms`);
       console.log(`✅ Tools Executed: ${result.toolsSuccessful}/${result.toolsExecuted}`);
-      console.log(`📈 Data validated with real MCP protocol calls`);
+      console.log('📈 Data validated with real MCP protocol calls');
       console.log(`🔍 Validation Status: ${result.validation.status}`);
 
       const metrics = framework.getMetrics();
-      console.log(`\n📊 Overall Metrics:`);
+      console.log('\n📊 Overall Metrics:');
       console.log(`   Success Rate: ${metrics.successRate}%`);
       console.log(`   Average Response Time: ${Math.round(metrics.averageResponseTime)}ms`);
 

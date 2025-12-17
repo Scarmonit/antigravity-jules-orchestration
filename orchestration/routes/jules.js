@@ -3,9 +3,9 @@
  * Express routes for Antigravity-Jules integration
  */
 
-const express = require('express');
+import express from 'express';
+import { createSession, listSessions } from '../../scripts/jules-auto.js';
 const router = express.Router();
-const { createSession, listSessions } = require('../../scripts/jules-auto');
 
 /**
  * Middleware: Verify Jules API key
@@ -136,4 +136,4 @@ router.get('/status/:sessionId', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

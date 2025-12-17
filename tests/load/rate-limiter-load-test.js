@@ -237,7 +237,7 @@ const displayStats = (stats, testName) => {
  * @param {number} ms - Milliseconds to sleep
  * @returns {Promise<void>}
  */
-const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Main test runner
@@ -340,7 +340,7 @@ const runAllTests = async (baseUrl) => {
     console.log(colorize(`         ${result.message}`, 'dim'));
   });
 
-  const passedCount = testResults.filter(r => r.passed).length;
+  const passedCount = testResults.filter((r) => r.passed).length;
   const totalTests = testResults.length;
 
   console.log('\n' + colorize('='.repeat(60), 'cyan'));

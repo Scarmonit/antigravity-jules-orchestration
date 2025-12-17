@@ -46,7 +46,7 @@ function createMockRedisClient(options = {}) {
 
     emit: (event, ...args) => {
       const handlers = eventHandlers.get(event) || [];
-      handlers.forEach(handler => handler(...args));
+      handlers.forEach((handler) => handler(...args));
     },
 
     // Connection methods
@@ -603,8 +603,8 @@ describe('Rate Limiter Integration Tests', () => {
       // Configure mock to deny after first request
       mockClient = createMockRedisClient({
         evalShaResponses: [
-          [1, 1, Date.now() + 60000],   // First request: allowed, 1 remaining
-          [0, 0, Date.now() + 60000]    // Second request: denied, 0 remaining
+          [1, 1, Date.now() + 60000], // First request: allowed, 1 remaining
+          [0, 0, Date.now() + 60000] // Second request: denied, 0 remaining
         ]
       });
 
@@ -680,8 +680,8 @@ describe('Rate Limiter Integration Tests', () => {
       // First request: low tokens, then refill simulation
       mockClient = createMockRedisClient({
         evalShaResponses: [
-          [1, 5, Date.now() + 5000],    // Low tokens
-          [1, 50, Date.now() + 60000]   // Tokens refilled
+          [1, 5, Date.now() + 5000], // Low tokens
+          [1, 50, Date.now() + 60000] // Tokens refilled
         ]
       });
 
@@ -975,7 +975,7 @@ describe('Rate Limiter Integration Tests', () => {
       const results = await Promise.all(requests);
 
       assert.strictEqual(results.length, 5);
-      results.forEach(result => {
+      results.forEach((result) => {
         assert.strictEqual(result.allowed, true);
       });
     });

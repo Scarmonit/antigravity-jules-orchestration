@@ -109,7 +109,7 @@ async function simulateMCPChain() {
     toolLogger.info('Tool execution started');
 
     // Simulate work
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     toolLogger.info('Tool execution completed', {
       duration: Math.floor(Math.random() * 200) + 50,

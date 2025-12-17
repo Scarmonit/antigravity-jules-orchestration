@@ -55,7 +55,7 @@ class RedisRateLimiter {
       redis: {
         url: process.env.REDIS_URL || 'redis://localhost:6379',
         connectTimeout: 5000,
-        ...(config.redis || {})  // Spread config.redis after defaults to preserve defaults for unset keys
+        ...(config.redis || {}) // Spread config.redis after defaults to preserve defaults for unset keys
       },
       tiers: config.tiers || {
         free: { requestsPerMinute: 100, burstCapacity: 150, refillRate: 1.67, windowMs: 60000 },

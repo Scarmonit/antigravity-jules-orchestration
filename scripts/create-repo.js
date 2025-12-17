@@ -1,5 +1,6 @@
 // scripts/create-repo.js
 import { Octokit } from '@octokit/rest';
+// eslint-disable-next-line no-unused-vars
 import fs from 'fs';
 
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
@@ -19,19 +20,19 @@ async function createRepo() {
       auto_init: true,
       gitignore_template: 'Node'
     });
-    
+
     console.log(`✅ Repository created: ${repo.html_url}`);
-    
+
     // Add repository secrets
     console.log('\nAdding secrets...');
     const secrets = ['JULES_API_KEY', 'GITHUB_TOKEN', 'SLACK_WEBHOOK_URL'];
     console.log('❗ Add these secrets manually via:');
     console.log(`   ${repo.html_url}/settings/secrets/actions`);
-    secrets.forEach(s => console.log(`   - ${s}`));
-    
+    secrets.forEach((s) => console.log(`   - ${s}`));
+
     // Create initial files
     console.log('\nCreating initial files...');
-    
+
     const files = {
       'package.json': JSON.stringify({
         name: 'jules-orchestrator',
@@ -50,7 +51,7 @@ async function createRepo() {
           dotenv: '^16.3.1'
         }
       }, null, 2),
-      
+
       'README.md': `# Jules Orchestrator
 
 Autonomous AI coding agent orchestration system powered by Google Jules API.
@@ -84,7 +85,7 @@ Autonomous AI coding agent orchestration system powered by Google Jules API.
 ## Deployment
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
 `,
-      
+
       '.env.example': `# Jules API
 JULES_API_KEY=your_jules_api_key_here
 
@@ -105,7 +106,7 @@ PORT=3000
 NODE_ENV=production
 `
     };
-    
+
     for (const [path, content] of Object.entries(files)) {
       await octokit.repos.createOrUpdateFileContents({
         owner: ORG_OR_USER,
@@ -116,7 +117,7 @@ NODE_ENV=production
       });
       console.log(`  ✅ Created ${path}`);
     }
-    
+
     // Configure webhook
     console.log('\nConfiguring GitHub webhook...');
     await octokit.repos.createWebhook({
@@ -130,13 +131,13 @@ NODE_ENV=production
       events: ['issues', 'issue_comment', 'push', 'pull_request']
     });
     console.log('  ✅ Webhook configured');
-    
+
     console.log('\n🎉 Setup complete! Next steps:');
     console.log('1. Clone repo: git clone ' + repo.clone_url);
     console.log('2. Add implementation files from /tmp/jules_orchestrator_*');
     console.log('3. Push to GitHub');
     console.log('4. Deploy to Render');
-    
+
   } catch (error) {
     if (error.status === 422) {
       console.log('⚠️  Repository already exists');

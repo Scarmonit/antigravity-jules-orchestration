@@ -66,14 +66,14 @@ const asyncHandler = (fn) => (req, res, next) => {
 };
 
 // Main error handling middleware
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
   const timestamp = new Date().toISOString();
   const requestId = req.headers['x-request-id'] || generateRequestId();
 
   // Default to 500 server error
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal server error';
-  let details = err.details || {};
+  const details = err.details || {};
 
   // Log error with context
   const errorLog = {
@@ -158,7 +158,7 @@ const requestIdMiddleware = (req, res, next) => {
   next();
 };
 
-module.exports = {
+export {
   AppError,
   ValidationError,
   AuthenticationError,

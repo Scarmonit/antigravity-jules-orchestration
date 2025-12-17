@@ -11,6 +11,8 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:load": "node tests/load/rate-limiter-load-test.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "mcp:real-execution": "node scripts/mcp-real-execution.js",
     "mcp:diagnostics": "node scripts/mcp-real-execution.js",
     "mcp:simulated": "MCP_MODE=SIMULATED node scripts/mcp-real-execution.js",
@@ -36,6 +38,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "eslint": "^8.57.1",
     "vitest": "^1.0.0"
   }
 }

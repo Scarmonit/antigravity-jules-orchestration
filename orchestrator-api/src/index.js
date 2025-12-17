@@ -5,6 +5,7 @@ import axios from 'axios';
 import crypto from 'crypto';
 import { WebSocketServer } from 'ws';
 import { createServer } from 'http';
+// eslint-disable-next-line no-unused-vars
 import { GoogleAuth } from 'google-auth-library';
 import * as metrics from './metrics.js';
 
@@ -74,7 +75,7 @@ julesClient.interceptors.request.use((config) => {
 // GitHub API client
 const githubClient = axios.create({
   baseURL: 'https://api.github.com',
-  headers: { 
+  headers: {
     'Accept': 'application/vnd.github+json'
   }
 });
@@ -100,7 +101,7 @@ app.get('/', (req, res) => {
 
 // Health Check
 app.get(['/health', '/api/v1/health'], async (req, res) => {
-  res.json({ 
+  res.json({
     status: 'ok',
     version: '1.5.0',
     services: {
@@ -108,7 +109,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       julesApi: 'configured',
       githubApi: GITHUB_TOKEN ? 'configured' : 'not_configured'
     },
-    timestamp: new Date().toISOString() 
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -117,36 +118,36 @@ app.get('/mcp/tools', (req, res) => {
   res.json({
     tools: [
       {
-        name: "jules_create_session",
-        description: "Create a new Jules coding session",
+        name: 'jules_create_session',
+        description: 'Create a new Jules coding session',
         inputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
-            name: { type: "string", description: "Session name" },
-            source: { type: "string", description: "Source repository (e.g., github.com/owner/repo)" }
+            name: { type: 'string', description: 'Session name' },
+            source: { type: 'string', description: 'Source repository (e.g., github.com/owner/repo)' }
           },
-          required: ["source"]
+          required: ['source']
         }
       },
       {
-        name: "jules_list_sessions",
-        description: "List active Jules sessions",
+        name: 'jules_list_sessions',
+        description: 'List active Jules sessions',
         inputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
-            pageSize: { type: "number" }
+            pageSize: { type: 'number' }
           }
         }
       },
       {
-        name: "jules_get_session",
-        description: "Get details of a specific session",
+        name: 'jules_get_session',
+        description: 'Get details of a specific session',
         inputSchema: {
-          type: "object",
+          type: 'object',
           properties: {
-            sessionId: { type: "string" }
+            sessionId: { type: 'string' }
           },
-          required: ["sessionId"]
+          required: ['sessionId']
         }
       }
     ]
@@ -155,7 +156,7 @@ app.get('/mcp/tools', (req, res) => {
 
 // MCP Tool Execution with input validation
 app.post('/mcp/execute', async (req, res) => {
-  const startTime = Date.now();
+  const _startTime = Date.now();
   console.log(`[${req.requestId}] MCP Execution Request`);
 
   const { name, arguments: args, tool, parameters } = req.body;
@@ -168,9 +169,9 @@ app.post('/mcp/execute', async (req, res) => {
   if (!toolName) {
     console.error(`[${req.requestId}] MCP Error: Missing tool name`);
     return res.status(400).json({
-        error: 'Tool name required (use "name" or "tool" field)',
-        requestId: req.requestId,
-        hint: 'Ensure Content-Type is application/json'
+      error: 'Tool name required (use "name" or "tool" field)',
+      requestId: req.requestId,
+      hint: 'Ensure Content-Type is application/json'
     });
   }
 
@@ -182,7 +183,7 @@ app.post('/mcp/execute', async (req, res) => {
       hint: 'Tool names must be alphanumeric with underscores'
     });
   }
-  
+
   try {
     let result;
     if (toolName === 'jules_create_session') {
@@ -197,17 +198,17 @@ app.post('/mcp/execute', async (req, res) => {
     } else {
       return res.status(404).json({ error: 'Tool ' + toolName + ' not found' });
     }
-    
-    res.json({ 
+
+    res.json({
       success: true,
-      content: [{ type: "text", text: JSON.stringify(result, null, 2) }],
-      result 
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      result
     });
   } catch (error) {
     console.error('MCP Execute Error (' + toolName + '):', error.response?.data || error.message);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
-      error: error.response?.data?.error?.message || error.message 
+      error: error.response?.data?.error?.message || error.message
     });
   }
 });
@@ -242,7 +243,7 @@ wss.on('close', () => clearInterval(heartbeatInterval));
 
 function broadcast(data) {
   const payload = JSON.stringify(data); // Single serialization
-  clients.forEach(client => {
+  clients.forEach((client) => {
     if (client.readyState === 1) client.send(payload);
   });
 }

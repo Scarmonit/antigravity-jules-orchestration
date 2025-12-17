@@ -16,14 +16,14 @@ const formatters = {
       timestamp: new Date().toISOString(),
       level: level.toUpperCase(),
       message,
-      ...meta,
+      ...meta
     }),
   pretty: (level, message, meta) => {
     const ts = new Date().toISOString();
     const pad = (s) => s.padEnd(5, ' ');
     const metaStr = Object.keys(meta).length ? ` | ${JSON.stringify(meta)}` : '';
     return `${ts} ${pad(level.toUpperCase())} ${message}${metaStr}`;
-  },
+  }
 };
 
 const fmt = formatters[LOG_FORMAT] || formatters.json;

@@ -1,5 +1,5 @@
 // dashboard/src/App.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import { RateLimiterMetrics } from './RateLimiterMetrics';
 
@@ -25,13 +25,13 @@ const STATUS_ICONS = {
 function App() {
   const [workflows, setWorkflows] = useState([]);
   const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
-  const [ws, setWs] = useState(null);
+  const [_ws, setWs] = useState(null);
 
   useEffect(() => {
     // Fetch initial workflows
     fetch('/api/v1/workflows')
-      .then(res => res.json())
-      .then(data => setWorkflows(data))
+      .then((res) => res.json())
+      .then((data) => setWorkflows(data))
       .catch(() => setWorkflows([])); // Graceful error handling
 
     // Connect WebSocket for real-time updates
@@ -41,8 +41,8 @@ function App() {
       const update = JSON.parse(event.data);
 
       if (update.type === 'workflow_update') {
-        setWorkflows(prev =>
-          prev.map(w => w.id === update.workflow_id
+        setWorkflows((prev) =>
+          prev.map((w) => w.id === update.workflow_id
             ? { ...w, ...update.data }
             : w
           )
@@ -122,7 +122,7 @@ function App() {
         <section className="workflows">
           <h2>Active Workflows</h2>
           <div className="workflow-list">
-            {workflows.map(workflow => (
+            {workflows.map((workflow) => (
               <div key={workflow.id} className="workflow-card">
                 <div className="workflow-header">
                   <span className="workflow-icon" style={{ color: getStatusColor(workflow.status) }}>
@@ -136,7 +136,7 @@ function App() {
                     {workflow.status}
                   </span>
                 </div>
-                
+
                 <div className="workflow-details">
                   <div className="detail">
                     <span className="detail-label">Template:</span>
@@ -154,7 +154,7 @@ function App() {
                     </div>
                   )}
                 </div>
-                
+
                 {workflow.status === 'awaiting_approval' && (
                   <div className="workflow-actions">
                     <button className="approve">✓ Approve</button>

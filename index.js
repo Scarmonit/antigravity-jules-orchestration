@@ -6,8 +6,54 @@ import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
 import { ollamaCompletion, listOllamaModels, ollamaCodeGeneration, ollamaChat } from './lib/ollama.js';
 import { ragIndexDirectory, ragQuery, ragStatus, ragClear } from './lib/rag.js';
+import {
+  mcpExecuteRequestSchema,
+  julesSessionConfigSchema,
+  sessionIdSchema,
+  messageSchema,
+  githubIssueParamsSchema,
+  githubLabelParamsSchema,
+  batchCreateSchema,
+  batchIdSchema,
+  ollamaCompletionSchema,
+  ollamaCodeGenerationSchema,
+  ollamaChatSchema,
+  ragIndexDirectorySchema,
+  ragQuerySchema,
+  envSchema,
+  validate,
+  safeValidate,
+  formatValidationError
+} from './types/schemas.js';
 
 dotenv.config();
+
+// Validate environment variables on startup
+try {
+  const envValidation = safeValidate(envSchema, {
+    JULES_API_KEY: process.env.JULES_API_KEY,
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN,
+    PORT: process.env.PORT || '3323',
+    DATABASE_URL: process.env.DATABASE_URL,
+    SLACK_WEBHOOK_URL: process.env.SLACK_WEBHOOK_URL,
+    ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS,
+    NODE_ENV: process.env.NODE_ENV || 'development',
+    OLLAMA_HOST: process.env.OLLAMA_HOST,
+    ALIBABA_API_KEY: process.env.ALIBABA_API_KEY,
+    LOG_LEVEL: process.env.LOG_LEVEL
+  });
+
+  if (!envValidation.success) {
+    console.error('[ENV] Environment variable validation failed:');
+    console.error(formatValidationError(envValidation.error));
+    console.error('[ENV] Please check your .env file and ensure required variables are set.');
+    // Don't exit - allow server to start with warnings for optional variables
+  } else {
+    console.log('[ENV] Environment variables validated successfully');
+  }
+} catch (error) {
+  console.warn('[ENV] Environment validation warning:', error.message);
+}
 
 // HTTP Agent with connection pooling for Jules API
 const julesAgent = new https.Agent({
@@ -29,7 +75,7 @@ app.use(express.json({ limit: '1mb', strict: true }));
 const circuitBreaker = {
   failures: 0,
   lastFailure: null,
-  threshold: 5,        // Trip after 5 consecutive failures
+  threshold: 5, // Trip after 5 consecutive failures
   resetTimeout: 60000, // Reset after 1 minute
   isOpen() {
     if (this.failures >= this.threshold) {
@@ -64,7 +110,7 @@ app.use('/mcp/', (req, res, next) => {
     rateLimitStore.set(ip, []);
   }
 
-  const requests = rateLimitStore.get(ip).filter(time => time > windowStart);
+  const requests = rateLimitStore.get(ip).filter((time) => time > windowStart);
   requests.push(now);
   rateLimitStore.set(ip, requests);
 
@@ -387,9 +433,9 @@ const toolRegistry = new Map();
 // Register tools lazily (handlers reference functions defined later)
 function initializeToolRegistry() {
   // Jules API tools
-  toolRegistry.set('jules_list_sources', (p) => julesRequest('GET', '/sources'));
+  toolRegistry.set('jules_list_sources', (_p) => julesRequest('GET', '/sources'));
   toolRegistry.set('jules_create_session', (p) => createJulesSession(p));
-  toolRegistry.set('jules_list_sessions', (p) => julesRequest('GET', '/sessions'));
+  toolRegistry.set('jules_list_sessions', (_p) => julesRequest('GET', '/sessions'));
   toolRegistry.set('jules_get_session', (p) => julesRequest('GET', '/sessions/' + p.sessionId));
   toolRegistry.set('jules_send_message', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':sendMessage', { message: p.message }));
   toolRegistry.set('jules_approve_plan', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':approvePlan', {}));
@@ -405,11 +451,11 @@ function initializeToolRegistry() {
   toolRegistry.set('jules_batch_approve_all', (p) => batchProcessor.approveAllInBatch(p.batchId));
 
   // Monitoring
-  toolRegistry.set('jules_monitor_all', (p) => sessionMonitor.monitorAll());
+  toolRegistry.set('jules_monitor_all', (_p) => sessionMonitor.monitorAll());
   toolRegistry.set('jules_session_timeline', (p) => sessionMonitor.getSessionTimeline(p.sessionId));
 
   // Ollama Local LLM
-  toolRegistry.set('ollama_list_models', (p) => listOllamaModels());
+  toolRegistry.set('ollama_list_models', (_p) => listOllamaModels());
   toolRegistry.set('ollama_completion', (p) => ollamaCompletion(p));
   toolRegistry.set('ollama_code_generation', (p) => ollamaCodeGeneration(p));
   toolRegistry.set('ollama_chat', (p) => ollamaChat(p));
@@ -417,17 +463,60 @@ function initializeToolRegistry() {
   // RAG Tools
   toolRegistry.set('ollama_rag_index', (p) => ragIndexDirectory(p));
   toolRegistry.set('ollama_rag_query', (p) => ragQuery(p));
-  toolRegistry.set('ollama_rag_status', (p) => ragStatus());
-  toolRegistry.set('ollama_rag_clear', (p) => ragClear());
+  toolRegistry.set('ollama_rag_status', (_p) => ragStatus());
+  toolRegistry.set('ollama_rag_clear', (_p) => ragClear());
+}
+
+/**
+ * Validate tool-specific parameters using appropriate Zod schema
+ * @param {string} toolName - Name of the tool
+ * @param {Object} parameters - Tool parameters to validate
+ * @returns {Object} Validated parameters
+ * @throws {z.ZodError} If validation fails
+ */
+function validateToolParameters(toolName, parameters) {
+  const schemaMap = {
+    'jules_create_session': julesSessionConfigSchema,
+    'jules_get_session': sessionIdSchema.transform((id) => ({ sessionId: id })),
+    'jules_send_message': messageSchema,
+    'jules_approve_plan': sessionIdSchema.transform((id) => ({ sessionId: id })),
+    'jules_get_activities': sessionIdSchema.transform((id) => ({ sessionId: id })),
+    'jules_create_from_issue': githubIssueParamsSchema,
+    'jules_batch_from_labels': githubLabelParamsSchema,
+    'jules_batch_create': batchCreateSchema,
+    'jules_batch_status': batchIdSchema.transform((id) => ({ batchId: id })),
+    'jules_batch_approve_all': batchIdSchema.transform((id) => ({ batchId: id })),
+    'ollama_completion': ollamaCompletionSchema,
+    'ollama_code_generation': ollamaCodeGenerationSchema,
+    'ollama_chat': ollamaChatSchema,
+    'ollama_rag_index': ragIndexDirectorySchema,
+    'ollama_rag_query': ragQuerySchema
+  };
+
+  const schema = schemaMap[toolName];
+  if (schema) {
+    return validate(schema, parameters);
+  }
+
+  // No validation needed for tools without parameters
+  return parameters;
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup
 app.post('/mcp/execute', async (req, res) => {
-  const { tool, parameters = {} } = req.body;
-
-  if (!tool) {
-    return res.status(400).json({ error: 'Tool name required' });
+  // Validate request body schema
+  const validation = safeValidate(mcpExecuteRequestSchema, req.body);
+  if (!validation.success) {
+    return res.status(400).json({
+      success: false,
+      error: {
+        message: 'Invalid request body',
+        details: formatValidationError(validation.error)
+      }
+    });
   }
+
+  const { tool, parameters } = validation.data;
 
   if (!JULES_API_KEY) {
     return res.status(500).json({ error: 'JULES_API_KEY not configured' });
@@ -442,18 +531,39 @@ app.post('/mcp/execute', async (req, res) => {
   console.log('[MCP] Executing tool:', tool, parameters);
 
   try {
-    const result = await handler(parameters);
+    // Validate tool-specific parameters
+    const validatedParams = validateToolParameters(tool, parameters);
+    const result = await handler(validatedParams);
     console.log('[MCP] Tool', tool, 'completed successfully');
     res.json({ success: true, result });
   } catch (error) {
     console.error('[MCP] Tool', tool, 'failed:', error.message);
+
+    // Check if it's a Zod validation error
+    if (error.name === 'ZodError') {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Invalid tool parameters',
+          details: formatValidationError(error)
+        }
+      });
+    }
+
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // ============ HELPER FUNCTIONS ============
 
-// Jules API helper - make authenticated request with connection pooling
+/**
+ * Make authenticated request to Jules API with connection pooling and circuit breaker
+ * @param {'GET'|'POST'|'PUT'|'DELETE'} method - HTTP method
+ * @param {string} path - API path (e.g., '/sessions')
+ * @param {Object|null} [body=null] - Request body for POST/PUT requests
+ * @returns {Promise<Object>} API response data
+ * @throws {Error} If request fails or circuit breaker is open
+ */
 function julesRequest(method, path, body = null) {
   // Circuit breaker check
   if (circuitBreaker.isOpen()) {
@@ -478,7 +588,7 @@ function julesRequest(method, path, body = null) {
     const req = https.request(options, (response) => {
       let data = '';
       const MAX_RESPONSE_SIZE = 10 * 1024 * 1024; // 10MB limit
-      response.on('data', chunk => {
+      response.on('data', (chunk) => {
         data += chunk;
         if (data.length > MAX_RESPONSE_SIZE) {
           response.destroy();
@@ -524,7 +634,18 @@ function julesRequest(method, path, body = null) {
   });
 }
 
-// Create a new Jules session with correct API schema
+/**
+ * Create a new Jules coding session with correct API schema
+ * @param {Object} config - Session configuration
+ * @param {string} config.prompt - Task description/prompt for Jules
+ * @param {string} config.source - Source name (e.g., 'sources/github/owner/repo')
+ * @param {string} [config.branch] - Starting branch (default: repo default)
+ * @param {string} [config.title] - Session title
+ * @param {boolean} [config.requirePlanApproval] - Require approval before execution
+ * @param {'AUTO_CREATE_PR'|'NONE'} [config.automationMode] - Automation mode
+ * @returns {Promise<Object>} Created session object with id, state, etc.
+ * @throws {Error} If session creation fails
+ */
 async function createJulesSession(config) {
   // Determine the starting branch - required by Jules API
   let startingBranch = config.branch;
@@ -534,7 +655,7 @@ async function createJulesSession(config) {
     console.log('[Jules API] No branch specified, fetching default branch from source...');
     try {
       const sources = await julesRequest('GET', '/sources');
-      const source = sources.sources?.find(s => s.name === config.source);
+      const source = sources.sources?.find((s) => s.name === config.source);
       if (source?.githubRepo?.defaultBranch?.displayName) {
         startingBranch = source.githubRepo.defaultBranch.displayName;
         console.log('[Jules API] Using default branch:', startingBranch);
@@ -574,7 +695,17 @@ async function createJulesSession(config) {
   return await julesRequest('POST', '/sessions', sessionData);
 }
 
-// Create session from GitHub issue
+/**
+ * Create a Jules session from a GitHub issue with full context
+ * @param {Object} params - Issue parameters
+ * @param {string} params.owner - GitHub repository owner
+ * @param {string} params.repo - GitHub repository name
+ * @param {number} params.issueNumber - Issue number to process
+ * @param {boolean} [params.autoApprove=false] - Auto-approve plan
+ * @param {'AUTO_CREATE_PR'|'NONE'} [params.automationMode='AUTO_CREATE_PR'] - Automation mode
+ * @returns {Promise<Object>} Created session and issue info
+ * @throws {Error} If issue fetch or session creation fails
+ */
 async function createSessionFromIssue(params) {
   const { owner, repo, issueNumber, autoApprove = false, automationMode = 'AUTO_CREATE_PR' } = params;
 
@@ -615,7 +746,17 @@ async function createSessionFromIssue(params) {
   };
 }
 
-// Create sessions from all issues with a label
+/**
+ * Create Jules sessions for all GitHub issues with a specific label
+ * @param {Object} params - Label filtering parameters
+ * @param {string} params.owner - GitHub repository owner
+ * @param {string} params.repo - GitHub repository name
+ * @param {string} params.label - Label to filter issues (e.g., "jules-auto")
+ * @param {boolean} [params.autoApprove=false] - Auto-approve all plans
+ * @param {number} [params.parallel=3] - Max parallel sessions (1-10)
+ * @returns {Promise<Object>} Batch creation result with sessions
+ * @throws {Error} If issue fetch or batch creation fails
+ */
 async function createSessionsFromLabel(params) {
   const { owner, repo, label, autoApprove = false, parallel = 3 } = params;
 
@@ -631,7 +772,7 @@ async function createSessionsFromLabel(params) {
   console.log(`[GitHub] Found ${issues.length} issues, creating sessions...`);
 
   // Create tasks for batch processor
-  const tasks = issues.map(issue => ({
+  const tasks = issues.map((issue) => ({
     prompt: formatIssueForPrompt(issue),
     source: `sources/github/${owner}/${repo}`,
     title: `Fix Issue #${issue.number}: ${issue.title}`,
@@ -652,7 +793,7 @@ async function createSessionsFromLabel(params) {
 // ============ SERVER STARTUP ============
 
 // Global error handler - catches all unhandled errors
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   const requestId = req.requestId || 'unknown';
   console.error(`[ERROR][${requestId}] ${err.message}`, err.stack);
 
