@@ -146,6 +146,28 @@ describe('scheduleJulesSession', () => {
     setupMockFetch({ success: true, taskId: 'task-123' });
   });
 
+  it('should throw on missing required parameters', async () => {
+    const { scheduleJulesSession } = temporalIntegration;
+
+    await assert.rejects(
+      async () => scheduleJulesSession({}),
+      /Invalid name/,
+      'Should require name'
+    );
+
+    await assert.rejects(
+      async () => scheduleJulesSession({ name: 'test' }),
+      /Invalid cronExpression/,
+      'Should require cronExpression'
+    );
+
+    await assert.rejects(
+      async () => scheduleJulesSession({ name: 'test', cronExpression: '0 * * * *' }),
+      /Invalid repository/,
+      'Should require repository'
+    );
+  });
+
   it('should call temporal-agent with correct tool name', async () => {
     const { scheduleJulesSession } = temporalIntegration;
 
@@ -406,6 +428,22 @@ describe('cancelScheduledJulesTask', () => {
   beforeEach(async () => {
     await loadModule();
     setupMockFetch({ success: true });
+  });
+
+  it('should throw on invalid taskId', async () => {
+    const { cancelScheduledJulesTask } = temporalIntegration;
+
+    await assert.rejects(
+      async () => cancelScheduledJulesTask(null),
+      /Invalid taskId/,
+      'Should reject null taskId'
+    );
+
+    await assert.rejects(
+      async () => cancelScheduledJulesTask(''),
+      /Invalid taskId/,
+      'Should reject empty taskId'
+    );
   });
 
   it('should call cancel_task tool with task ID', async () => {
