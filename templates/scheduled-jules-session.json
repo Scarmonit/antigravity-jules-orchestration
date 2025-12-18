@@ -1,0 +1,79 @@
+{
+  "id": "scheduled-jules-session",
+  "name": "Scheduled Jules Session",
+  "description": "Create persistent scheduled tasks that trigger Jules coding sessions via Temporal Agent MCP",
+  "integration": {
+    "temporal_agent": {
+      "baseUrl": "http://localhost:3324",
+      "tool": "schedule_recurring"
+    },
+    "jules_orchestration": {
+      "baseUrl": "http://localhost:3323",
+      "endpoint": "/api/jules/create"
+    }
+  },
+  "examples": [
+    {
+      "name": "Weekly Dependency Update",
+      "schedule": {
+        "cron": "0 9 * * 1",
+        "timezone": "America/New_York",
+        "description": "Every Monday at 9 AM EST"
+      },
+      "jules_task": {
+        "repository": "{{owner}}/{{repo}}",
+        "task": "Update all dependencies to latest secure versions. Run tests. Create PR.",
+        "autoApprove": false
+      }
+    },
+    {
+      "name": "Daily Code Quality Check",
+      "schedule": {
+        "cron": "0 6 * * *",
+        "timezone": "UTC",
+        "description": "Every day at 6 AM UTC"
+      },
+      "jules_task": {
+        "repository": "{{owner}}/{{repo}}",
+        "task": "Run static analysis, check for code smells, suggest refactoring. Report findings.",
+        "autoApprove": false
+      }
+    },
+    {
+      "name": "PR Status Monitor",
+      "schedule": {
+        "cron": "*/30 * * * *",
+        "timezone": "UTC",
+        "description": "Every 30 minutes"
+      },
+      "jules_task": {
+        "repository": "{{owner}}/{{repo}}",
+        "task": "Check open PRs. Merge any that have passing CI and approvals. Report summary.",
+        "autoApprove": true
+      }
+    }
+  ],
+  "usage": {
+    "create_scheduled_task": {
+      "endpoint": "POST http://localhost:3324/mcp/execute",
+      "body": {
+        "tool": "schedule_recurring",
+        "params": {
+          "name": "weekly-dependency-update",
+          "cron_expression": "0 9 * * 1",
+          "timezone": "America/New_York",
+          "payload": {
+            "action": "create_jules_session",
+            "repository": "owner/repo",
+            "task": "Update dependencies"
+          },
+          "callback_type": "webhook",
+          "callback_config": {
+            "url": "http://localhost:3323/api/jules/create",
+            "method": "POST"
+          }
+        }
+      }
+    }
+  }
+}

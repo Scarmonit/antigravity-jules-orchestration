@@ -1,10 +1,16 @@
 # Claude Code Project Context
 
-**Version: 2.5.0** | [CHANGELOG](./CHANGELOG.md)
+**Version: 2.5.1** | [CHANGELOG](./CHANGELOG.md)
 
 ## Project Overview
 
 **antigravity-jules-orchestration** is an MCP (Model Context Protocol) server that integrates Google's Jules API with Antigravity for autonomous AI development workflows. It provides **45 MCP tools** including session templates, priority queues, PR integration, Ollama/RAG, hands-free coding sessions, and orchestrated development tasks.
+
+## What's New in v2.5.1
+
+- **Temporal Agent Integration**: Schedule recurring Jules sessions via temporal-agent-mcp
+- **New lib/temporal-integration.js**: Helper functions for scheduled workflows
+- **New template**: scheduled-jules-session.json for timed automation
 
 ## What's New in v2.5.0
 
@@ -33,7 +39,8 @@ antigravity-jules-orchestration/
 │   ├── monitor.js             # Session monitoring & stats
 │   ├── github.js              # GitHub API integration
 │   ├── ollama.js              # Local Ollama LLM integration
-│   └── rag.js                 # RAG codebase indexing
+│   ├── rag.js                 # RAG codebase indexing
+│   └── temporal-integration.js # Scheduled Jules sessions (NEW)
 ├── middleware/
 │   └── errorHandler.js        # Comprehensive error handling
 ├── scripts/                    # Deployment & automation scripts
@@ -226,6 +233,26 @@ cd dashboard && npm test          # Dashboard tests
 ### Quick Fix
 ```
 /quick-fix src/api/auth.js "Add rate limiting to login endpoint"
+```
+
+### Scheduled Jules Sessions (NEW v2.5.1)
+```
+// Schedule weekly dependency updates
+import { scheduleJulesSession, scheduleTemplates } from './lib/temporal-integration.js';
+
+await scheduleJulesSession({
+  name: 'weekly-deps',
+  cronExpression: scheduleTemplates.weeklyDependencyUpdate.cronExpression,
+  timezone: 'America/New_York',
+  repository: 'owner/repo',
+  task: scheduleTemplates.weeklyDependencyUpdate.task,
+});
+
+// List scheduled Jules tasks
+const tasks = await listScheduledJulesTasks();
+
+// Cancel a scheduled task
+await cancelScheduledJulesTask(taskId);
 ```
 
 ### Session Search & Clone

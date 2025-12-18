@@ -1,5 +1,43 @@
 {
   "mcpServers": {
+    "temporal-agent": {
+      "name": "Temporal Agent MCP Server",
+      "description": "Persistent task scheduling for AI agents - enables scheduled Jules sessions",
+      "baseUrl": "http://localhost:3324",
+      "protocol": "http",
+      "apiVersion": "1.0.0",
+      "endpoints": {
+        "health": "/health",
+        "tools": "/mcp/tools",
+        "execute": "/mcp/execute",
+        "jsonRpc": "/mcp",
+        "notifications": "/notifications"
+      },
+      "capabilities": [
+        "schedule-one-time",
+        "schedule-recurring",
+        "cron-expressions",
+        "webhook-callbacks",
+        "slack-notifications",
+        "email-notifications",
+        "hmac-signatures"
+      ],
+      "tools": [
+        "schedule_task",
+        "schedule_recurring",
+        "list_tasks",
+        "get_task",
+        "cancel_task",
+        "pause_task",
+        "resume_task"
+      ],
+      "security": {
+        "ssrfProtection": true,
+        "rateLimiting": "100 req/15 min",
+        "hmacSignatures": true,
+        "payloadSanitization": true
+      }
+    },
     "jules-orchestration": {
       "name": "Jules Orchestration MCP Server",
       "description": "Autonomous AI orchestration server combining Google Antigravity with Jules API",
