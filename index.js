@@ -6,6 +6,14 @@ import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
 import { ollamaCompletion, listOllamaModels, ollamaCodeGeneration, ollamaChat } from './lib/ollama.js';
 import { ragIndexDirectory, ragQuery, ragStatus, ragClear } from './lib/rag.js';
+import {
+  storeSessionOutcome,
+  recallContextForTask,
+  reinforceSuccessfulPattern,
+  checkMemoryHealth,
+  getMemoryMaintenanceSchedule,
+  searchSessionMemories,
+} from './lib/memory-client.js';
 
 dotenv.config();
 
@@ -20,7 +28,7 @@ const julesAgent = new https.Agent({
 const PORT = process.env.PORT || 3323;
 const JULES_API_KEY = process.env.JULES_API_KEY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN || null;
-const VERSION = '2.5.0';
+const VERSION = '2.5.2';
 
 // ============ v2.5.0 INFRASTRUCTURE ============
 
@@ -223,7 +231,8 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
     services: {
       julesApi: 'unknown',
       database: process.env.DATABASE_URL ? 'configured' : 'not_configured',
-      github: GITHUB_TOKEN ? 'configured' : 'not_configured'
+      github: GITHUB_TOKEN ? 'configured' : 'not_configured',
+      semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured'
     },
     circuitBreaker: {
       failures: circuitBreaker.failures,
@@ -494,7 +503,13 @@ app.get('/mcp/tools', (req, res) => {
       { name: 'jules_clear_queue', description: 'Clear queue', parameters: {} },
       // v2.5.0: Analytics
       { name: 'jules_batch_retry_failed', description: 'Retry failed sessions in batch', parameters: { batchId: { type: 'string', required: true } } },
-      { name: 'jules_get_analytics', description: 'Get session analytics', parameters: { days: { type: 'number' } } }
+      { name: 'jules_get_analytics', description: 'Get session analytics', parameters: { days: { type: 'number' } } },
+      // Semantic Memory Integration (v2.5.2)
+      { name: 'memory_recall_context', description: 'Recall relevant memories for a task', parameters: { task: { type: 'string', required: true }, repository: { type: 'string' }, limit: { type: 'number' } } },
+      { name: 'memory_store', description: 'Store a memory manually', parameters: { content: { type: 'string', required: true }, summary: { type: 'string' }, tags: { type: 'array' }, importance: { type: 'number' } } },
+      { name: 'memory_search', description: 'Search memories by query', parameters: { query: { type: 'string', required: true }, tags: { type: 'array' }, limit: { type: 'number' } } },
+      { name: 'memory_health', description: 'Check semantic memory service health', parameters: {} },
+      { name: 'memory_maintenance_schedule', description: 'Get memory maintenance schedule for temporal-agent-mcp', parameters: {} }
     ]
   });
 });
@@ -573,6 +588,13 @@ function initializeToolRegistry() {
   // v2.5.0: Batch Retry & Analytics
   toolRegistry.set('jules_batch_retry_failed', (p) => batchRetryFailed(p.batchId));
   toolRegistry.set('jules_get_analytics', (p) => getAnalytics(p.days));
+
+  // v2.5.2: Semantic Memory Integration
+  toolRegistry.set('memory_recall_context', (p) => recallContextForTask(p.task, p.repository));
+  toolRegistry.set('memory_store', (p) => storeManualMemory(p));
+  toolRegistry.set('memory_search', (p) => searchMemories(p));
+  toolRegistry.set('memory_health', () => checkMemoryHealth().then(healthy => ({ healthy, url: process.env.SEMANTIC_MEMORY_URL || 'not configured' })));
+  toolRegistry.set('memory_maintenance_schedule', () => getMemoryMaintenanceSchedule());
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup
@@ -680,6 +702,23 @@ function julesRequest(method, path, body = null) {
 
 // Create a new Jules session with correct API schema
 async function createJulesSession(config) {
+  // Recall relevant context from semantic memory before creating session
+  let memoryContext = null;
+  if (process.env.SEMANTIC_MEMORY_URL && config.prompt) {
+    try {
+      const contextResult = await recallContextForTask(config.prompt, config.source);
+      if (contextResult.success && contextResult.memories?.length > 0) {
+        memoryContext = contextResult;
+        structuredLog('info', 'Recalled memory context for session', {
+          memoryCount: contextResult.memories.length,
+          source: config.source
+        });
+      }
+    } catch (err) {
+      structuredLog('warn', 'Failed to recall memory context', { error: err.message });
+    }
+  }
+
   // Determine the starting branch - required by Jules API
   let startingBranch = config.branch;
 
@@ -703,8 +742,15 @@ async function createJulesSession(config) {
     }
   }
 
+  // Enhance prompt with memory context if available
+  let enhancedPrompt = config.prompt;
+  if (memoryContext?.suggestions) {
+    enhancedPrompt = `${config.prompt}\n\n---\n${memoryContext.suggestions}`;
+    structuredLog('info', 'Enhanced prompt with memory context');
+  }
+
   const sessionData = {
-    prompt: config.prompt,
+    prompt: enhancedPrompt,
     sourceContext: {
       source: config.source,
       githubRepoContext: {
@@ -952,9 +998,23 @@ async function mergePr(owner, repo, prNumber, mergeMethod = 'squash') {
       headers: { 'Authorization': `Bearer ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'Jules-MCP-Server', 'Content-Type': 'application/json' }
     }, (res) => {
       let data = ''; res.on('data', chunk => data += chunk);
-      res.on('end', () => {
-        if (res.statusCode >= 200 && res.statusCode < 300) resolve({ success: true, merged: true, prNumber });
-        else {
+      res.on('end', async () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          // Store successful merge in semantic memory
+          if (process.env.SEMANTIC_MEMORY_URL) {
+            try {
+              await storeSessionOutcome(
+                { title: `PR #${prNumber} merged`, sourceContext: { source: `sources/github/${owner}/${repo}` } },
+                'completed',
+                { prUrl: `https://github.com/${owner}/${repo}/pull/${prNumber}`, merged: true }
+              );
+              structuredLog('info', 'Stored PR merge in semantic memory', { owner, repo, prNumber });
+            } catch (err) {
+              structuredLog('warn', 'Failed to store PR merge in memory', { error: err.message });
+            }
+          }
+          resolve({ success: true, merged: true, prNumber });
+        } else {
           const errMsg = res.statusCode === 403 ? 'Permission denied' : res.statusCode === 404 ? 'PR not found' : res.statusCode === 422 ? 'PR cannot be merged' : 'Merge failed';
           reject(new Error(errMsg));
         }
@@ -1021,6 +1081,50 @@ async function batchRetryFailed(batchId) {
     catch (error) { return { originalId: t.sessionId || t.id, success: false, error: error.message }; }
   }));
   return { batchId, totalRetried: failedTasks.length, successful: results.filter(r => r.success).length, failed: results.filter(r => !r.success).length, results };
+}
+
+// ============ SEMANTIC MEMORY HELPERS ============
+
+// Store a manual memory
+async function storeManualMemory(params) {
+  if (!process.env.SEMANTIC_MEMORY_URL) {
+    return { success: false, error: 'SEMANTIC_MEMORY_URL not configured' };
+  }
+
+  try {
+    const response = await fetch(`${process.env.SEMANTIC_MEMORY_URL}/mcp/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tool: 'store_memory',
+        parameters: {
+          content: params.content,
+          summary: params.summary,
+          tags: params.tags || ['manual', 'jules-orchestration'],
+          importance: params.importance || 0.5,
+          source: 'jules-orchestration',
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      return { success: false, error: `Memory API error: ${response.status} - ${error}` };
+    }
+
+    return await response.json();
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+// Search memories
+async function searchMemories(params) {
+  if (!process.env.SEMANTIC_MEMORY_URL) {
+    return { success: false, error: 'SEMANTIC_MEMORY_URL not configured' };
+  }
+
+  return await searchSessionMemories(params.query, params.tags);
 }
 
 // Analytics
