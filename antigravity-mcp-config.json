@@ -3,8 +3,9 @@
     "temporal-agent": {
       "name": "Temporal Agent MCP Server",
       "description": "Persistent task scheduling for AI agents - enables scheduled Jules sessions",
-      "baseUrl": "http://localhost:3324",
-      "protocol": "http",
+      "baseUrl": "${TEMPORAL_AGENT_URL:-http://localhost:3324}",
+      "baseUrlProduction": "https://temporal-agent-mcp.onrender.com",
+      "protocol": "https",
       "apiVersion": "1.0.0",
       "endpoints": {
         "health": "/health",

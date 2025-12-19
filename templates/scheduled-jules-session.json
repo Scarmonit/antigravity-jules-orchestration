@@ -4,11 +4,13 @@
   "description": "Create persistent scheduled tasks that trigger Jules coding sessions via Temporal Agent MCP",
   "integration": {
     "temporal_agent": {
-      "baseUrl": "http://localhost:3324",
+      "baseUrl": "${TEMPORAL_AGENT_URL:-http://localhost:3324}",
+      "baseUrlProduction": "https://temporal-agent-mcp.onrender.com",
       "tool": "schedule_recurring"
     },
     "jules_orchestration": {
-      "baseUrl": "http://localhost:3323",
+      "baseUrl": "${JULES_ORCHESTRATION_URL:-http://localhost:3323}",
+      "baseUrlProduction": "https://scarmonit.com",
       "endpoint": "/api/jules/create"
     }
   },
@@ -55,7 +57,8 @@
   ],
   "usage": {
     "create_scheduled_task": {
-      "endpoint": "POST http://localhost:3324/mcp/execute",
+      "endpoint_local": "POST http://localhost:3324/mcp/execute",
+      "endpoint_production": "POST https://temporal-agent-mcp.onrender.com/mcp/execute",
       "body": {
         "tool": "schedule_recurring",
         "params": {
@@ -69,7 +72,8 @@
           },
           "callback_type": "webhook",
           "callback_config": {
-            "url": "http://localhost:3323/api/jules/create",
+            "url_local": "http://localhost:3323/api/jules/create",
+            "url_production": "https://scarmonit.com/api/jules/create",
             "method": "POST"
           }
         }
