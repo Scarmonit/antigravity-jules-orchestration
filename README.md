@@ -111,6 +111,11 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
 - **`jules_session_timeline`**: Gets a timeline of events for a Jules session.
   - **Endpoint**: `GET /api/sessions/:id/timeline`
 
+### Qwen Model Integration (New)
+- **`qwen_list_models`**: Lists available Qwen models.
+- **`qwen_completion`**: Generates text using Qwen models.
+- **`qwen_code_generation`**: Generates code using Qwen Coder model.
+
 ## Workflow Architecture
 
 ### MCP Tool Chain Orchestration 🆕
