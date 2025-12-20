@@ -194,13 +194,24 @@ app.use('/mcp/', (req, res, next) => {
   const now = Date.now();
   const windowStart = now - RATE_LIMIT_WINDOW;
 
-  if (!rateLimitStore.has(ip)) {
-    rateLimitStore.set(ip, []);
+  // Optimization: Use in-place modification to avoid array allocation on every request
+  let requests = rateLimitStore.get(ip);
+  if (!requests) {
+    requests = [];
+    rateLimitStore.set(ip, requests);
   }
 
-  const requests = rateLimitStore.get(ip).filter(time => time > windowStart);
+  // Remove old requests (array is sorted by time)
+  let removeCount = 0;
+  while (removeCount < requests.length && requests[removeCount] <= windowStart) {
+    removeCount++;
+  }
+
+  if (removeCount > 0) {
+    requests.splice(0, removeCount);
+  }
+
   requests.push(now);
-  rateLimitStore.set(ip, requests);
 
   if (requests.length > RATE_LIMIT_MAX) {
     return res.status(429).json({
