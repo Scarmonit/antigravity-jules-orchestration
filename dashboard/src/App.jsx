@@ -25,6 +25,7 @@ const STATUS_ICONS = {
 function App() {
   const [workflows, setWorkflows] = useState([]);
   const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
+  const [executingWorkflow, setExecutingWorkflow] = useState(null);
   const [ws, setWs] = useState(null);
 
   useEffect(() => {
@@ -61,6 +62,7 @@ function App() {
 
   // Memoized callback to prevent recreation on every render
   const executeWorkflow = useCallback(async (templateName, context) => {
+    setExecutingWorkflow(templateName);
     try {
       const response = await fetch('/api/v1/workflows/execute', {
         method: 'POST',
@@ -71,6 +73,8 @@ function App() {
       console.log(`Workflow ${data.workflow_id} started`); // Replace alert with console
     } catch (err) {
       console.error('Failed to execute workflow:', err);
+    } finally {
+      setExecutingWorkflow(null);
     }
   }, []);
 
@@ -107,14 +111,26 @@ function App() {
         <section className="quick-actions">
           <h2>Quick Actions</h2>
           <div className="action-buttons">
-            <button onClick={() => executeWorkflow('dependency-update', { repo_name: 'scarmonit/jules-orchestrator' })}>
-              📦 Update Dependencies
+            <button
+              onClick={() => executeWorkflow('dependency-update', { repo_name: 'scarmonit/jules-orchestrator' })}
+              disabled={executingWorkflow === 'dependency-update'}
+              aria-label="Update project dependencies"
+            >
+              {executingWorkflow === 'dependency-update' ? '⏳ Starting...' : '📦 Update Dependencies'}
             </button>
-            <button onClick={() => executeWorkflow('documentation-sync', { repo_name: 'scarmonit/jules-orchestrator' })}>
-              📝 Sync Docs
+            <button
+              onClick={() => executeWorkflow('documentation-sync', { repo_name: 'scarmonit/jules-orchestrator' })}
+              disabled={executingWorkflow === 'documentation-sync'}
+              aria-label="Synchronize documentation"
+            >
+              {executingWorkflow === 'documentation-sync' ? '⏳ Syncing...' : '📝 Sync Docs'}
             </button>
-            <button onClick={() => executeWorkflow('security-patch', { repo_name: 'scarmonit/jules-orchestrator' })}>
-              🔒 Security Scan
+            <button
+              onClick={() => executeWorkflow('security-patch', { repo_name: 'scarmonit/jules-orchestrator' })}
+              disabled={executingWorkflow === 'security-patch'}
+              aria-label="Run security scan"
+            >
+              {executingWorkflow === 'security-patch' ? '⏳ Scanning...' : '🔒 Security Scan'}
             </button>
           </div>
         </section>
