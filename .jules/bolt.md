@@ -1,0 +1,3 @@
+## 2024-05-23 - [Optimized Tier Cache with LRU]
+**Learning:** The `RedisRateLimiter` used a simple `Map` for caching API key tiers locally. While it had a check to evict the oldest entry when full, `Map` operations like `.get()` do not update the insertion order. This meant that the eviction policy was effectively FIFO (First-In-First-Out) based on insertion time, rather than LRU (Least Recently Used). Frequently accessed keys could be evicted if they were inserted early.
+**Action:** Replaced the `Map` with the existing `LRUCache` class (already defined in the file for failover). This ensures that accessed keys are moved to the end of the list, preserving popular keys in the cache and reducing Redis lookups.

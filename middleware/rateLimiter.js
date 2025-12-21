@@ -127,7 +127,7 @@ export class RedisRateLimiter {
     };
 
     // Tier cache for API keys (with LRU-style eviction)
-    this.tierCache = new Map();
+    this.tierCache = new LRUCache(config.failover?.localCacheSize || 10000);
     this.tierCacheMaxSize = 10000;
   }
 
@@ -446,11 +446,6 @@ export class RedisRateLimiter {
       try {
         const tier = await this.client.get(`rl:tier:${this.hashKey(apiKey)}`);
         if (tier) {
-          // Evict oldest entries if cache is full (LRU-style)
-          if (this.tierCache.size >= this.tierCacheMaxSize) {
-            const oldestKey = this.tierCache.keys().next().value;
-            this.tierCache.delete(oldestKey);
-          }
           this.tierCache.set(apiKey, tier);
           return tier;
         }
