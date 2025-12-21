@@ -31,6 +31,14 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
 
+## v2.6.2 Updates
+
+### Performance & Scalability
+- **Redis Rate Limiter**: Integrated production-ready Redis-backed rate limiting with token bucket algorithm, tier support, and failover protection.
+- **Optimized Caching**: Improved `LRUCache` using `lru-cache` package for better memory management and performance.
+- **Efficient Session Queue**: Optimized `SessionQueue` cleanup logic to reduce complexity from O(N^2) to O(N).
+- **Code Refactoring**: Modularized core components (`LRUCache`, `SessionQueue`, `circuitBreaker`) into `utils/` for better maintainability.
+
 ## v2.0.0 Features
 
 ### GitHub Issue Integration
