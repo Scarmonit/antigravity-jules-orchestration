@@ -26,6 +26,7 @@ function App() {
   const [workflows, setWorkflows] = useState([]);
   const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
   const [ws, setWs] = useState(null);
+  const [executingAction, setExecutingAction] = useState(null);
 
   useEffect(() => {
     // Fetch initial workflows
@@ -60,7 +61,10 @@ function App() {
   }, []);
 
   // Memoized callback to prevent recreation on every render
-  const executeWorkflow = useCallback(async (templateName, context) => {
+  const executeWorkflow = useCallback(async (templateName, context, actionId) => {
+    if (executingAction) return;
+
+    setExecutingAction(actionId);
     try {
       const response = await fetch('/api/v1/workflows/execute', {
         method: 'POST',
@@ -71,8 +75,10 @@ function App() {
       console.log(`Workflow ${data.workflow_id} started`); // Replace alert with console
     } catch (err) {
       console.error('Failed to execute workflow:', err);
+    } finally {
+      setExecutingAction(null);
     }
-  }, []);
+  }, [executingAction]);
 
   // Memoized helper functions - O(1) lookup
   const getStatusColor = useCallback((status) => STATUS_COLORS[status] || '#999', []);
@@ -107,14 +113,32 @@ function App() {
         <section className="quick-actions">
           <h2>Quick Actions</h2>
           <div className="action-buttons">
-            <button onClick={() => executeWorkflow('dependency-update', { repo_name: 'scarmonit/jules-orchestrator' })}>
-              📦 Update Dependencies
+            <button
+              onClick={() => executeWorkflow('dependency-update', { repo_name: 'scarmonit/jules-orchestrator' }, 'dep-update')}
+              disabled={!!executingAction}
+              aria-busy={executingAction === 'dep-update'}
+              aria-disabled={!!executingAction}
+              className={executingAction === 'dep-update' ? 'loading' : ''}
+            >
+              {executingAction === 'dep-update' ? '⏳ Starting...' : '📦 Update Dependencies'}
             </button>
-            <button onClick={() => executeWorkflow('documentation-sync', { repo_name: 'scarmonit/jules-orchestrator' })}>
-              📝 Sync Docs
+            <button
+              onClick={() => executeWorkflow('documentation-sync', { repo_name: 'scarmonit/jules-orchestrator' }, 'doc-sync')}
+              disabled={!!executingAction}
+              aria-busy={executingAction === 'doc-sync'}
+              aria-disabled={!!executingAction}
+              className={executingAction === 'doc-sync' ? 'loading' : ''}
+            >
+              {executingAction === 'doc-sync' ? '⏳ Starting...' : '📝 Sync Docs'}
             </button>
-            <button onClick={() => executeWorkflow('security-patch', { repo_name: 'scarmonit/jules-orchestrator' })}>
-              🔒 Security Scan
+            <button
+              onClick={() => executeWorkflow('security-patch', { repo_name: 'scarmonit/jules-orchestrator' }, 'sec-patch')}
+              disabled={!!executingAction}
+              aria-busy={executingAction === 'sec-patch'}
+              aria-disabled={!!executingAction}
+              className={executingAction === 'sec-patch' ? 'loading' : ''}
+            >
+              {executingAction === 'sec-patch' ? '⏳ Starting...' : '🔒 Security Scan'}
             </button>
           </div>
         </section>
