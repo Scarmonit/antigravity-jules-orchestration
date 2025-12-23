@@ -17,48 +17,11 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import crypto from 'crypto';
+import { LRUCache } from 'lru-cache';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-/**
- * Simple LRU Cache implementation for failover
- * O(1) get/set with proper eviction of least recently used entries
- */
-class LRUCache {
-  constructor(maxSize) {
-    this.maxSize = maxSize;
-    this.cache = new Map();
-  }
-
-  get(key) {
-    if (!this.cache.has(key)) return undefined;
-    // Move to end (most recently used)
-    const value = this.cache.get(key);
-    this.cache.delete(key);
-    this.cache.set(key, value);
-    return value;
-  }
-
-  set(key, value) {
-    if (this.cache.has(key)) {
-      this.cache.delete(key);
-    } else if (this.cache.size >= this.maxSize) {
-      // Evict oldest (first entry)
-      const oldestKey = this.cache.keys().next().value;
-      this.cache.delete(oldestKey);
-    }
-    this.cache.set(key, value);
-  }
-
-  has(key) {
-    return this.cache.has(key);
-  }
-
-  get size() {
-    return this.cache.size;
-  }
-}
 /**
  * Validate Redis URL uses TLS in production
  */
@@ -69,8 +32,6 @@ function validateRedisUrl(url) {
   }
   return url;
 }
-
-
 
 /**
  * Rate Limit Error with proper headers
@@ -113,8 +74,18 @@ export class RedisRateLimiter {
     this.scriptHash = null;
     this.luaScript = null;
     this.isConnected = false;
+
+    // Determine the maximum windowMs from all tiers to ensure cache items live long enough
+    const maxWindowMs = Math.max(
+        ...Object.values(this.config.tiers).map(t => t.windowMs || 60000)
+    );
+
     // LRU cache for failover - O(1) eviction of least recently used entries
-    this.failoverCache = new LRUCache(config.failover?.localCacheSize || 10000);
+    this.failoverCache = new LRUCache({
+        max: config.failover?.localCacheSize || 10000,
+        // Ensure TTL is slightly longer than the longest rate limit window
+        ttl: maxWindowMs + 5000
+    });
 
     // Metrics
     this.metrics = {
@@ -126,9 +97,11 @@ export class RedisRateLimiter {
       requestsByTier: { free: 0, pro: 0, enterprise: 0 }
     };
 
-    // Tier cache for API keys (with LRU-style eviction)
-    this.tierCache = new Map();
-    this.tierCacheMaxSize = 10000;
+    // Tier cache for API keys
+    this.tierCache = new LRUCache({
+        max: 10000,
+        ttl: 1000 * 60 * 5 // 5 minutes TTL for tier cache
+    });
   }
 
   /**
@@ -309,7 +282,6 @@ export class RedisRateLimiter {
     const now = Date.now();
     const cacheKey = `${keyHash}:${Math.floor(now / config.windowMs)}`;
 
-    // LRU cache handles eviction automatically
     if (!this.failoverCache.has(cacheKey)) {
       this.failoverCache.set(cacheKey, {
         count: 0,
@@ -319,6 +291,9 @@ export class RedisRateLimiter {
 
     const entry = this.failoverCache.get(cacheKey);
     entry.count++;
+
+    // Update the cache entry
+    this.failoverCache.set(cacheKey, entry);
 
     const allowed = entry.count <= config.requestsPerMinute;
     const remaining = Math.max(0, config.requestsPerMinute - entry.count);
@@ -446,11 +421,6 @@ export class RedisRateLimiter {
       try {
         const tier = await this.client.get(`rl:tier:${this.hashKey(apiKey)}`);
         if (tier) {
-          // Evict oldest entries if cache is full (LRU-style)
-          if (this.tierCache.size >= this.tierCacheMaxSize) {
-            const oldestKey = this.tierCache.keys().next().value;
-            this.tierCache.delete(oldestKey);
-          }
           this.tierCache.set(apiKey, tier);
           return tier;
         }
@@ -510,6 +480,18 @@ export class RedisRateLimiter {
       });
       // Tier is in cache but not persisted - warn the caller
       return { persisted: false, cached: true, reason: 'redis_error', error: error.message };
+    }
+  }
+
+  /**
+   * Manually clear tier cache for an API key or all keys
+   * @param {string} [apiKey] - Specific API key to clear, or null for all
+   */
+  clearTierCache(apiKey) {
+    if (apiKey) {
+        this.tierCache.delete(apiKey);
+    } else {
+        this.tierCache.clear();
     }
   }
 
