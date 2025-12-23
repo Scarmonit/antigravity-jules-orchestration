@@ -60,3 +60,6 @@ credentials*.json
 
 # Temporary Status Files
 GCLOUD_LOGIN_NEEDED.md
+
+# Ignore dashboard node_modules explicitly
+dashboard/node_modules/
