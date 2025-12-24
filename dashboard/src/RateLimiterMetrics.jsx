@@ -10,6 +10,8 @@ export function RateLimiterMetrics() {
     uptime: 0,
     redisErrors: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -18,9 +20,12 @@ export function RateLimiterMetrics() {
         if (response.ok) {
           const data = await response.json();
           setMetrics(data);
+          setLastUpdated(new Date());
         }
       } catch (error) {
         console.error('Failed to fetch rate limit metrics:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -46,8 +51,19 @@ export function RateLimiterMetrics() {
     return (metrics.totalRequests / metrics.uptime).toFixed(1);
   };
 
+  if (isLoading) {
+    return (
+      <section className="rate-limiter-metrics" aria-label="Rate Limiter Metrics">
+        <h2>Rate Limiter</h2>
+        <div className="metrics-loading" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary, #a1a1aa)' }}>
+          Loading metrics...
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="rate-limiter-metrics">
+    <section className="rate-limiter-metrics" aria-label="Rate Limiter Metrics">
       <h2>Rate Limiter</h2>
       <div className="metrics-grid">
         <div className="metric-card">
@@ -65,9 +81,13 @@ export function RateLimiterMetrics() {
           <div className="metric-value blocked">{metrics.blockedRequests.toLocaleString()}</div>
           <div className="metric-subtitle">{getBlockRate()}% block rate</div>
         </div>
-        <div className={'metric-card status-card ' + (metrics.redisConnected ? 'connected' : 'disconnected')}>
+        <div
+          className={'metric-card status-card ' + (metrics.redisConnected ? 'connected' : 'disconnected')}
+          role="status"
+          aria-label={`Redis Connection Status: ${metrics.redisConnected ? 'Connected' : 'Failover'}`}
+        >
           <div className="metric-label">Redis Status</div>
-          <div className="metric-value status">
+          <div className="metric-value status" aria-hidden="true">
             {metrics.redisConnected ? 'Connected' : 'Failover'}
           </div>
           <div className="metric-subtitle">
@@ -75,6 +95,11 @@ export function RateLimiterMetrics() {
           </div>
         </div>
       </div>
+      {lastUpdated && (
+        <div className="last-updated" style={{ textAlign: 'right', fontSize: '0.75rem', color: 'var(--text-secondary, #a1a1aa)', marginTop: '0.5rem' }}>
+          Last updated: {lastUpdated.toLocaleTimeString()}
+        </div>
+      )}
     </section>
   );
 }
