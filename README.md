@@ -31,7 +31,13 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
 
-## v2.0.0 Features
+## v2.6.0 Features
+
+### Optimization & Code Quality
+- **Async RAG Indexing**: `lib/rag.js` now uses asynchronous file operations to prevent blocking the event loop during file indexing.
+- **Git Optimization**: `dashboard/node_modules` is now excluded from git tracking to reduce repository size and improve performance.
+- **Linting**: Added ESLint configuration and a `lint` script to ensure code quality.
+- **Improved Testing**: Unit tests for RAG functionality now use actual imported functions instead of re-implementations.
 
 ### GitHub Issue Integration
 - **`jules_create_from_issue`**: Creates a Jules session from a GitHub issue.

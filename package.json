@@ -15,7 +15,8 @@
     "mcp:diagnostics": "node scripts/mcp-real-execution.js",
     "mcp:simulated": "MCP_MODE=SIMULATED node scripts/mcp-real-execution.js",
     "test:logger": "node scripts/test-logger.js",
-    "test:logger:pretty": "LOG_FORMAT=pretty node scripts/test-logger.js"
+    "test:logger:pretty": "LOG_FORMAT=pretty node scripts/test-logger.js",
+    "lint": "eslint ."
   },
   "keywords": [
     "mcp",
@@ -37,6 +38,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9.39.2",
     "vitest": "^1.6.1"
   }
 }
