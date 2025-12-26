@@ -1,5 +1,5 @@
 // dashboard/src/App.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import { RateLimiterMetrics } from './RateLimiterMetrics';
 
@@ -25,7 +25,6 @@ const STATUS_ICONS = {
 function App() {
   const [workflows, setWorkflows] = useState([]);
   const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
-  const [ws, setWs] = useState(null);
 
   useEffect(() => {
     // Fetch initial workflows
@@ -53,8 +52,6 @@ function App() {
         setStats(update.data);
       }
     };
-
-    setWs(websocket);
 
     return () => websocket.close();
   }, []);
