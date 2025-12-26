@@ -40,6 +40,7 @@ import {
   clearCache as clearSuggestedTasksCache,
   generateFixPrompt as generateSuggestedTaskFixPrompt,
 } from './lib/suggested-tasks.js';
+import { registerTool, getTool, getAllTools } from './lib/tool-registry.js';
 
 dotenv.config();
 
@@ -590,108 +591,104 @@ app.get('/mcp/tools', (req, res) => {
   });
 });
 
-// O(1) Tool Registry - Map-based lookup replaces O(n) switch statement
-// Performance: O(1) lookup vs O(n) switch comparison
-const toolRegistry = new Map();
-
 // Register tools lazily (handlers reference functions defined later)
 function initializeToolRegistry() {
   // Jules API tools
-  toolRegistry.set('jules_list_sources', (p) => julesRequest('GET', '/sources'));
-  toolRegistry.set('jules_create_session', (p) => createJulesSession(p));
-  toolRegistry.set('jules_list_sessions', (p) => julesRequest('GET', '/sessions'));
-  toolRegistry.set('jules_get_session', (p) => julesRequest('GET', '/sessions/' + p.sessionId));
-  toolRegistry.set('jules_send_message', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':sendMessage', { message: p.message }));
-  toolRegistry.set('jules_approve_plan', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':approvePlan', {}));
-  toolRegistry.set('jules_get_activities', (p) => julesRequest('GET', '/sessions/' + p.sessionId + '/activities'));
+  registerTool('jules_list_sources', (p) => julesRequest('GET', '/sources'));
+  registerTool('jules_create_session', (p) => createJulesSession(p));
+  registerTool('jules_list_sessions', (p) => julesRequest('GET', '/sessions'));
+  registerTool('jules_get_session', (p) => julesRequest('GET', '/sessions/' + p.sessionId));
+  registerTool('jules_send_message', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':sendMessage', { message: p.message }));
+  registerTool('jules_approve_plan', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':approvePlan', {}));
+  registerTool('jules_get_activities', (p) => julesRequest('GET', '/sessions/' + p.sessionId + '/activities'));
 
   // GitHub Issue Integration
-  toolRegistry.set('jules_create_from_issue', (p) => createSessionFromIssue(p));
-  toolRegistry.set('jules_batch_from_labels', (p) => createSessionsFromLabel(p));
+  registerTool('jules_create_from_issue', (p) => createSessionFromIssue(p));
+  registerTool('jules_batch_from_labels', (p) => createSessionsFromLabel(p));
 
   // Batch Processing
-  toolRegistry.set('jules_batch_create', (p) => batchProcessor.createBatch(p.tasks, { parallel: p.parallel }));
-  toolRegistry.set('jules_batch_status', (p) => batchProcessor.getBatchStatus(p.batchId));
-  toolRegistry.set('jules_batch_approve_all', (p) => batchProcessor.approveAllInBatch(p.batchId));
+  registerTool('jules_batch_create', (p) => batchProcessor.createBatch(p.tasks, { parallel: p.parallel }));
+  registerTool('jules_batch_status', (p) => batchProcessor.getBatchStatus(p.batchId));
+  registerTool('jules_batch_approve_all', (p) => batchProcessor.approveAllInBatch(p.batchId));
 
   // Monitoring
-  toolRegistry.set('jules_monitor_all', (p) => sessionMonitor.monitorAll());
-  toolRegistry.set('jules_session_timeline', (p) => sessionMonitor.getSessionTimeline(p.sessionId));
+  registerTool('jules_monitor_all', (p) => sessionMonitor.monitorAll());
+  registerTool('jules_session_timeline', (p) => sessionMonitor.getSessionTimeline(p.sessionId));
 
   // Ollama Local LLM
-  toolRegistry.set('ollama_list_models', (p) => listOllamaModels());
-  toolRegistry.set('ollama_completion', (p) => ollamaCompletion(p));
-  toolRegistry.set('ollama_code_generation', (p) => ollamaCodeGeneration(p));
-  toolRegistry.set('ollama_chat', (p) => ollamaChat(p));
+  registerTool('ollama_list_models', (p) => listOllamaModels());
+  registerTool('ollama_completion', (p) => ollamaCompletion(p));
+  registerTool('ollama_code_generation', (p) => ollamaCodeGeneration(p));
+  registerTool('ollama_chat', (p) => ollamaChat(p));
 
   // RAG Tools
-  toolRegistry.set('ollama_rag_index', (p) => ragIndexDirectory(p));
-  toolRegistry.set('ollama_rag_query', (p) => ragQuery(p));
-  toolRegistry.set('ollama_rag_status', (p) => ragStatus());
-  toolRegistry.set('ollama_rag_clear', (p) => ragClear());
+  registerTool('ollama_rag_index', (p) => ragIndexDirectory(p));
+  registerTool('ollama_rag_query', (p) => ragQuery(p));
+  registerTool('ollama_rag_status', (p) => ragStatus());
+  registerTool('ollama_rag_clear', (p) => ragClear());
 
   // v2.5.0: Session Management
-  toolRegistry.set('jules_cancel_session', (p) => cancelSession(p.sessionId));
-  toolRegistry.set('jules_retry_session', (p) => retrySession(p.sessionId, p.modifiedPrompt));
-  toolRegistry.set('jules_get_diff', (p) => getSessionDiff(p.sessionId));
-  toolRegistry.set('jules_list_batches', () => batchProcessor.listBatches());
-  toolRegistry.set('jules_delete_session', (p) => deleteSession(p.sessionId));
-  toolRegistry.set('jules_clear_cache', () => { apiCache.clear(); return { success: true, message: 'Cache cleared' }; });
-  toolRegistry.set('jules_cache_stats', () => ({ ...apiCache.stats(), circuitBreaker: { failures: circuitBreaker.failures, isOpen: circuitBreaker.isOpen() } }));
-  toolRegistry.set('jules_cancel_all_active', (p) => cancelAllActiveSessions(p.confirm));
+  registerTool('jules_cancel_session', (p) => cancelSession(p.sessionId));
+  registerTool('jules_retry_session', (p) => retrySession(p.sessionId, p.modifiedPrompt));
+  registerTool('jules_get_diff', (p) => getSessionDiff(p.sessionId));
+  registerTool('jules_list_batches', () => batchProcessor.listBatches());
+  registerTool('jules_delete_session', (p) => deleteSession(p.sessionId));
+  registerTool('jules_clear_cache', () => { apiCache.clear(); return { success: true, message: 'Cache cleared' }; });
+  registerTool('jules_cache_stats', () => ({ ...apiCache.stats(), circuitBreaker: { failures: circuitBreaker.failures, isOpen: circuitBreaker.isOpen() } }));
+  registerTool('jules_cancel_all_active', (p) => cancelAllActiveSessions(p.confirm));
 
   // v2.5.0: Session Templates
-  toolRegistry.set('jules_create_template', (p) => createTemplate(p.name, p.description, p.config));
-  toolRegistry.set('jules_list_templates', () => listTemplates());
-  toolRegistry.set('jules_create_from_template', (p) => createFromTemplate(p.templateName, p.overrides));
-  toolRegistry.set('jules_delete_template', (p) => deleteTemplate(p.name));
+  registerTool('jules_create_template', (p) => createTemplate(p.name, p.description, p.config));
+  registerTool('jules_list_templates', () => listTemplates());
+  registerTool('jules_create_from_template', (p) => createFromTemplate(p.templateName, p.overrides));
+  registerTool('jules_delete_template', (p) => deleteTemplate(p.name));
 
   // v2.5.0: Session Cloning & Search
-  toolRegistry.set('jules_clone_session', (p) => cloneSession(p.sessionId, p.modifiedPrompt, p.newTitle));
-  toolRegistry.set('jules_search_sessions', (p) => searchSessions(p.query, p.state, p.limit));
+  registerTool('jules_clone_session', (p) => cloneSession(p.sessionId, p.modifiedPrompt, p.newTitle));
+  registerTool('jules_search_sessions', (p) => searchSessions(p.query, p.state, p.limit));
 
   // v2.5.0: PR Integration
-  toolRegistry.set('jules_get_pr_status', (p) => getPrStatus(p.sessionId));
-  toolRegistry.set('jules_merge_pr', (p) => mergePr(p.owner, p.repo, p.prNumber, p.mergeMethod));
-  toolRegistry.set('jules_add_pr_comment', (p) => addPrComment(p.owner, p.repo, p.prNumber, p.comment));
+  registerTool('jules_get_pr_status', (p) => getPrStatus(p.sessionId));
+  registerTool('jules_merge_pr', (p) => mergePr(p.owner, p.repo, p.prNumber, p.mergeMethod));
+  registerTool('jules_add_pr_comment', (p) => addPrComment(p.owner, p.repo, p.prNumber, p.comment));
 
   // v2.5.0: Session Queue
-  toolRegistry.set('jules_queue_session', (p) => ({ success: true, item: sessionQueue.add(p.config, p.priority) }));
-  toolRegistry.set('jules_get_queue', () => ({ queue: sessionQueue.list(), stats: sessionQueue.stats() }));
-  toolRegistry.set('jules_process_queue', () => processQueue());
-  toolRegistry.set('jules_clear_queue', () => ({ success: true, cleared: sessionQueue.clear() }));
+  registerTool('jules_queue_session', (p) => ({ success: true, item: sessionQueue.add(p.config, p.priority) }));
+  registerTool('jules_get_queue', () => ({ queue: sessionQueue.list(), stats: sessionQueue.stats() }));
+  registerTool('jules_process_queue', () => processQueue());
+  registerTool('jules_clear_queue', () => ({ success: true, cleared: sessionQueue.clear() }));
 
   // v2.5.0: Batch Retry & Analytics
-  toolRegistry.set('jules_batch_retry_failed', (p) => batchRetryFailed(p.batchId));
-  toolRegistry.set('jules_get_analytics', (p) => getAnalytics(p.days));
+  registerTool('jules_batch_retry_failed', (p) => batchRetryFailed(p.batchId));
+  registerTool('jules_get_analytics', (p) => getAnalytics(p.days));
 
   // v2.5.2: Semantic Memory Integration
-  toolRegistry.set('memory_recall_context', (p) => recallContextForTask(p.task, p.repository));
-  toolRegistry.set('memory_store', (p) => storeManualMemory(p));
-  toolRegistry.set('memory_search', (p) => searchMemories(p));
-  toolRegistry.set('memory_related', (p) => getRelatedMemories(p.memoryId, p.limit));
-  toolRegistry.set('memory_reinforce', (p) => reinforceSuccessfulPattern(p.memoryId, p.boost));
-  toolRegistry.set('memory_forget', (p) => decayOldMemories(p.olderThanDays, p.belowImportance));
-  toolRegistry.set('memory_health', () => checkMemoryHealth().then(healthy => ({ healthy, url: process.env.SEMANTIC_MEMORY_URL || 'not configured' })));
-  toolRegistry.set('memory_maintenance_schedule', () => getMemoryMaintenanceSchedule());
+  registerTool('memory_recall_context', (p) => recallContextForTask(p.task, p.repository));
+  registerTool('memory_store', (p) => storeManualMemory(p));
+  registerTool('memory_search', (p) => searchMemories(p));
+  registerTool('memory_related', (p) => getRelatedMemories(p.memoryId, p.limit));
+  registerTool('memory_reinforce', (p) => reinforceSuccessfulPattern(p.memoryId, p.boost));
+  registerTool('memory_forget', (p) => decayOldMemories(p.olderThanDays, p.belowImportance));
+  registerTool('memory_health', () => checkMemoryHealth().then(healthy => ({ healthy, url: process.env.SEMANTIC_MEMORY_URL || 'not configured' })));
+  registerTool('memory_maintenance_schedule', () => getMemoryMaintenanceSchedule());
 
   // v2.6.0: Render Integration for Auto-Fix
-  toolRegistry.set('render_connect', (p) => renderConnect(p.apiKey, p.webhookSecret));
-  toolRegistry.set('render_disconnect', () => renderDisconnect());
-  toolRegistry.set('render_status', () => ({ configured: isRenderConfigured(), autoFix: getRenderAutoFixStatus() }));
-  toolRegistry.set('render_list_services', () => renderListServices());
-  toolRegistry.set('render_list_deploys', (p) => renderListDeploys(p.serviceId, p.limit));
-  toolRegistry.set('render_get_build_logs', (p) => renderGetBuildLogs(p.serviceId, p.deployId));
-  toolRegistry.set('render_analyze_failure', async (p) => {
+  registerTool('render_connect', (p) => renderConnect(p.apiKey, p.webhookSecret));
+  registerTool('render_disconnect', () => renderDisconnect());
+  registerTool('render_status', () => ({ configured: isRenderConfigured(), autoFix: getRenderAutoFixStatus() }));
+  registerTool('render_list_services', () => renderListServices());
+  registerTool('render_list_deploys', (p) => renderListDeploys(p.serviceId, p.limit));
+  registerTool('render_get_build_logs', (p) => renderGetBuildLogs(p.serviceId, p.deployId));
+  registerTool('render_analyze_failure', async (p) => {
     const failure = await renderGetLatestFailedDeploy(p.serviceId);
     if (!failure.found) return failure;
     return renderAnalyzeErrors(failure.logs);
   });
-  toolRegistry.set('render_autofix_status', () => getRenderAutoFixStatus());
-  toolRegistry.set('render_set_autofix', (p) => setRenderAutoFixEnabled(p.enabled));
-  toolRegistry.set('render_add_monitored_service', (p) => addRenderMonitoredService(p.serviceId));
-  toolRegistry.set('render_remove_monitored_service', (p) => removeRenderMonitoredService(p.serviceId));
-  toolRegistry.set('render_trigger_autofix', async (p) => {
+  registerTool('render_autofix_status', () => getRenderAutoFixStatus());
+  registerTool('render_set_autofix', (p) => setRenderAutoFixEnabled(p.enabled));
+  registerTool('render_add_monitored_service', (p) => addRenderMonitoredService(p.serviceId));
+  registerTool('render_remove_monitored_service', (p) => removeRenderMonitoredService(p.serviceId));
+  registerTool('render_trigger_autofix', async (p) => {
     // Manual trigger for auto-fix on a specific service
     const failure = await renderGetLatestFailedDeploy(p.serviceId);
     if (!failure.found) return { success: false, message: 'No recent failed deploy found' };
@@ -703,13 +700,13 @@ function initializeToolRegistry() {
   });
 
   // v2.6.0: Suggested Tasks
-  toolRegistry.set('jules_suggested_tasks', (p) => getSuggestedTasks(p.directory, {
+  registerTool('jules_suggested_tasks', (p) => getSuggestedTasks(p.directory, {
     types: p.types,
     minPriority: p.minPriority,
     limit: p.limit,
     includeGitInfo: p.includeGitInfo
   }));
-  toolRegistry.set('jules_fix_suggested_task', async (p) => {
+  registerTool('jules_fix_suggested_task', async (p) => {
     // Get suggested tasks and find the one at the specified index
     const result = getSuggestedTasks(p.directory, { limit: 100 });
     if (p.taskIndex < 0 || p.taskIndex >= result.tasks.length) {
@@ -724,7 +721,7 @@ function initializeToolRegistry() {
       automationMode: 'AUTO_CREATE_PR'
     });
   });
-  toolRegistry.set('jules_clear_suggested_cache', () => clearSuggestedTasksCache());
+  registerTool('jules_clear_suggested_cache', () => clearSuggestedTasksCache());
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup
@@ -740,7 +737,7 @@ app.post('/mcp/execute', async (req, res) => {
   }
 
   // O(1) lookup instead of O(n) switch comparison
-  const handler = toolRegistry.get(tool);
+  const handler = getTool(tool);
   if (!handler) {
     return res.status(400).json({ error: 'Unknown tool: ' + tool });
   }
@@ -1320,7 +1317,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   // Initialize O(1) tool registry (must be after batchProcessor/sessionMonitor)
   initializeToolRegistry();
-  console.log('Modules initialized: BatchProcessor, SessionMonitor, ToolRegistry (' + toolRegistry.size + ' tools)');
+  console.log('Modules initialized: BatchProcessor, SessionMonitor, ToolRegistry (' + getAllTools().size + ' tools)');
 });
 
 process.on('SIGTERM', () => {
