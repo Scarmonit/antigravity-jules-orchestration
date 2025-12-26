@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './RateLimiterMetrics.css';
 
 export function RateLimiterMetrics() {
@@ -10,6 +10,8 @@ export function RateLimiterMetrics() {
     uptime: 0,
     redisErrors: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -18,9 +20,15 @@ export function RateLimiterMetrics() {
         if (response.ok) {
           const data = await response.json();
           setMetrics(data);
+          setError(null);
+        } else {
+          setError('Failed to load metrics');
         }
       } catch (error) {
         console.error('Failed to fetch rate limit metrics:', error);
+        setError('Connection failed');
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -45,6 +53,30 @@ export function RateLimiterMetrics() {
     if (!metrics.uptime || metrics.uptime === 0) return '0.0';
     return (metrics.totalRequests / metrics.uptime).toFixed(1);
   };
+
+  if (isLoading) {
+    return (
+      <section className="rate-limiter-metrics" aria-busy="true">
+        <h2>Rate Limiter</h2>
+        <div className="metrics-loading">
+          <div className="loading-spinner" aria-hidden="true"></div>
+          <span className="sr-only">Loading metrics...</span>
+          <span aria-hidden="true">Loading metrics...</span>
+        </div>
+      </section>
+    );
+  }
+
+  if (error && metrics.totalRequests === 0) {
+     return (
+      <section className="rate-limiter-metrics">
+        <h2>Rate Limiter</h2>
+        <div className="metrics-error">
+           <span role="img" aria-label="Error">⚠️</span> {error}
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="rate-limiter-metrics">

@@ -5,6 +5,7 @@
  * - Component rendering with default state
  * - Metric card display
  * - Helper function logic
+ * - Loading and Error states
  *
  * @module tests/RateLimiterMetrics.test
  */
@@ -39,16 +40,32 @@ describe('RateLimiterMetrics Component', () => {
   });
 
   describe('Initial Rendering', () => {
-    it('should render the component with header', async () => {
+    it('should show loading state initially', async () => {
+      // Don't await the fetch promise yet
+      mockFetch.mockReturnValue(new Promise(() => {}));
+
       await act(async () => {
         render(<RateLimiterMetrics />);
       });
+
+      const loadingElements = screen.getAllByText('Loading metrics...');
+      expect(loadingElements.length).toBeGreaterThan(0);
+      expect(screen.queryByText('Requests/sec')).not.toBeInTheDocument();
+    });
+
+    it('should render the component with header after loading', async () => {
+      await act(async () => {
+        render(<RateLimiterMetrics />);
+        await vi.runAllTimersAsync();
+      });
       expect(screen.getByText('Rate Limiter')).toBeInTheDocument();
+      expect(screen.queryByText('Loading metrics...')).not.toBeInTheDocument();
     });
 
     it('should display all metric card labels', async () => {
       await act(async () => {
         render(<RateLimiterMetrics />);
+        await vi.runAllTimersAsync();
       });
 
       expect(screen.getByText('Requests/sec')).toBeInTheDocument();
@@ -60,6 +77,7 @@ describe('RateLimiterMetrics Component', () => {
     it('should show requests per second metric value', async () => {
       await act(async () => {
         render(<RateLimiterMetrics />);
+        await vi.runAllTimersAsync();
       });
 
       // The requests/sec should show 0.0 initially
@@ -308,8 +326,8 @@ describe('RateLimiterMetrics Component', () => {
       });
 
       expect(consoleSpy).toHaveBeenCalled();
-      // Component should still render
-      expect(screen.getByText('Rate Limiter')).toBeInTheDocument();
+      // Component should show error message
+      expect(screen.getByText(/Connection failed/)).toBeInTheDocument();
       consoleSpy.mockRestore();
     });
 
@@ -324,8 +342,8 @@ describe('RateLimiterMetrics Component', () => {
         await vi.runAllTimersAsync();
       });
 
-      // Component should still render with initial state
-      expect(screen.getByText('Rate Limiter')).toBeInTheDocument();
+      // Component should show error message
+      expect(screen.getByText(/Failed to load metrics/)).toBeInTheDocument();
     });
   });
 
