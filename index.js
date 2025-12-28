@@ -40,6 +40,11 @@ import {
   clearCache as clearSuggestedTasksCache,
   generateFixPrompt as generateSuggestedTaskFixPrompt,
 } from './lib/suggested-tasks.js';
+import compressionMiddleware from './middleware/compressionMiddleware.js';
+import validateRequest from './middleware/validateRequest.js';
+import mcpExecuteSchema from './schemas/mcp-execute-schema.js';
+import sessionCreateSchema from './schemas/session-create-schema.js';
+import cacheMiddleware, { invalidateCache } from './middleware/cacheMiddleware.js';
 
 dotenv.config();
 
@@ -147,6 +152,8 @@ async function retryWithBackoff(fn, options = {}) {
 }
 
 const app = express();
+app.use(compressionMiddleware());
+app.use(cacheMiddleware);
 // Preserve raw body for webhook signature verification
 app.use(express.json({
   limit: '1mb',
@@ -728,7 +735,7 @@ function initializeToolRegistry() {
 }
 
 // MCP Protocol - Execute tool with O(1) registry lookup
-app.post('/mcp/execute', async (req, res) => {
+app.post('/mcp/execute', validateRequest(mcpExecuteSchema), async (req, res) => {
   const { tool, parameters = {} } = req.body;
 
   if (!tool) {
@@ -832,6 +839,14 @@ function julesRequest(method, path, body = null) {
 
 // Create a new Jules session with correct API schema
 async function createJulesSession(config) {
+  const { error } = sessionCreateSchema.validate(config);
+  if (error) {
+    // Sanitize and format the error to be more user-friendly
+    const errorMessage = error.details.map(d => d.message).join(', ');
+    const validationError = new Error(`Invalid session configuration: ${errorMessage}`);
+    validationError.statusCode = 400; // Bad Request
+    throw validationError;
+  }
   // Recall relevant context from semantic memory before creating session
   let memoryContext = null;
   if (process.env.SEMANTIC_MEMORY_URL && config.prompt) {
@@ -901,7 +916,10 @@ async function createJulesSession(config) {
   }
 
   console.log('[Jules API] Creating session:', JSON.stringify(sessionData, null, 2));
-  return await julesRequest('POST', '/sessions', sessionData);
+  const session = await julesRequest('POST', '/sessions', sessionData);
+  await invalidateCache('/api/sessions/active');
+  await invalidateCache('/api/sessions/stats');
+  return session;
 }
 
 // Create session from GitHub issue
@@ -985,20 +1003,26 @@ async function createSessionsFromLabel(params) {
 async function cancelSession(sessionId) {
   structuredLog('info', 'Cancelling session', { sessionId });
   apiCache.invalidate(sessionId);
-  return await retryWithBackoff(() => julesRequest('POST', `/sessions/${sessionId}:cancel`, {}), { maxRetries: 2 });
+  const result = await retryWithBackoff(() => julesRequest('POST', `/sessions/${sessionId}:cancel`, {}), { maxRetries: 2 });
+  await invalidateCache('/api/sessions/active');
+  await invalidateCache('/api/sessions/stats');
+  return result;
 }
 
 async function retrySession(sessionId, modifiedPrompt = null) {
   structuredLog('info', 'Retrying session', { sessionId });
   const original = await julesRequest('GET', `/sessions/${sessionId}`);
   if (!original) throw new Error(`Session ${sessionId} not found`);
-  return await createJulesSession({
+  const newSession = await createJulesSession({
     prompt: modifiedPrompt || original.prompt || 'Retry previous task',
     source: original.sourceContext?.source || original.source,
     title: `Retry: ${original.title || sessionId}`,
     requirePlanApproval: original.requirePlanApproval ?? true,
     automationMode: original.automationMode || 'AUTO_CREATE_PR'
   });
+  await invalidateCache('/api/sessions/active');
+  await invalidateCache('/api/sessions/stats');
+  return newSession;
 }
 
 async function getSessionDiff(sessionId) {
@@ -1022,6 +1046,8 @@ async function cancelAllActiveSessions(confirm) {
     catch (error) { return { id, cancelled: false, error: error.message }; }
   }));
   apiCache.clear();
+  await invalidateCache('/api/sessions/active');
+  await invalidateCache('/api/sessions/stats');
   return { totalAttempted: sessions.length, cancelled: results.filter(r => r.cancelled).length, failed: results.filter(r => !r.cancelled).length, results };
 }
 

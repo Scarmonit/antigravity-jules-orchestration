@@ -218,6 +218,21 @@ npm run dev
 }
 ```
 
+## Configuration
+
+The application can be configured using the following environment variables:
+
+| Variable                | Description                                                                 | Default      |
+| ----------------------- | --------------------------------------------------------------------------- | ------------ |
+| `PORT`                  | The port the server will listen on.                                         | `3323`       |
+| `HOST`                  | The host the server will bind to.                                           | `127.0.0.1`  |
+| `JULES_API_KEY`         | Your Jules API key.                                                         | `null`       |
+| `GITHUB_TOKEN`          | Your GitHub token for issue integration.                                    | `null`       |
+| `COMPRESSION_ENABLED`   | Enables gzip/brotli compression for responses.                              | `false`      |
+| `CACHE_ENABLED`         | Enables Redis-based response caching.                                       | `false`      |
+| `CACHE_DEFAULT_TTL`     | The default time-to-live for cached responses in seconds.                   | `300`        |
+| `REDIS_URL`             | The connection URL for the Redis server.                                    | `redis://localhost:6379` |
+
 ## License
 MIT License
 
