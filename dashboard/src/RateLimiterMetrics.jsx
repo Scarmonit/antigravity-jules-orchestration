@@ -10,6 +10,7 @@ export function RateLimiterMetrics() {
     uptime: 0,
     redisErrors: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -21,6 +22,8 @@ export function RateLimiterMetrics() {
         }
       } catch (error) {
         console.error('Failed to fetch rate limit metrics:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -46,33 +49,53 @@ export function RateLimiterMetrics() {
     return (metrics.totalRequests / metrics.uptime).toFixed(1);
   };
 
+  const renderMetricValue = (value, className = '') => {
+    if (isLoading) {
+      return <div className="loading-skeleton" />;
+    }
+    return <div className={`metric-value ${className}`}>{value}</div>;
+  };
+
+  const renderSubtitle = (text) => {
+    if (isLoading) {
+      return <div className="loading-skeleton subtitle" />;
+    }
+    return <div className="metric-subtitle">{text}</div>;
+  };
+
   return (
-    <section className="rate-limiter-metrics">
+    <section className="rate-limiter-metrics" aria-label="Rate Limiter Statistics">
       <h2>Rate Limiter</h2>
-      <div className="metrics-grid">
+      <div className="metrics-grid" aria-live="polite">
         <div className="metric-card">
           <div className="metric-label">Requests/sec</div>
-          <div className="metric-value">{getReqPerSec()}</div>
-          <div className="metric-subtitle">over {formatUptime(metrics.uptime)}</div>
+          {renderMetricValue(getReqPerSec())}
+          {renderSubtitle(`over ${formatUptime(metrics.uptime)}`)}
         </div>
         <div className="metric-card">
           <div className="metric-label">Allowed</div>
-          <div className="metric-value allowed">{metrics.allowedRequests.toLocaleString()}</div>
-          <div className="metric-subtitle">requests passed</div>
+          {renderMetricValue(metrics.allowedRequests.toLocaleString(), 'allowed')}
+          {renderSubtitle('requests passed')}
         </div>
         <div className="metric-card">
           <div className="metric-label">Blocked (429)</div>
-          <div className="metric-value blocked">{metrics.blockedRequests.toLocaleString()}</div>
-          <div className="metric-subtitle">{getBlockRate()}% block rate</div>
+          {renderMetricValue(metrics.blockedRequests.toLocaleString(), 'blocked')}
+          {renderSubtitle(`${getBlockRate()}% block rate`)}
         </div>
-        <div className={'metric-card status-card ' + (metrics.redisConnected ? 'connected' : 'disconnected')}>
+        <div
+          className={'metric-card status-card ' + (metrics.redisConnected ? 'connected' : 'disconnected')}
+          role="status"
+          aria-label={`Redis Status: ${metrics.redisConnected ? 'Connected' : 'Failover'}`}
+        >
           <div className="metric-label">Redis Status</div>
           <div className="metric-value status">
-            {metrics.redisConnected ? 'Connected' : 'Failover'}
+            {isLoading ? (
+              <div className="loading-skeleton" style={{ width: '80%' }} />
+            ) : (
+              metrics.redisConnected ? 'Connected' : 'Failover'
+            )}
           </div>
-          <div className="metric-subtitle">
-            {metrics.redisErrors > 0 ? metrics.redisErrors + ' errors' : 'No errors'}
-          </div>
+          {renderSubtitle(metrics.redisErrors > 0 ? metrics.redisErrors + ' errors' : 'No errors')}
         </div>
       </div>
     </section>
