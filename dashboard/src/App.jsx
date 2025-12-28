@@ -28,12 +28,10 @@ const STATUS_ICONS = {
 
 function App() {
   const [workflows, setWorkflows] = useState([]);
-  const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
   const [executingWorkflow, setExecutingWorkflow] = useState(null);
-  const [ws, setWs] = useState(null);
   const [activeTab, setActiveTab] = useState('workflows'); // 'workflows' | 'metrics'
 
-  // Use metrics hook for real-time metrics data
+  // Use metrics hook for real-time metrics data (single WebSocket connection)
   const {
     metrics,
     loading: metricsLoading,
@@ -41,36 +39,18 @@ function App() {
     refresh: refreshMetrics
   } = useMetrics('wss://agent.scarmonit.com/ws', '');
 
+  // Derive stats from metrics (avoid duplicate state)
+  const stats = metrics.stats;
+
   useEffect(() => {
-    // Fetch initial workflows
+    // Fetch initial workflows only (WebSocket handled by useMetrics hook)
     fetch('/api/v1/workflows')
       .then(res => res.json())
       .then(data => setWorkflows(data))
-      .catch(() => setWorkflows([])); // Graceful error handling
-
-    // Connect WebSocket for real-time updates
-    const websocket = new WebSocket('wss://agent.scarmonit.com/ws');
-
-    websocket.onmessage = (event) => {
-      const update = JSON.parse(event.data);
-
-      if (update.type === 'workflow_update') {
-        setWorkflows(prev =>
-          prev.map(w => w.id === update.workflow_id
-            ? { ...w, ...update.data }
-            : w
-          )
-        );
-      }
-
-      if (update.type === 'stats_update') {
-        setStats(update.data);
-      }
-    };
-
-    setWs(websocket);
-
-    return () => websocket.close();
+      .catch(err => {
+        console.error('Failed to fetch workflows:', err);
+        setWorkflows([]);
+      });
   }, []);
 
   // Memoized callback to prevent recreation on every render

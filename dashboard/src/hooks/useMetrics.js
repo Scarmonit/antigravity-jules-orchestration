@@ -39,64 +39,119 @@ const useMetrics = (wsUrl, apiBaseUrl = '', pollingInterval = 30000) => {
   const wsRef = useRef(null);
   const reconnectTimeoutRef = useRef(null);
   const pollingIntervalRef = useRef(null);
+  const mountedRef = useRef(true);
+  const reconnectAttemptsRef = useRef(0);
 
-  // Fetch metrics from REST API
+  const MAX_RECONNECT_ATTEMPTS = 5;
+  const BASE_RECONNECT_DELAY = 1000;
+
+  // Fetch metrics from REST API - uses functional update to avoid stale closures
   const fetchMetrics = useCallback(async () => {
+    if (!mountedRef.current) return;
+
+    const fetchErrors = [];
+
     try {
       const [sessionsRes, cacheRes] = await Promise.all([
-        fetch(`${apiBaseUrl}/api/sessions/stats`).catch(() => null),
-        fetch(`${apiBaseUrl}/jules_cache_stats`).catch(() => null)
+        fetch(`${apiBaseUrl}/api/sessions/stats`).catch(err => {
+          console.error('Failed to fetch session stats:', err.message);
+          fetchErrors.push(`Session stats: ${err.message}`);
+          return null;
+        }),
+        fetch(`${apiBaseUrl}/jules_cache_stats`).catch(err => {
+          console.error('Failed to fetch cache stats:', err.message);
+          fetchErrors.push(`Cache stats: ${err.message}`);
+          return null;
+        })
       ]);
 
-      const newMetrics = { ...metrics };
+      if (!mountedRef.current) return;
 
-      if (sessionsRes?.ok) {
-        const sessionsData = await sessionsRes.json();
-        newMetrics.sessions = sessionsData.sessions || [];
-        newMetrics.stats = {
-          total: sessionsData.total || 0,
-          running: sessionsData.running || 0,
-          completed: sessionsData.completed || 0,
-          failed: sessionsData.failed || 0
-        };
-      }
+      // Use functional update to avoid stale closure
+      setMetrics(prev => {
+        const newMetrics = { ...prev };
 
-      if (cacheRes?.ok) {
-        const cacheData = await cacheRes.json();
-        if (cacheData.success) {
-          const cache = cacheData.result.cache || {};
-          const hits = cache.hits || 0;
-          const misses = cache.misses || 0;
-          newMetrics.performance = {
-            ...newMetrics.performance,
-            cacheHitRatio: hits + misses > 0 ? hits / (hits + misses) : 0,
-            cacheStats: cache,
-            circuitBreakerStatus: cacheData.result.circuitBreaker?.state || 'closed'
-          };
+        if (sessionsRes?.ok) {
+          sessionsRes.json().then(sessionsData => {
+            if (!mountedRef.current) return;
+            setMetrics(p => ({
+              ...p,
+              sessions: sessionsData.sessions || [],
+              stats: {
+                total: sessionsData.total || 0,
+                running: sessionsData.running || 0,
+                completed: sessionsData.completed || 0,
+                failed: sessionsData.failed || 0
+              }
+            }));
+          }).catch(err => {
+            console.error('Failed to parse session stats JSON:', err);
+          });
+        } else if (sessionsRes) {
+          console.warn(`Session stats returned status ${sessionsRes.status}`);
         }
-      }
 
-      setMetrics(newMetrics);
-      setError(null);
+        if (cacheRes?.ok) {
+          cacheRes.json().then(cacheData => {
+            if (!mountedRef.current) return;
+            if (cacheData.success) {
+              const cache = cacheData.result.cache || {};
+              const hits = cache.hits || 0;
+              const misses = cache.misses || 0;
+              setMetrics(p => ({
+                ...p,
+                performance: {
+                  ...p.performance,
+                  cacheHitRatio: hits + misses > 0 ? hits / (hits + misses) : 0,
+                  cacheStats: cache,
+                  circuitBreakerStatus: cacheData.result.circuitBreaker?.state || 'closed'
+                }
+              }));
+            }
+          }).catch(err => {
+            console.error('Failed to parse cache stats JSON:', err);
+          });
+        } else if (cacheRes) {
+          console.warn(`Cache stats returned status ${cacheRes.status}`);
+        }
+
+        return newMetrics;
+      });
+
+      // Set error state if any fetch failed
+      if (fetchErrors.length > 0) {
+        setError(`Partial fetch failure: ${fetchErrors.join('; ')}`);
+      } else {
+        setError(null);
+      }
     } catch (err) {
       console.error('Error fetching metrics:', err);
-      setError(err.message);
+      if (mountedRef.current) {
+        setError(err.message);
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
-  }, [apiBaseUrl, metrics]);
+  }, [apiBaseUrl]);
 
   // Connect to WebSocket for real-time updates
   const connectWebSocket = useCallback(() => {
-    if (!wsUrl || wsRef.current?.readyState === WebSocket.OPEN) return;
+    if (!wsUrl || wsRef.current?.readyState === WebSocket.OPEN || !mountedRef.current) return;
 
     try {
       const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
+        if (!mountedRef.current) {
+          ws.close();
+          return;
+        }
         console.log('WebSocket connected for metrics');
         setConnected(true);
         setError(null);
+        reconnectAttemptsRef.current = 0; // Reset on successful connection
 
         // Clear polling when WebSocket is connected
         if (pollingIntervalRef.current) {
@@ -106,6 +161,8 @@ const useMetrics = (wsUrl, apiBaseUrl = '', pollingInterval = 30000) => {
       };
 
       ws.onmessage = (event) => {
+        if (!mountedRef.current) return;
+
         try {
           const update = JSON.parse(event.data);
 
@@ -154,23 +211,36 @@ const useMetrics = (wsUrl, apiBaseUrl = '', pollingInterval = 30000) => {
                 break;
 
               default:
+                console.warn('Received unknown WebSocket message type:', update.type);
                 break;
             }
 
             return newMetrics;
           });
         } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
+          const preview = typeof event.data === 'string'
+            ? event.data.substring(0, 200)
+            : '[non-string data]';
+          console.error('Failed to parse WebSocket message:', {
+            error: err.message,
+            dataPreview: preview,
+            dataLength: event.data?.length
+          });
         }
       };
 
-      ws.onerror = (err) => {
-        console.error('WebSocket error:', err);
-        setError('WebSocket connection error');
+      ws.onerror = () => {
+        // Note: WebSocket error events don't contain error details for security
+        console.error('WebSocket error occurred. URL:', wsUrl, 'ReadyState:', ws.readyState);
+        if (mountedRef.current) {
+          setError('Real-time connection failed. Using polling fallback.');
+        }
       };
 
-      ws.onclose = () => {
-        console.log('WebSocket disconnected');
+      ws.onclose = (event) => {
+        console.log(`WebSocket disconnected: code=${event.code}, reason=${event.reason || 'unknown'}`);
+        if (!mountedRef.current) return;
+
         setConnected(false);
         wsRef.current = null;
 
@@ -179,20 +249,38 @@ const useMetrics = (wsUrl, apiBaseUrl = '', pollingInterval = 30000) => {
           pollingIntervalRef.current = setInterval(fetchMetrics, pollingInterval);
         }
 
-        // Attempt to reconnect after 5 seconds
+        // Implement exponential backoff with max retries
+        if (reconnectAttemptsRef.current >= MAX_RECONNECT_ATTEMPTS) {
+          console.error(`WebSocket reconnection failed after ${MAX_RECONNECT_ATTEMPTS} attempts. Using polling only.`);
+          setError('WebSocket connection failed. Using polling fallback.');
+          return;
+        }
+
+        const delay = Math.min(
+          BASE_RECONNECT_DELAY * Math.pow(2, reconnectAttemptsRef.current),
+          30000
+        );
+        reconnectAttemptsRef.current += 1;
+
+        console.log(`Attempting WebSocket reconnection in ${delay}ms (attempt ${reconnectAttemptsRef.current}/${MAX_RECONNECT_ATTEMPTS})`);
+
         reconnectTimeoutRef.current = setTimeout(() => {
-          connectWebSocket();
-        }, 5000);
+          if (mountedRef.current) {
+            connectWebSocket();
+          }
+        }, delay);
       };
 
       wsRef.current = ws;
     } catch (err) {
       console.error('Failed to create WebSocket:', err);
-      setError(err.message);
+      if (mountedRef.current) {
+        setError(err.message);
 
-      // Fall back to polling
-      if (!pollingIntervalRef.current) {
-        pollingIntervalRef.current = setInterval(fetchMetrics, pollingInterval);
+        // Fall back to polling
+        if (!pollingIntervalRef.current) {
+          pollingIntervalRef.current = setInterval(fetchMetrics, pollingInterval);
+        }
       }
     }
   }, [wsUrl, fetchMetrics, pollingInterval]);
@@ -205,6 +293,7 @@ const useMetrics = (wsUrl, apiBaseUrl = '', pollingInterval = 30000) => {
 
   // Initialize on mount
   useEffect(() => {
+    mountedRef.current = true;
     fetchMetrics();
     connectWebSocket();
 
@@ -213,6 +302,7 @@ const useMetrics = (wsUrl, apiBaseUrl = '', pollingInterval = 30000) => {
 
     return () => {
       // Cleanup on unmount
+      mountedRef.current = false;
       if (wsRef.current) {
         wsRef.current.close();
       }
