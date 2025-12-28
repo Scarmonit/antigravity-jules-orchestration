@@ -31,85 +31,27 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
 
-## v2.0.0 Features
+## v2.6.0 Features
+
+### Performance & Reliability
+- **Redis Rate Limiter**: Production-ready distributed rate limiting with failover support.
+- **Optimized Batch Processing**: Parallel session creation with controlled concurrency using `p-limit`.
+- **RAG Optimization**: Stream-based file reading for RAG indexing to support larger codebases with lower memory footprint.
+- **Refactored Architecture**: Modularized route handling for better maintainability.
+- **Linting & Quality**: Added ESLint configuration and lint scripts.
 
 ### GitHub Issue Integration
 - **`jules_create_from_issue`**: Creates a Jules session from a GitHub issue.
-  - **Endpoint**: `POST /mcp/execute`
-  - **Body**:
-    ```json
-    {
-      "tool": "jules_create_from_issue",
-      "parameters": {
-        "owner": "your-github-org",
-        "repo": "your-repo-name",
-        "issueNumber": 123
-      }
-    }
-    ```
 - **`jules_batch_from_labels`**: Creates Jules sessions from all issues with a given set of labels.
-  - **Endpoint**: `POST /mcp/execute`
-  - **Body**:
-    ```json
-    {
-      "tool": "jules_batch_from_labels",
-      "parameters": {
-        "owner": "your-github-org",
-        "repo": "your-repo-name",
-        "label": "bug"
-      }
-    }
-    ```
 
 ### Batch Processing
 - **`jules_batch_create`**: Creates a batch of Jules sessions from a list of tasks.
-  - **Endpoint**: `POST /mcp/execute`
-  - **Body**:
-    ```json
-    {
-      "tool": "jules_batch_create",
-      "parameters": {
-        "tasks": [
-          {
-            "prompt": "Fix a bug",
-            "source": "sources/github/your-github-org/your-repo-name"
-          },
-          {
-            "prompt": "Implement a feature",
-            "source": "sources/github/your-github-org/your-repo-name"
-          }
-        ]
-      }
-    }
-    ```
 - **`jules_batch_status`**: Checks the status of a batch of Jules sessions.
-  - **Endpoint**: `POST /mcp/execute`
-  - **Body**:
-    ```json
-    {
-      "tool": "jules_batch_status",
-      "parameters": {
-        "batchId": "your-batch-id"
-      }
-    }
-    ```
 - **`jules_batch_approve_all`**: Approves all sessions in a batch.
-  - **Endpoint**: `POST /mcp/execute`
-  - **Body**:
-    ```json
-    {
-      "tool": "jules_batch_approve_all",
-      "parameters": {
-        "batchId": "your-batch-id"
-      }
-    }
-    ```
 
 ### Session Monitoring
 - **`jules_monitor_all`**: Monitors all active Jules sessions.
-  - **Endpoint**: `GET /api/sessions/active`
 - **`jules_session_timeline`**: Gets a timeline of events for a Jules session.
-  - **Endpoint**: `GET /api/sessions/:id/timeline`
 
 ## Workflow Architecture
 
