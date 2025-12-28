@@ -1,86 +1,46 @@
-import redis from 'redis';
+import { LRUCache } from 'lru-cache';
 
-const CACHE_ENABLED = process.env.CACHE_ENABLED === 'true';
-const CACHE_DEFAULT_TTL = parseInt(process.env.CACHE_DEFAULT_TTL, 10) || 300;
-
-let redisClient;
-let isRedisConnected = false;
-
-if (CACHE_ENABLED) {
-  redisClient = redis.createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379'
-  });
-
-  redisClient.on('error', (err) => {
-    console.error('Redis Client Error', err)
-    isRedisConnected = false;
-  });
-
-  redisClient.on('connect', () => {
-    isRedisConnected = true;
-  });
-
-  (async () => {
-    try {
-      await redisClient.connect();
-    } catch (err) {
-      console.error('Failed to connect to Redis:', err);
-    }
-  })();
-}
-
-const getCacheKey = (req) => `cache:${req.originalUrl}`;
-
-const getTtlForPath = (path) => {
-  if (path === '/mcp/tools') return 3600; // 1 hour
-  if (path === '/api/sessions/stats') return 30; // 30 seconds
-  if (path === '/api/sessions/active') return 10; // 10 seconds
-  return CACHE_DEFAULT_TTL;
+const options = {
+  max: 100,
 };
 
-const cacheMiddleware = async (req, res, next) => {
-  if (!CACHE_ENABLED || !isRedisConnected || req.method !== 'GET') {
+const mcpToolsCache = new LRUCache({ ...options, ttl: 3600000 });
+const sessionStatsCache = new LRUCache({ ...options, ttl: 30000 });
+const sessionActiveCache = new LRUCache({ ...options, ttl: 10000 });
+
+const getCache = (path) => {
+  if (path === '/mcp/tools') return mcpToolsCache;
+  if (path === '/api/sessions/stats') return sessionStatsCache;
+  if (path === '/api/sessions/active') return sessionActiveCache;
+  return null;
+};
+
+export const cacheMiddleware = (req, res, next) => {
+  const cache = getCache(req.path);
+  if (!cache) {
     return next();
   }
 
-  const key = getCacheKey(req);
+  const key = req.originalUrl || req.url;
+  const cachedResponse = cache.get(key);
 
-  try {
-    const cachedResponse = await redisClient.get(key);
-
-    if (cachedResponse) {
-      res.setHeader('X-Cache', 'hit');
-      return res.send(JSON.parse(cachedResponse));
-    }
-  } catch (error) {
-    console.error('Cache read error:', error);
+  if (cachedResponse) {
+    res.setHeader('X-Cache', 'HIT');
+    res.send(cachedResponse);
+    return;
   }
 
-  res.setHeader('X-Cache', 'miss');
+  res.setHeader('X-Cache', 'MISS');
   const originalSend = res.send;
   res.send = (body) => {
-    try {
-      if (res.statusCode >= 200 && res.statusCode < 300) {
-        const ttl = getTtlForPath(req.path);
-        redisClient.setEx(key, ttl, body);
-      }
-    } catch (error) {
-      console.error('Cache write error:', error);
-    }
-    return originalSend.call(res, body);
+    cache.set(key, body);
+    originalSend.call(res, body);
   };
 
   next();
 };
 
-export const invalidateCache = async (path) => {
-  if (!CACHE_ENABLED || !isRedisConnected) return;
-  const key = `cache:${path}`;
-  try {
-    await redisClient.del(key);
-  } catch (error) {
-    console.error(`Failed to invalidate cache for key "${key}":`, error);
-  }
+export const invalidateCaches = () => {
+  sessionStatsCache.clear();
+  sessionActiveCache.clear();
 };
-
-export default cacheMiddleware;

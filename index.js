@@ -44,7 +44,7 @@ import compressionMiddleware from './middleware/compressionMiddleware.js';
 import validateRequest from './middleware/validateRequest.js';
 import mcpExecuteSchema from './schemas/mcp-execute-schema.js';
 import sessionCreateSchema from './schemas/session-create-schema.js';
-import cacheMiddleware, { invalidateCache } from './middleware/cacheMiddleware.js';
+import { cacheMiddleware, invalidateCaches } from './middleware/cacheMiddleware.js';
 
 dotenv.config();
 
@@ -303,7 +303,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
 // ============ NEW API ENDPOINTS ============
 
 // Get active sessions
-app.get('/api/sessions/active', async (req, res) => {
+app.get('/api/sessions/active', cacheMiddleware, async (req, res) => {
   try {
     if (!sessionMonitor) {
       return res.status(503).json({ error: 'Monitor not initialized' });
@@ -316,7 +316,7 @@ app.get('/api/sessions/active', async (req, res) => {
 });
 
 // Get session statistics
-app.get('/api/sessions/stats', async (req, res) => {
+app.get('/api/sessions/stats', cacheMiddleware, async (req, res) => {
   try {
     if (!sessionMonitor) {
       return res.status(503).json({ error: 'Monitor not initialized' });
@@ -364,7 +364,7 @@ app.post('/webhooks/render', async (req, res) => {
 // ============ MCP TOOLS ============
 
 // MCP Protocol - List available tools
-app.get('/mcp/tools', (req, res) => {
+app.get('/mcp/tools', cacheMiddleware, (req, res) => {
   res.json({
     tools: [
       // Original tools
@@ -608,8 +608,16 @@ function initializeToolRegistry() {
   toolRegistry.set('jules_create_session', (p) => createJulesSession(p));
   toolRegistry.set('jules_list_sessions', (p) => julesRequest('GET', '/sessions'));
   toolRegistry.set('jules_get_session', (p) => julesRequest('GET', '/sessions/' + p.sessionId));
-  toolRegistry.set('jules_send_message', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':sendMessage', { message: p.message }));
-  toolRegistry.set('jules_approve_plan', (p) => julesRequest('POST', '/sessions/' + p.sessionId + ':approvePlan', {}));
+  toolRegistry.set('jules_send_message', async (p) => {
+    const result = await julesRequest('POST', '/sessions/' + p.sessionId + ':sendMessage', { message: p.message });
+    invalidateCaches();
+    return result;
+  });
+  toolRegistry.set('jules_approve_plan', async (p) => {
+    const result = await julesRequest('POST', '/sessions/' + p.sessionId + ':approvePlan', {});
+    invalidateCaches();
+    return result;
+  });
   toolRegistry.set('jules_get_activities', (p) => julesRequest('GET', '/sessions/' + p.sessionId + '/activities'));
 
   // GitHub Issue Integration
@@ -917,8 +925,7 @@ async function createJulesSession(config) {
 
   console.log('[Jules API] Creating session:', JSON.stringify(sessionData, null, 2));
   const session = await julesRequest('POST', '/sessions', sessionData);
-  await invalidateCache('/api/sessions/active');
-  await invalidateCache('/api/sessions/stats');
+  invalidateCaches();
   return session;
 }
 
@@ -1004,8 +1011,8 @@ async function cancelSession(sessionId) {
   structuredLog('info', 'Cancelling session', { sessionId });
   apiCache.invalidate(sessionId);
   const result = await retryWithBackoff(() => julesRequest('POST', `/sessions/${sessionId}:cancel`, {}), { maxRetries: 2 });
-  await invalidateCache('/api/sessions/active');
-  await invalidateCache('/api/sessions/stats');
+  await invalidateCaches('/api/sessions/active');
+  await invalidateCaches('/api/sessions/stats');
   return result;
 }
 
@@ -1020,8 +1027,8 @@ async function retrySession(sessionId, modifiedPrompt = null) {
     requirePlanApproval: original.requirePlanApproval ?? true,
     automationMode: original.automationMode || 'AUTO_CREATE_PR'
   });
-  await invalidateCache('/api/sessions/active');
-  await invalidateCache('/api/sessions/stats');
+  await invalidateCaches('/api/sessions/active');
+  await invalidateCaches('/api/sessions/stats');
   return newSession;
 }
 
@@ -1046,8 +1053,8 @@ async function cancelAllActiveSessions(confirm) {
     catch (error) { return { id, cancelled: false, error: error.message }; }
   }));
   apiCache.clear();
-  await invalidateCache('/api/sessions/active');
-  await invalidateCache('/api/sessions/stats');
+  await invalidateCaches('/api/sessions/active');
+  await invalidateCaches('/api/sessions/stats');
   return { totalAttempted: sessions.length, cancelled: results.filter(r => r.cancelled).length, failed: results.filter(r => !r.cancelled).length, results };
 }
 
