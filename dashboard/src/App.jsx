@@ -1,7 +1,11 @@
 // dashboard/src/App.jsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 import { RateLimiterMetrics } from './RateLimiterMetrics';
+import SessionMetrics from './components/SessionMetrics';
+import PerformanceMetrics from './components/PerformanceMetrics';
+import ErrorMetrics from './components/ErrorMetrics';
+import useMetrics from './hooks/useMetrics';
 
 // Status color and icon maps - defined outside component to avoid recreation
 const STATUS_COLORS = {
@@ -27,6 +31,15 @@ function App() {
   const [stats, setStats] = useState({ total: 0, running: 0, completed: 0, failed: 0 });
   const [executingWorkflow, setExecutingWorkflow] = useState(null);
   const [ws, setWs] = useState(null);
+  const [activeTab, setActiveTab] = useState('workflows'); // 'workflows' | 'metrics'
+
+  // Use metrics hook for real-time metrics data
+  const {
+    metrics,
+    loading: metricsLoading,
+    connected: wsConnected,
+    refresh: refreshMetrics
+  } = useMetrics('wss://agent.scarmonit.com/ws', '');
 
   useEffect(() => {
     // Fetch initial workflows
@@ -85,7 +98,27 @@ function App() {
   return (
     <div className="App">
       <header>
-        <h1>🤖 Jules Orchestrator</h1>
+        <div className="header-top">
+          <h1>🤖 Jules Orchestrator</h1>
+          <div className="connection-status">
+            <span className={`status-indicator ${wsConnected ? 'connected' : 'disconnected'}`} />
+            {wsConnected ? 'Live' : 'Polling'}
+          </div>
+        </div>
+        <nav className="tab-nav">
+          <button
+            className={`tab-btn ${activeTab === 'workflows' ? 'active' : ''}`}
+            onClick={() => setActiveTab('workflows')}
+          >
+            📋 Workflows
+          </button>
+          <button
+            className={`tab-btn ${activeTab === 'metrics' ? 'active' : ''}`}
+            onClick={() => setActiveTab('metrics')}
+          >
+            📊 Metrics
+          </button>
+        </nav>
         <div className="stats">
           <div className="stat">
             <span className="label">Total</span>
@@ -107,111 +140,143 @@ function App() {
       </header>
 
       <main>
-        <RateLimiterMetrics />
-        <section className="quick-actions">
-          <h2>Quick Actions</h2>
-          <div className="action-buttons">
-            <button
-              onClick={() => executeWorkflow('dependency-update', { repo_name: 'scarmonit/jules-orchestrator' })}
-              disabled={executingWorkflow === 'dependency-update'}
-              aria-label="Update project dependencies"
-            >
-              {executingWorkflow === 'dependency-update' ? '⏳ Starting...' : '📦 Update Dependencies'}
-            </button>
-            <button
-              onClick={() => executeWorkflow('documentation-sync', { repo_name: 'scarmonit/jules-orchestrator' })}
-              disabled={executingWorkflow === 'documentation-sync'}
-              aria-label="Synchronize documentation"
-            >
-              {executingWorkflow === 'documentation-sync' ? '⏳ Syncing...' : '📝 Sync Docs'}
-            </button>
-            <button
-              onClick={() => executeWorkflow('security-patch', { repo_name: 'scarmonit/jules-orchestrator' })}
-              disabled={executingWorkflow === 'security-patch'}
-              aria-label="Run security scan"
-            >
-              {executingWorkflow === 'security-patch' ? '⏳ Scanning...' : '🔒 Security Scan'}
-            </button>
-          </div>
-        </section>
-
-        <section className="workflows">
-          <h2>Active Workflows</h2>
-          <div className="workflow-list">
-            {workflows.map(workflow => (
-              <div key={workflow.id} className="workflow-card">
-                <div className="workflow-header">
-                  <span className="workflow-icon" style={{ color: getStatusColor(workflow.status) }}>
-                    {getStatusIcon(workflow.status)}
-                  </span>
-                  <div className="workflow-info">
-                    <h3>{workflow.context_json.repo_name}</h3>
-                    <p className="workflow-title">{workflow.context_json.issue_title || workflow.template_name}</p>
-                  </div>
-                  <span className="workflow-status" style={{ backgroundColor: getStatusColor(workflow.status) }}>
-                    {workflow.status}
-                  </span>
-                </div>
-                
-                <div className="workflow-details">
-                  <div className="detail">
-                    <span className="detail-label">Template:</span>
-                    <span>{workflow.template_name}</span>
-                  </div>
-                  <div className="detail">
-                    <span className="detail-label">Created:</span>
-                    <span>{new Date(workflow.created_at).toLocaleString()}</span>
-                  </div>
-                  {workflow.pr_url && (
-                    <div className="detail">
-                      <a href={workflow.pr_url} target="_blank" rel="noopener noreferrer">
-                        View PR →
-                      </a>
-                    </div>
-                  )}
-                </div>
-                
-                {workflow.status === 'awaiting_approval' && (
-                  <div className="workflow-actions">
-                    <button className="approve">✓ Approve</button>
-                    <button className="reject">✗ Reject</button>
-                  </div>
-                )}
+        {activeTab === 'workflows' && (
+          <>
+            <RateLimiterMetrics />
+            <section className="quick-actions">
+              <h2>Quick Actions</h2>
+              <div className="action-buttons">
+                <button
+                  onClick={() => executeWorkflow('dependency-update', { repo_name: 'scarmonit/jules-orchestrator' })}
+                  disabled={executingWorkflow === 'dependency-update'}
+                  aria-label="Update project dependencies"
+                >
+                  {executingWorkflow === 'dependency-update' ? '⏳ Starting...' : '📦 Update Dependencies'}
+                </button>
+                <button
+                  onClick={() => executeWorkflow('documentation-sync', { repo_name: 'scarmonit/jules-orchestrator' })}
+                  disabled={executingWorkflow === 'documentation-sync'}
+                  aria-label="Synchronize documentation"
+                >
+                  {executingWorkflow === 'documentation-sync' ? '⏳ Syncing...' : '📝 Sync Docs'}
+                </button>
+                <button
+                  onClick={() => executeWorkflow('security-patch', { repo_name: 'scarmonit/jules-orchestrator' })}
+                  disabled={executingWorkflow === 'security-patch'}
+                  aria-label="Run security scan"
+                >
+                  {executingWorkflow === 'security-patch' ? '⏳ Scanning...' : '🔒 Security Scan'}
+                </button>
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
 
-        <section className="templates">
-          <h2>Workflow Templates</h2>
-          <div className="template-grid">
-            <div className="template-card">
-              <h3>🐛 Bug Fix</h3>
-              <p>Auto-fix from labeled issues</p>
-              <span className="template-trigger">Trigger: bug-auto label</span>
+            <section className="workflows">
+              <h2>Active Workflows</h2>
+              <div className="workflow-list">
+                {workflows.map(workflow => (
+                  <div key={workflow.id} className="workflow-card">
+                    <div className="workflow-header">
+                      <span className="workflow-icon" style={{ color: getStatusColor(workflow.status) }}>
+                        {getStatusIcon(workflow.status)}
+                      </span>
+                      <div className="workflow-info">
+                        <h3>{workflow.context_json.repo_name}</h3>
+                        <p className="workflow-title">{workflow.context_json.issue_title || workflow.template_name}</p>
+                      </div>
+                      <span className="workflow-status" style={{ backgroundColor: getStatusColor(workflow.status) }}>
+                        {workflow.status}
+                      </span>
+                    </div>
+
+                    <div className="workflow-details">
+                      <div className="detail">
+                        <span className="detail-label">Template:</span>
+                        <span>{workflow.template_name}</span>
+                      </div>
+                      <div className="detail">
+                        <span className="detail-label">Created:</span>
+                        <span>{new Date(workflow.created_at).toLocaleString()}</span>
+                      </div>
+                      {workflow.pr_url && (
+                        <div className="detail">
+                          <a href={workflow.pr_url} target="_blank" rel="noopener noreferrer">
+                            View PR →
+                          </a>
+                        </div>
+                      )}
+                    </div>
+
+                    {workflow.status === 'awaiting_approval' && (
+                      <div className="workflow-actions">
+                        <button className="approve">✓ Approve</button>
+                        <button className="reject">✗ Reject</button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="templates">
+              <h2>Workflow Templates</h2>
+              <div className="template-grid">
+                <div className="template-card">
+                  <h3>🐛 Bug Fix</h3>
+                  <p>Auto-fix from labeled issues</p>
+                  <span className="template-trigger">Trigger: bug-auto label</span>
+                </div>
+                <div className="template-card">
+                  <h3>✨ Feature</h3>
+                  <p>Implement feature from spec</p>
+                  <span className="template-trigger">Trigger: @tools\jules-mcp\dist\client\jules-client.js implement</span>
+                </div>
+                <div className="template-card">
+                  <h3>📦 Dependencies</h3>
+                  <p>Weekly update check</p>
+                  <span className="template-trigger">Trigger: Monday 2 AM</span>
+                </div>
+                <div className="template-card">
+                  <h3>🔒 Security</h3>
+                  <p>Patch vulnerabilities</p>
+                  <span className="template-trigger">Trigger: Scanner alert</span>
+                </div>
+                <div className="template-card">
+                  <h3>📝 Docs</h3>
+                  <p>Sync documentation</p>
+                  <span className="template-trigger">Trigger: main push</span>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeTab === 'metrics' && (
+          <div className="metrics-dashboard">
+            <div className="metrics-header">
+              <h2>System Metrics</h2>
+              <button
+                className="refresh-btn"
+                onClick={refreshMetrics}
+                disabled={metricsLoading}
+              >
+                {metricsLoading ? '⏳ Loading...' : '🔄 Refresh'}
+              </button>
             </div>
-            <div className="template-card">
-              <h3>✨ Feature</h3>
-              <p>Implement feature from spec</p>
-              <span className="template-trigger">Trigger: @tools\jules-mcp\dist\client\jules-client.js implement</span>
-            </div>
-            <div className="template-card">
-              <h3>📦 Dependencies</h3>
-              <p>Weekly update check</p>
-              <span className="template-trigger">Trigger: Monday 2 AM</span>
-            </div>
-            <div className="template-card">
-              <h3>🔒 Security</h3>
-              <p>Patch vulnerabilities</p>
-              <span className="template-trigger">Trigger: Scanner alert</span>
-            </div>
-            <div className="template-card">
-              <h3>📝 Docs</h3>
-              <p>Sync documentation</p>
-              <span className="template-trigger">Trigger: main push</span>
-            </div>
+
+            <SessionMetrics
+              sessions={metrics.sessions}
+              stats={metrics.stats}
+            />
+
+            <PerformanceMetrics
+              performance={metrics.performance}
+            />
+
+            <ErrorMetrics
+              errors={metrics.errors}
+            />
           </div>
-        </section>
+        )}
       </main>
     </div>
   );
