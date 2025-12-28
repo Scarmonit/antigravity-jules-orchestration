@@ -1,3 +1,3 @@
-## 2024-05-23 - [Optimized Tier Cache with LRU]
-**Learning:** The `RedisRateLimiter` used a simple `Map` for caching API key tiers locally. While it had a check to evict the oldest entry when full, `Map` operations like `.get()` do not update the insertion order. This meant that the eviction policy was effectively FIFO (First-In-First-Out) based on insertion time, rather than LRU (Least Recently Used). Frequently accessed keys could be evicted if they were inserted early.
-**Action:** Replaced the `Map` with the existing `LRUCache` class (already defined in the file for failover). This ensures that accessed keys are moved to the end of the list, preserving popular keys in the cache and reducing Redis lookups.
+## 2024-05-23 - [Optimized RAG Indexing with Async I/O]
+**Learning:** The `ragIndexDirectory` function in `lib/rag.js` was using synchronous file system operations (`fs.readdirSync`, `fs.readFileSync`) inside a loop. In a Node.js single-threaded event loop environment, this blocks the entire server while indexing large directories, making the application unresponsive.
+**Action:** Refactored `ragIndexDirectory`, `walkDir`, and `indexFile` to use `fs.promises.readdir` and `fs.promises.readFile`. This allows the event loop to handle other requests while waiting for I/O, significantly improving concurrency and responsiveness during indexing operations.
