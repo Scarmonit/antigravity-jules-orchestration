@@ -77,3 +77,24 @@
   border-color: var(--warning, #f59e0b);
   background: linear-gradient(135deg, var(--bg-card, #1e2339) 0%, rgba(245, 158, 11, 0.1) 100%);
 }
+
+/* Loading State */
+@keyframes pulse {
+  0% { opacity: 0.5; }
+  50% { opacity: 0.2; }
+  100% { opacity: 0.5; }
+}
+
+.loading-skeleton {
+  background-color: var(--text-secondary, #a1a1aa);
+  height: 2.5rem;
+  width: 60%;
+  margin: 0 auto 0.5rem;
+  border-radius: 4px;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.loading-skeleton.subtitle {
+  height: 0.75rem;
+  width: 40%;
+}
