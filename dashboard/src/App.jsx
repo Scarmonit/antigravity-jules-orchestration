@@ -43,14 +43,24 @@ function App() {
   const stats = metrics.stats;
 
   useEffect(() => {
-    // Fetch initial workflows only (WebSocket handled by useMetrics hook)
-    fetch('/api/v1/workflows')
-      .then(res => res.json())
-      .then(data => setWorkflows(data))
-      .catch(err => {
-        console.error('Failed to fetch workflows:', err);
-        setWorkflows([]);
-      });
+    // Helper to fetch workflows
+    const fetchWorkflows = () => {
+      fetch('/api/v1/workflows')
+        .then(res => res.json())
+        .then(data => setWorkflows(data))
+        .catch(err => {
+          console.error('Failed to fetch workflows:', err);
+          // Don't clear workflows on error to prevent flickering, just log
+        });
+    };
+
+    // Initial fetch
+    fetchWorkflows();
+
+    // Poll every 10 seconds to keep UI fresh
+    const intervalId = setInterval(fetchWorkflows, 10000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // Memoized callback to prevent recreation on every render
