@@ -1,0 +1,4089 @@
+
+> antigravity-jules-orchestration@2.6.1 test
+> node --test tests/unit/*.test.js
+
+TAP version 13
+# [Batch] Starting batch batch_1766993926155_lk0bsqg0o with 6 tasks (parallel: 2)
+# [Batch] Creating session 1/6: Long Task
+# [Batch] Creating session 2/6: Short Task 1
+# [Batch] Creating session 3/6: Short Task 2
+# [Batch] Creating session 4/6: Short Task 3
+# [Batch] Creating session 5/6: Short Task 4
+# [Batch] Creating session 6/6: Short Task 5
+# [Batch] Batch batch_1766993926155_lk0bsqg0o created: 6 sessions, 0 errors
+# Batch Processing Duration: 204ms
+# Subtest: BatchProcessor performance benchmark
+ok 1 - BatchProcessor performance benchmark
+  ---
+  duration_ms: 205.999849
+  type: 'test'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'lru-cache' imported from /app/middleware/cacheMiddleware.js
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:767:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:853:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:983:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.21.1
+# Subtest: tests/unit/cache.test.js
+not ok 2 - tests/unit/cache.test.js
+  ---
+  duration_ms: 89.976309
+  type: 'test'
+  location: '/app/tests/unit/cache.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Health Endpoint Response Schema
+    # Subtest: Required Top-Level Fields
+        # Subtest: should have all required top-level fields
+        ok 1 - should have all required top-level fields
+          ---
+          duration_ms: 2.659626
+          type: 'test'
+          ...
+        # Subtest: should have status field with value "ok" when healthy
+        ok 2 - should have status field with value "ok" when healthy
+          ---
+          duration_ms: 0.475595
+          type: 'test'
+          ...
+        # Subtest: should have version as a string
+        ok 3 - should have version as a string
+          ---
+          duration_ms: 0.485592
+          type: 'test'
+          ...
+        # Subtest: should have timestamp as valid ISO string
+        ok 4 - should have timestamp as valid ISO string
+          ---
+          duration_ms: 0.470782
+          type: 'test'
+          ...
+        # Subtest: should have uptime as a number
+        ok 5 - should have uptime as a number
+          ---
+          duration_ms: 0.384699
+          type: 'test'
+          ...
+        1..5
+    ok 1 - Required Top-Level Fields
+      ---
+      duration_ms: 6.691331
+      type: 'suite'
+      ...
+    # Subtest: Services Object Structure
+        # Subtest: should have all required service fields
+        ok 1 - should have all required service fields
+          ---
+          duration_ms: 1.064371
+          type: 'test'
+          ...
+        # Subtest: should have julesApi field (required by CI health check)
+        ok 2 - should have julesApi field (required by CI health check)
+          ---
+          duration_ms: 0.26294
+          type: 'test'
+          ...
+        # Subtest: should have julesApi with valid value
+        ok 3 - should have julesApi with valid value
+          ---
+          duration_ms: 0.83367
+          type: 'test'
+          ...
+        # Subtest: should have julesApi="configured" when API key is set
+        ok 4 - should have julesApi="configured" when API key is set
+          ---
+          duration_ms: 0.645097
+          type: 'test'
+          ...
+        # Subtest: should have database with valid configuration status
+        ok 5 - should have database with valid configuration status
+          ---
+          duration_ms: 0.708227
+          type: 'test'
+          ...
+        # Subtest: should have github with valid configuration status
+        ok 6 - should have github with valid configuration status
+          ---
+          duration_ms: 0.343341
+          type: 'test'
+          ...
+        1..6
+    ok 2 - Services Object Structure
+      ---
+      duration_ms: 4.845389
+      type: 'suite'
+      ...
+    # Subtest: Circuit Breaker Object Structure
+        # Subtest: should have all required circuit breaker fields
+        ok 1 - should have all required circuit breaker fields
+          ---
+          duration_ms: 0.44149
+          type: 'test'
+          ...
+        # Subtest: should have failures as a number
+        ok 2 - should have failures as a number
+          ---
+          duration_ms: 0.331391
+          type: 'test'
+          ...
+        # Subtest: should have isOpen as a boolean
+        ok 3 - should have isOpen as a boolean
+          ---
+          duration_ms: 0.257617
+          type: 'test'
+          ...
+        1..3
+    ok 3 - Circuit Breaker Object Structure
+      ---
+      duration_ms: 3.468802
+      type: 'suite'
+      ...
+    # Subtest: Memory Object Structure
+        # Subtest: should have all required memory fields
+        ok 1 - should have all required memory fields
+          ---
+          duration_ms: 0.450749
+          type: 'test'
+          ...
+        # Subtest: should have memory values as strings with MB suffix
+        ok 2 - should have memory values as strings with MB suffix
+          ---
+          duration_ms: 0.262874
+          type: 'test'
+          ...
+        1..2
+    ok 4 - Memory Object Structure
+      ---
+      duration_ms: 1.083694
+      type: 'suite'
+      ...
+    1..4
+ok 3 - Health Endpoint Response Schema
+  ---
+  duration_ms: 18.160985
+  type: 'suite'
+  ...
+# Subtest: CI/CD Health Check Compatibility
+    # Subtest: should produce JSON that CI grep can match for status:ok
+    ok 1 - should produce JSON that CI grep can match for status:ok
+      ---
+      duration_ms: 0.333776
+      type: 'test'
+      ...
+    # Subtest: should produce JSON that CI grep can match for julesApi:configured
+    ok 2 - should produce JSON that CI grep can match for julesApi:configured
+      ---
+      duration_ms: 0.252094
+      type: 'test'
+      ...
+    # Subtest: should NOT have apiKeyConfigured field (old format)
+    ok 3 - should NOT have apiKeyConfigured field (old format)
+      ---
+      duration_ms: 0.241489
+      type: 'test'
+      ...
+    # Subtest: should serialize to valid JSON
+    ok 4 - should serialize to valid JSON
+      ---
+      duration_ms: 0.442061
+      type: 'test'
+      ...
+    1..4
+ok 4 - CI/CD Health Check Compatibility
+  ---
+  duration_ms: 1.913511
+  type: 'suite'
+  ...
+# Subtest: Health Response Edge Cases
+    # Subtest: should handle julesApi=not_configured gracefully
+    ok 1 - should handle julesApi=not_configured gracefully
+      ---
+      duration_ms: 0.323828
+      type: 'test'
+      ...
+    # Subtest: should handle circuit_open state
+    ok 2 - should handle circuit_open state
+      ---
+      duration_ms: 0.243364
+      type: 'test'
+      ...
+    # Subtest: should handle all services unconfigured
+    ok 3 - should handle all services unconfigured
+      ---
+      duration_ms: 0.254894
+      type: 'test'
+      ...
+    1..3
+ok 5 - Health Response Edge Cases
+  ---
+  duration_ms: 1.063968
+  type: 'suite'
+  ...
+# Running memory-integration tests...
+# [Memory] Domain not allowed: evil-site.com, using default
+# [Memory] Domain not allowed: 192.168.1.1, using default
+# [Memory] Only HTTPS URLs allowed, using default
+# [Memory] Invalid URL: Invalid URL
+# [Memory] Only HTTPS URLs allowed, using default
+# [Memory] API error 500: Internal Server Error: Database connection failed at /var/lib/postgres
+# [Memory] Tool search_memory failed: Memory API error: 500 - Memory service unavailable
+# [Memory] API error 400: Validation Error: field "secret_key" is required
+# [Memory] Tool search_memory failed: Memory API error: 400 - Memory operation failed
+# [Memory] API error 500: Error: Something failed
+#     at Function.x (/app/lib/db.js:45:12)
+# [Memory] Tool search_memory failed: Memory API error: 500 - Memory service unavailable
+# [Memory] Tool search_memory failed: ECONNREFUSED: Connection refused
+# [Memory] Found 1 relevant memories for task
+# [Memory] Health check failed: Network error
+# [Memory] Tool search_memory failed: ECONNREFUSED
+# [Memory] Tool search_memory failed: AbortError: The operation was aborted
+# [Memory] Tool search_memory failed: ENOTFOUND
+# [Memory] Tool store_memory failed: Unexpected error
+# [Memory] Tool search_memory failed: Unexpected token
+# Subtest: SSRF Protection
+    # Subtest: should accept valid whitelisted domain (memory.scarmonit.com)
+    ok 1 - should accept valid whitelisted domain (memory.scarmonit.com)
+      ---
+      duration_ms: 9.784023
+      type: 'test'
+      ...
+    # Subtest: should accept valid whitelisted domain (semantic-memory-mcp.onrender.com)
+    ok 2 - should accept valid whitelisted domain (semantic-memory-mcp.onrender.com)
+      ---
+      duration_ms: 2.898327
+      type: 'test'
+      ...
+    # Subtest: should accept localhost for development
+    ok 3 - should accept localhost for development
+      ---
+      duration_ms: 2.859076
+      type: 'test'
+      ...
+    # Subtest: should reject non-whitelisted domains and use default
+    ok 4 - should reject non-whitelisted domains and use default
+      ---
+      duration_ms: 3.251589
+      type: 'test'
+      ...
+    # Subtest: should reject IP addresses and use default
+    ok 5 - should reject IP addresses and use default
+      ---
+      duration_ms: 3.050483
+      type: 'test'
+      ...
+    # Subtest: should reject HTTP for non-localhost and use default
+    ok 6 - should reject HTTP for non-localhost and use default
+      ---
+      duration_ms: 3.272497
+      type: 'test'
+      ...
+    # Subtest: should handle invalid URL and use default
+    ok 7 - should handle invalid URL and use default
+      ---
+      duration_ms: 3.243667
+      type: 'test'
+      ...
+    # Subtest: should reject internal AWS metadata endpoint
+    ok 8 - should reject internal AWS metadata endpoint
+      ---
+      duration_ms: 3.770277
+      type: 'test'
+      ...
+    1..8
+ok 6 - SSRF Protection
+  ---
+  duration_ms: 35.512493
+  type: 'suite'
+  ...
+# Subtest: Error Sanitization
+    # Subtest: should sanitize 500 errors to generic message
+    ok 1 - should sanitize 500 errors to generic message
+      ---
+      duration_ms: 5.87044
+      type: 'test'
+      ...
+    # Subtest: should sanitize 4xx errors to generic message
+    ok 2 - should sanitize 4xx errors to generic message
+      ---
+      duration_ms: 4.066881
+      type: 'test'
+      ...
+    # Subtest: should not expose stack traces in errors
+    ok 3 - should not expose stack traces in errors
+      ---
+      duration_ms: 2.86369
+      type: 'test'
+      ...
+    # Subtest: should handle network errors gracefully
+    ok 4 - should handle network errors gracefully
+      ---
+      duration_ms: 2.504424
+      type: 'test'
+      ...
+    1..4
+ok 7 - Error Sanitization
+  ---
+  duration_ms: 15.900575
+  type: 'suite'
+  ...
+# Subtest: Input Validation
+    # Subtest: reinforceSuccessfulPattern
+        # Subtest: should reject null memoryId
+        ok 1 - should reject null memoryId
+          ---
+          duration_ms: 2.392604
+          type: 'test'
+          ...
+        # Subtest: should reject empty string memoryId
+        ok 2 - should reject empty string memoryId
+          ---
+          duration_ms: 2.242352
+          type: 'test'
+          ...
+        # Subtest: should reject memoryId longer than 36 chars
+        ok 3 - should reject memoryId longer than 36 chars
+          ---
+          duration_ms: 2.401577
+          type: 'test'
+          ...
+        # Subtest: should accept valid UUID memoryId
+        ok 4 - should accept valid UUID memoryId
+          ---
+          duration_ms: 2.440501
+          type: 'test'
+          ...
+        # Subtest: should clamp boost to valid range (0-1)
+        ok 5 - should clamp boost to valid range (0-1)
+          ---
+          duration_ms: 2.585948
+          type: 'test'
+          ...
+        # Subtest: should clamp negative boost to default
+        ok 6 - should clamp negative boost to default
+          ---
+          duration_ms: 2.610933
+          type: 'test'
+          ...
+        1..6
+    ok 1 - reinforceSuccessfulPattern
+      ---
+      duration_ms: 15.476932
+      type: 'suite'
+      ...
+    # Subtest: getRelatedMemories
+        # Subtest: should reject null memoryId
+        ok 1 - should reject null memoryId
+          ---
+          duration_ms: 2.947303
+          type: 'test'
+          ...
+        # Subtest: should reject empty string memoryId
+        ok 2 - should reject empty string memoryId
+          ---
+          duration_ms: 2.48919
+          type: 'test'
+          ...
+        # Subtest: should clamp limit to valid range (1-100)
+        ok 3 - should clamp limit to valid range (1-100)
+          ---
+          duration_ms: 3.37319
+          type: 'test'
+          ...
+        # Subtest: should clamp zero limit to default
+        ok 4 - should clamp zero limit to default
+          ---
+          duration_ms: 3.258093
+          type: 'test'
+          ...
+        # Subtest: should accept valid limit within range
+        ok 5 - should accept valid limit within range
+          ---
+          duration_ms: 2.635104
+          type: 'test'
+          ...
+        1..5
+    ok 2 - getRelatedMemories
+      ---
+      duration_ms: 15.451704
+      type: 'suite'
+      ...
+    # Subtest: decayOldMemories
+        # Subtest: should clamp olderThanDays to valid range (1-365)
+        ok 1 - should clamp olderThanDays to valid range (1-365)
+          ---
+          duration_ms: 7.867267
+          type: 'test'
+          ...
+        # Subtest: should clamp zero olderThanDays to default
+        ok 2 - should clamp zero olderThanDays to default
+          ---
+          duration_ms: 2.494345
+          type: 'test'
+          ...
+        # Subtest: should clamp negative olderThanDays to default
+        ok 3 - should clamp negative olderThanDays to default
+          ---
+          duration_ms: 2.420577
+          type: 'test'
+          ...
+        # Subtest: should clamp belowImportance to valid range (0-1)
+        ok 4 - should clamp belowImportance to valid range (0-1)
+          ---
+          duration_ms: 1.912849
+          type: 'test'
+          ...
+        # Subtest: should accept valid parameters
+        ok 5 - should accept valid parameters
+          ---
+          duration_ms: 1.952527
+          type: 'test'
+          ...
+        1..5
+    ok 3 - decayOldMemories
+      ---
+      duration_ms: 17.255824
+      type: 'suite'
+      ...
+    1..3
+ok 8 - Input Validation
+  ---
+  duration_ms: 48.825405
+  type: 'suite'
+  ...
+# Subtest: MCP Tool Functions
+    # Subtest: storeSessionOutcome
+        # Subtest: should call store_memory tool
+        ok 1 - should call store_memory tool
+          ---
+          duration_ms: 7.374719
+          type: 'test'
+          ...
+        # Subtest: should set higher importance for merged PRs
+        ok 2 - should set higher importance for merged PRs
+          ---
+          duration_ms: 7.379388
+          type: 'test'
+          ...
+        # Subtest: should set lower importance for failed sessions
+        ok 3 - should set lower importance for failed sessions
+          ---
+          duration_ms: 2.811188
+          type: 'test'
+          ...
+        1..3
+    ok 1 - storeSessionOutcome
+      ---
+      duration_ms: 17.974959
+      type: 'suite'
+      ...
+    # Subtest: recallContextForTask
+        # Subtest: should call recall_context tool
+        ok 1 - should call recall_context tool
+          ---
+          duration_ms: 2.460471
+          type: 'test'
+          ...
+        # Subtest: should include repository in context
+        ok 2 - should include repository in context
+          ---
+          duration_ms: 2.289508
+          type: 'test'
+          ...
+        # Subtest: should return memories when found
+        ok 3 - should return memories when found
+          ---
+          duration_ms: 2.823036
+          type: 'test'
+          ...
+        # Subtest: should return empty when no memories found
+        ok 4 - should return empty when no memories found
+          ---
+          duration_ms: 3.261126
+          type: 'test'
+          ...
+        1..4
+    ok 2 - recallContextForTask
+      ---
+      duration_ms: 11.343551
+      type: 'suite'
+      ...
+    # Subtest: searchSessionMemories
+        # Subtest: should call search_memory tool
+        ok 1 - should call search_memory tool
+          ---
+          duration_ms: 2.90285
+          type: 'test'
+          ...
+        # Subtest: should include jules-session tag by default
+        ok 2 - should include jules-session tag by default
+          ---
+          duration_ms: 2.475513
+          type: 'test'
+          ...
+        # Subtest: should use custom tags when provided
+        ok 3 - should use custom tags when provided
+          ---
+          duration_ms: 4.665427
+          type: 'test'
+          ...
+        1..3
+    ok 3 - searchSessionMemories
+      ---
+      duration_ms: 10.59701
+      type: 'suite'
+      ...
+    # Subtest: getRelatedMemories
+        # Subtest: should call get_related tool
+        ok 1 - should call get_related tool
+          ---
+          duration_ms: 2.350879
+          type: 'test'
+          ...
+        1..1
+    ok 4 - getRelatedMemories
+      ---
+      duration_ms: 2.576675
+      type: 'suite'
+      ...
+    # Subtest: reinforceSuccessfulPattern
+        # Subtest: should call reinforce tool
+        ok 1 - should call reinforce tool
+          ---
+          duration_ms: 2.172668
+          type: 'test'
+          ...
+        # Subtest: should use default boost of 0.15
+        ok 2 - should use default boost of 0.15
+          ---
+          duration_ms: 2.390439
+          type: 'test'
+          ...
+        1..2
+    ok 5 - reinforceSuccessfulPattern
+      ---
+      duration_ms: 4.881514
+      type: 'suite'
+      ...
+    # Subtest: decayOldMemories
+        # Subtest: should call forget tool with soft decay
+        ok 1 - should call forget tool with soft decay
+          ---
+          duration_ms: 2.469003
+          type: 'test'
+          ...
+        1..1
+    ok 6 - decayOldMemories
+      ---
+      duration_ms: 2.645321
+      type: 'suite'
+      ...
+    # Subtest: checkMemoryHealth
+        # Subtest: should return true when healthy
+        ok 1 - should return true when healthy
+          ---
+          duration_ms: 2.068604
+          type: 'test'
+          ...
+        # Subtest: should return true when degraded
+        ok 2 - should return true when degraded
+          ---
+          duration_ms: 2.521738
+          type: 'test'
+          ...
+        # Subtest: should return false when unhealthy
+        ok 3 - should return false when unhealthy
+          ---
+          duration_ms: 1.858494
+          type: 'test'
+          ...
+        # Subtest: should return false on network error
+        ok 4 - should return false on network error
+          ---
+          duration_ms: 2.203932
+          type: 'test'
+          ...
+        # Subtest: should return false on non-OK response
+        ok 5 - should return false on non-OK response
+          ---
+          duration_ms: 2.060284
+          type: 'test'
+          ...
+        1..5
+    ok 7 - checkMemoryHealth
+      ---
+      duration_ms: 11.183106
+      type: 'suite'
+      ...
+    # Subtest: getMemoryMaintenanceSchedule
+        # Subtest: should return maintenance schedule config
+        ok 1 - should return maintenance schedule config
+          ---
+          duration_ms: 2.146598
+          type: 'test'
+          ...
+        # Subtest: should have valid cron expressions
+        ok 2 - should have valid cron expressions
+          ---
+          duration_ms: 2.396702
+          type: 'test'
+          ...
+        # Subtest: should use params not parameters in schedule body
+        ok 3 - should use params not parameters in schedule body
+          ---
+          duration_ms: 1.96447
+          type: 'test'
+          ...
+        1..3
+    ok 8 - getMemoryMaintenanceSchedule
+      ---
+      duration_ms: 6.861261
+      type: 'suite'
+      ...
+    1..8
+ok 9 - MCP Tool Functions
+  ---
+  duration_ms: 69.167047
+  type: 'suite'
+  ...
+# Subtest: Network Failure Handling
+    # Subtest: should return graceful failure on connection refused
+    ok 1 - should return graceful failure on connection refused
+      ---
+      duration_ms: 3.218075
+      type: 'test'
+      ...
+    # Subtest: should return graceful failure on timeout
+    ok 2 - should return graceful failure on timeout
+      ---
+      duration_ms: 2.118221
+      type: 'test'
+      ...
+    # Subtest: should return graceful failure on DNS resolution error
+    ok 3 - should return graceful failure on DNS resolution error
+      ---
+      duration_ms: 2.03882
+      type: 'test'
+      ...
+    # Subtest: should not throw exceptions to caller
+    ok 4 - should not throw exceptions to caller
+      ---
+      duration_ms: 5.008077
+      type: 'test'
+      ...
+    # Subtest: should handle malformed JSON response
+    ok 5 - should handle malformed JSON response
+      ---
+      duration_ms: 2.324312
+      type: 'test'
+      ...
+    1..5
+ok 10 - Network Failure Handling
+  ---
+  duration_ms: 15.209874
+  type: 'suite'
+  ...
+# Subtest: API Request Format
+    # Subtest: should use POST method for tool calls
+    ok 1 - should use POST method for tool calls
+      ---
+      duration_ms: 2.455058
+      type: 'test'
+      ...
+    # Subtest: should set Content-Type to application/json
+    ok 2 - should set Content-Type to application/json
+      ---
+      duration_ms: 5.101334
+      type: 'test'
+      ...
+    # Subtest: should call /mcp/execute endpoint
+    ok 3 - should call /mcp/execute endpoint
+      ---
+      duration_ms: 2.591112
+      type: 'test'
+      ...
+    # Subtest: should call /health endpoint for health check
+    ok 4 - should call /health endpoint for health check
+      ---
+      duration_ms: 2.181752
+      type: 'test'
+      ...
+    # Subtest: should use params key not parameters in request body
+    ok 5 - should use params key not parameters in request body
+      ---
+      duration_ms: 3.219767
+      type: 'test'
+      ...
+    1..5
+ok 11 - API Request Format
+  ---
+  duration_ms: 16.261373
+  type: 'suite'
+  ...
+# node:internal/modules/package_json_reader:314
+#   throw new ERR_MODULE_NOT_FOUND(packageName, fileURLToPath(base), null);
+#         ^
+# Error [ERR_MODULE_NOT_FOUND]: Cannot find package 'express' imported from /app/tests/unit/middleware.test.js
+#     at Object.getPackageJSONURL (node:internal/modules/package_json_reader:314:9)
+#     at packageResolve (node:internal/modules/esm/resolve:767:81)
+#     at moduleResolve (node:internal/modules/esm/resolve:853:18)
+#     at defaultResolve (node:internal/modules/esm/resolve:983:11)
+#     at \#cachedDefaultResolve (node:internal/modules/esm/loader:731:20)
+#     at ModuleLoader.resolve (node:internal/modules/esm/loader:708:38)
+#     at ModuleLoader.getModuleJobForImport (node:internal/modules/esm/loader:310:38)
+#     at ModuleJob._link (node:internal/modules/esm/module_job:182:49) {
+#   code: 'ERR_MODULE_NOT_FOUND'
+# }
+# Node.js v22.21.1
+# Subtest: tests/unit/middleware.test.js
+not ok 5 - tests/unit/middleware.test.js
+  ---
+  duration_ms: 91.903366
+  type: 'test'
+  location: '/app/tests/unit/middleware.test.js:1:1'
+  failureType: 'testCodeFailure'
+  exitCode: 1
+  signal: ~
+  error: 'test failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: Ollama - parseOllamaHost()
+    # Subtest: should parse default localhost URL
+    ok 1 - should parse default localhost URL
+      ---
+      duration_ms: 2.131256
+      type: 'test'
+      ...
+    # Subtest: should parse custom host and port
+    ok 2 - should parse custom host and port
+      ---
+      duration_ms: 0.502027
+      type: 'test'
+      ...
+    # Subtest: should add http:// prefix if missing
+    ok 3 - should add http:// prefix if missing
+      ---
+      duration_ms: 0.51769
+      type: 'test'
+      ...
+    # Subtest: should use default port if not specified
+    ok 4 - should use default port if not specified
+      ---
+      duration_ms: 0.366161
+      type: 'test'
+      ...
+    # Subtest: should handle invalid URL gracefully
+    ok 5 - should handle invalid URL gracefully
+      ---
+      duration_ms: 0.361313
+      type: 'test'
+      ...
+    # Subtest: should handle empty string
+    ok 6 - should handle empty string
+      ---
+      duration_ms: 0.340057
+      type: 'test'
+      ...
+    # Subtest: should handle Docker service name
+    ok 7 - should handle Docker service name
+      ---
+      duration_ms: 0.373312
+      type: 'test'
+      ...
+    1..7
+ok 13 - Ollama - parseOllamaHost()
+  ---
+  duration_ms: 7.807459
+  type: 'suite'
+  ...
+# Subtest: Ollama - validateCompletionParams()
+    # Subtest: should accept valid params with prompt
+    ok 1 - should accept valid params with prompt
+      ---
+      duration_ms: 0.782217
+      type: 'test'
+      ...
+    # Subtest: should accept custom model
+    ok 2 - should accept custom model
+      ---
+      duration_ms: 0.50807
+      type: 'test'
+      ...
+    # Subtest: should throw error for missing prompt
+    ok 3 - should throw error for missing prompt
+      ---
+      duration_ms: 1.423852
+      type: 'test'
+      ...
+    # Subtest: should throw error for null prompt
+    ok 4 - should throw error for null prompt
+      ---
+      duration_ms: 0.582188
+      type: 'test'
+      ...
+    # Subtest: should throw error for non-string prompt
+    ok 5 - should throw error for non-string prompt
+      ---
+      duration_ms: 0.319535
+      type: 'test'
+      ...
+    # Subtest: should throw error for prompt exceeding max length
+    ok 6 - should throw error for prompt exceeding max length
+      ---
+      duration_ms: 0.331113
+      type: 'test'
+      ...
+    # Subtest: should accept prompt at max length
+    ok 7 - should accept prompt at max length
+      ---
+      duration_ms: 0.244751
+      type: 'test'
+      ...
+    1..7
+ok 14 - Ollama - validateCompletionParams()
+  ---
+  duration_ms: 5.50655
+  type: 'suite'
+  ...
+# Subtest: Ollama - buildGenerateRequestBody()
+    # Subtest: should build request body with defaults
+    ok 1 - should build request body with defaults
+      ---
+      duration_ms: 0.486811
+      type: 'test'
+      ...
+    # Subtest: should accept custom model
+    ok 2 - should accept custom model
+      ---
+      duration_ms: 0.298631
+      type: 'test'
+      ...
+    # Subtest: should accept custom system prompt
+    ok 3 - should accept custom system prompt
+      ---
+      duration_ms: 0.23515
+      type: 'test'
+      ...
+    # Subtest: should allow streaming mode
+    ok 4 - should allow streaming mode
+      ---
+      duration_ms: 0.4041
+      type: 'test'
+      ...
+    1..4
+ok 15 - Ollama - buildGenerateRequestBody()
+  ---
+  duration_ms: 1.768514
+  type: 'suite'
+  ...
+# Subtest: Ollama - buildChatRequestBody()
+    # Subtest: should build chat request body with defaults
+    ok 1 - should build chat request body with defaults
+      ---
+      duration_ms: 1.07993
+      type: 'test'
+      ...
+    # Subtest: should accept custom model
+    ok 2 - should accept custom model
+      ---
+      duration_ms: 0.408346
+      type: 'test'
+      ...
+    # Subtest: should handle multi-turn conversation
+    ok 3 - should handle multi-turn conversation
+      ---
+      duration_ms: 0.294152
+      type: 'test'
+      ...
+    1..3
+ok 16 - Ollama - buildChatRequestBody()
+  ---
+  duration_ms: 2.119553
+  type: 'suite'
+  ...
+# Subtest: Ollama - parseGenerateResponse()
+    # Subtest: should parse successful response
+    ok 1 - should parse successful response
+      ---
+      duration_ms: 0.710921
+      type: 'test'
+      ...
+    # Subtest: should handle partial response
+    ok 2 - should handle partial response
+      ---
+      duration_ms: 0.339439
+      type: 'test'
+      ...
+    # Subtest: should throw error for invalid JSON
+    ok 3 - should throw error for invalid JSON
+      ---
+      duration_ms: 0.397942
+      type: 'test'
+      ...
+    # Subtest: should handle empty response content
+    ok 4 - should handle empty response content
+      ---
+      duration_ms: 0.272353
+      type: 'test'
+      ...
+    1..4
+ok 17 - Ollama - parseGenerateResponse()
+  ---
+  duration_ms: 2.243932
+  type: 'suite'
+  ...
+# Subtest: Ollama - parseChatResponse()
+    # Subtest: should parse successful chat response
+    ok 1 - should parse successful chat response
+      ---
+      duration_ms: 1.377198
+      type: 'test'
+      ...
+    # Subtest: should throw error for invalid JSON
+    ok 2 - should throw error for invalid JSON
+      ---
+      duration_ms: 0.531815
+      type: 'test'
+      ...
+    1..2
+ok 18 - Ollama - parseChatResponse()
+  ---
+  duration_ms: 2.196667
+  type: 'suite'
+  ...
+# Subtest: Ollama - parseModelsResponse()
+    # Subtest: should parse models list correctly
+    ok 1 - should parse models list correctly
+      ---
+      duration_ms: 0.843595
+      type: 'test'
+      ...
+    # Subtest: should handle empty models list
+    ok 2 - should handle empty models list
+      ---
+      duration_ms: 0.277233
+      type: 'test'
+      ...
+    # Subtest: should handle missing models array
+    ok 3 - should handle missing models array
+      ---
+      duration_ms: 0.42524
+      type: 'test'
+      ...
+    # Subtest: should handle models without details
+    ok 4 - should handle models without details
+      ---
+      duration_ms: 0.377974
+      type: 'test'
+      ...
+    # Subtest: should throw error for invalid JSON
+    ok 5 - should throw error for invalid JSON
+      ---
+      duration_ms: 0.4991
+      type: 'test'
+      ...
+    1..5
+ok 19 - Ollama - parseModelsResponse()
+  ---
+  duration_ms: 2.896268
+  type: 'suite'
+  ...
+# Subtest: Ollama - buildCodeGenerationPrompt()
+    # Subtest: should build prompt for JavaScript by default
+    ok 1 - should build prompt for JavaScript by default
+      ---
+      duration_ms: 0.8018
+      type: 'test'
+      ...
+    # Subtest: should build prompt for specified language
+    ok 2 - should build prompt for specified language
+      ---
+      duration_ms: 0.281132
+      type: 'test'
+      ...
+    # Subtest: should include context in prompt when provided
+    ok 3 - should include context in prompt when provided
+      ---
+      duration_ms: 0.371277
+      type: 'test'
+      ...
+    # Subtest: should not include context prefix when context is empty
+    ok 4 - should not include context prefix when context is empty
+      ---
+      duration_ms: 0.387797
+      type: 'test'
+      ...
+    # Subtest: should include code-only instruction in system prompt
+    ok 5 - should include code-only instruction in system prompt
+      ---
+      duration_ms: 0.416207
+      type: 'test'
+      ...
+    1..5
+ok 20 - Ollama - buildCodeGenerationPrompt()
+  ---
+  duration_ms: 2.861169
+  type: 'suite'
+  ...
+# Subtest: Ollama - Graceful Error Handling
+    # Subtest: should return graceful error when Ollama not running (listModels pattern)
+    ok 1 - should return graceful error when Ollama not running (listModels pattern)
+      ---
+      duration_ms: 3.178521
+      type: 'test'
+      ...
+    # Subtest: should include connection refused error message
+    ok 2 - should include connection refused error message
+      ---
+      duration_ms: 0.5449
+      type: 'test'
+      ...
+    # Subtest: should preserve error details for debugging
+    ok 3 - should preserve error details for debugging
+      ---
+      duration_ms: 0.305078
+      type: 'test'
+      ...
+    1..3
+ok 21 - Ollama - Graceful Error Handling
+  ---
+  duration_ms: 4.465906
+  type: 'suite'
+  ...
+# Subtest: Ollama - API Options Configuration
+    # Subtest: should use default temperature of 0.7
+    ok 1 - should use default temperature of 0.7
+      ---
+      duration_ms: 0.417615
+      type: 'test'
+      ...
+    # Subtest: should use default num_predict of 2000
+    ok 2 - should use default num_predict of 2000
+      ---
+      duration_ms: 0.368376
+      type: 'test'
+      ...
+    # Subtest: should set stream to false by default
+    ok 3 - should set stream to false by default
+      ---
+      duration_ms: 0.272395
+      type: 'test'
+      ...
+    1..3
+ok 22 - Ollama - API Options Configuration
+  ---
+  duration_ms: 5.424894
+  type: 'suite'
+  ...
+# Subtest: Ollama - Edge Cases
+    # Subtest: should handle Unicode characters in prompt
+    ok 1 - should handle Unicode characters in prompt
+      ---
+      duration_ms: 0.464625
+      type: 'test'
+      ...
+    # Subtest: should handle special characters in prompt
+    ok 2 - should handle special characters in prompt
+      ---
+      duration_ms: 0.275819
+      type: 'test'
+      ...
+    # Subtest: should handle multiline prompts
+    ok 3 - should handle multiline prompts
+      ---
+      duration_ms: 0.556075
+      type: 'test'
+      ...
+    # Subtest: should handle model names with special characters
+    ok 4 - should handle model names with special characters
+      ---
+      duration_ms: 0.209237
+      type: 'test'
+      ...
+    1..4
+ok 23 - Ollama - Edge Cases
+  ---
+  duration_ms: 1.935676
+  type: 'suite'
+  ...
+# Subtest: Qwen Module
+    # Subtest: Constants
+        # Subtest: should have correct API endpoint
+        ok 1 - should have correct API endpoint
+          ---
+          duration_ms: 11.556677
+          type: 'test'
+          ...
+        # Subtest: should have correct API path
+        ok 2 - should have correct API path
+          ---
+          duration_ms: 0.440024
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Constants
+      ---
+      duration_ms: 13.631948
+      type: 'suite'
+      ...
+    # Subtest: buildQwenRequestBody
+        # Subtest: should build request with default parameters
+        ok 1 - should build request with default parameters
+          ---
+          duration_ms: 6.587347
+          type: 'test'
+          ...
+        # Subtest: should use custom model
+        ok 2 - should use custom model
+          ---
+          duration_ms: 0.459449
+          type: 'test'
+          ...
+        # Subtest: should use custom maxTokens
+        ok 3 - should use custom maxTokens
+          ---
+          duration_ms: 0.494392
+          type: 'test'
+          ...
+        # Subtest: should use custom temperature
+        ok 4 - should use custom temperature
+          ---
+          duration_ms: 6.343921
+          type: 'test'
+          ...
+        # Subtest: should use custom system prompt
+        ok 5 - should use custom system prompt
+          ---
+          duration_ms: 0.589613
+          type: 'test'
+          ...
+        # Subtest: should handle all custom parameters together
+        ok 6 - should handle all custom parameters together
+          ---
+          duration_ms: 0.823515
+          type: 'test'
+          ...
+        # Subtest: should always have exactly 2 messages
+        ok 7 - should always have exactly 2 messages
+          ---
+          duration_ms: 0.807027
+          type: 'test'
+          ...
+        1..7
+    ok 2 - buildQwenRequestBody
+      ---
+      duration_ms: 17.924649
+      type: 'suite'
+      ...
+    # Subtest: buildQwenRequestOptions
+        # Subtest: should build correct HTTP options
+        ok 1 - should build correct HTTP options
+          ---
+          duration_ms: 0.801342
+          type: 'test'
+          ...
+        # Subtest: should include correct headers
+        ok 2 - should include correct headers
+          ---
+          duration_ms: 0.437714
+          type: 'test'
+          ...
+        # Subtest: should use HTTPS (port 443)
+        ok 3 - should use HTTPS (port 443)
+          ---
+          duration_ms: 0.307648
+          type: 'test'
+          ...
+        1..3
+    ok 3 - buildQwenRequestOptions
+      ---
+      duration_ms: 1.975932
+      type: 'suite'
+      ...
+    # Subtest: parseQwenResponse
+        # Subtest: should parse successful response with choices format
+        ok 1 - should parse successful response with choices format
+          ---
+          duration_ms: 0.799104
+          type: 'test'
+          ...
+        # Subtest: should parse response with text format (fallback)
+        ok 2 - should parse response with text format (fallback)
+          ---
+          duration_ms: 0.391224
+          type: 'test'
+          ...
+        # Subtest: should prefer choices format over text
+        ok 3 - should prefer choices format over text
+          ---
+          duration_ms: 0.244606
+          type: 'test'
+          ...
+        # Subtest: should throw on API error response
+        ok 4 - should throw on API error response
+          ---
+          duration_ms: 0.950854
+          type: 'test'
+          ...
+        # Subtest: should handle empty usage gracefully
+        ok 5 - should handle empty usage gracefully
+          ---
+          duration_ms: 0.314668
+          type: 'test'
+          ...
+        # Subtest: should return raw response for unexpected format
+        ok 6 - should return raw response for unexpected format
+          ---
+          duration_ms: 0.224485
+          type: 'test'
+          ...
+        # Subtest: should throw on invalid JSON
+        ok 7 - should throw on invalid JSON
+          ---
+          duration_ms: 0.437537
+          type: 'test'
+          ...
+        # Subtest: should handle missing request_id
+        ok 8 - should handle missing request_id
+          ---
+          duration_ms: 0.407323
+          type: 'test'
+          ...
+        # Subtest: should handle empty choices array
+        ok 9 - should handle empty choices array
+          ---
+          duration_ms: 0.277578
+          type: 'test'
+          ...
+        1..9
+    ok 4 - parseQwenResponse
+      ---
+      duration_ms: 5.190564
+      type: 'suite'
+      ...
+    # Subtest: listQwenModels
+        # Subtest: should return all 5 models
+        ok 1 - should return all 5 models
+          ---
+          duration_ms: 0.699604
+          type: 'test'
+          ...
+        # Subtest: should include qwen-turbo model
+        ok 2 - should include qwen-turbo model
+          ---
+          duration_ms: 0.430171
+          type: 'test'
+          ...
+        # Subtest: should include qwen-coder-plus model
+        ok 3 - should include qwen-coder-plus model
+          ---
+          duration_ms: 0.26585
+          type: 'test'
+          ...
+        # Subtest: should include qwen-max-longcontext model
+        ok 4 - should include qwen-max-longcontext model
+          ---
+          duration_ms: 0.285748
+          type: 'test'
+          ...
+        # Subtest: should show configured when API key present
+        ok 5 - should show configured when API key present
+          ---
+          duration_ms: 0.218461
+          type: 'test'
+          ...
+        # Subtest: should show not configured when API key missing
+        ok 6 - should show not configured when API key missing
+          ---
+          duration_ms: 0.203363
+          type: 'test'
+          ...
+        # Subtest: should have all required fields for each model
+        ok 7 - should have all required fields for each model
+          ---
+          duration_ms: 0.354686
+          type: 'test'
+          ...
+        # Subtest: should have unique model ids
+        ok 8 - should have unique model ids
+          ---
+          duration_ms: 0.267236
+          type: 'test'
+          ...
+        1..8
+    ok 5 - listQwenModels
+      ---
+      duration_ms: 3.335802
+      type: 'suite'
+      ...
+    # Subtest: buildCodeGenerationPrompt
+        # Subtest: should build prompt without context
+        ok 1 - should build prompt without context
+          ---
+          duration_ms: 0.635681
+          type: 'test'
+          ...
+        # Subtest: should build prompt with context
+        ok 2 - should build prompt with context
+          ---
+          duration_ms: 2.320815
+          type: 'test'
+          ...
+        # Subtest: should use specified language in system prompt
+        ok 3 - should use specified language in system prompt
+          ---
+          duration_ms: 0.322925
+          type: 'test'
+          ...
+        # Subtest: should use javascript as default language
+        ok 4 - should use javascript as default language
+          ---
+          duration_ms: 0.237145
+          type: 'test'
+          ...
+        # Subtest: should include instruction to only output code
+        ok 5 - should include instruction to only output code
+          ---
+          duration_ms: 0.198219
+          type: 'test'
+          ...
+        # Subtest: should handle empty context as no context
+        ok 6 - should handle empty context as no context
+          ---
+          duration_ms: 0.411574
+          type: 'test'
+          ...
+        # Subtest: should handle various languages
+        ok 7 - should handle various languages
+          ---
+          duration_ms: 0.321227
+          type: 'test'
+          ...
+        1..7
+    ok 6 - buildCodeGenerationPrompt
+      ---
+      duration_ms: 4.863221
+      type: 'suite'
+      ...
+    # Subtest: validateCompletionParams
+        # Subtest: should validate correct params
+        ok 1 - should validate correct params
+          ---
+          duration_ms: 0.552554
+          type: 'test'
+          ...
+        # Subtest: should reject missing prompt
+        ok 2 - should reject missing prompt
+          ---
+          duration_ms: 0.237937
+          type: 'test'
+          ...
+        # Subtest: should reject non-string prompt
+        ok 3 - should reject non-string prompt
+          ---
+          duration_ms: 1.77806
+          type: 'test'
+          ...
+        # Subtest: should reject invalid maxTokens
+        ok 4 - should reject invalid maxTokens
+          ---
+          duration_ms: 0.298394
+          type: 'test'
+          ...
+        # Subtest: should reject invalid temperature
+        ok 5 - should reject invalid temperature
+          ---
+          duration_ms: 0.30624
+          type: 'test'
+          ...
+        # Subtest: should accept valid temperature at boundaries
+        ok 6 - should accept valid temperature at boundaries
+          ---
+          duration_ms: 0.224259
+          type: 'test'
+          ...
+        # Subtest: should reject null params
+        ok 7 - should reject null params
+          ---
+          duration_ms: 0.306867
+          type: 'test'
+          ...
+        # Subtest: should reject non-object params
+        ok 8 - should reject non-object params
+          ---
+          duration_ms: 0.298024
+          type: 'test'
+          ...
+        # Subtest: should allow optional parameters to be omitted
+        ok 9 - should allow optional parameters to be omitted
+          ---
+          duration_ms: 0.224417
+          type: 'test'
+          ...
+        1..9
+    ok 7 - validateCompletionParams
+      ---
+      duration_ms: 4.947168
+      type: 'suite'
+      ...
+    # Subtest: Edge Cases
+        # Subtest: should handle very long prompts
+        ok 1 - should handle very long prompts
+          ---
+          duration_ms: 0.467724
+          type: 'test'
+          ...
+        # Subtest: should handle unicode in prompts
+        ok 2 - should handle unicode in prompts
+          ---
+          duration_ms: 0.289161
+          type: 'test'
+          ...
+        # Subtest: should handle special characters in prompts
+        ok 3 - should handle special characters in prompts
+          ---
+          duration_ms: 0.248609
+          type: 'test'
+          ...
+        # Subtest: should handle temperature at 0 (deterministic)
+        ok 4 - should handle temperature at 0 (deterministic)
+          ---
+          duration_ms: 0.275784
+          type: 'test'
+          ...
+        # Subtest: should handle multiline prompts
+        ok 5 - should handle multiline prompts
+          ---
+          duration_ms: 0.272519
+          type: 'test'
+          ...
+        # Subtest: should handle code generation with complex context
+        ok 6 - should handle code generation with complex context
+          ---
+          duration_ms: 0.275233
+          type: 'test'
+          ...
+        1..6
+    ok 8 - Edge Cases
+      ---
+      duration_ms: 2.251235
+      type: 'suite'
+      ...
+    # Subtest: API Error Handling
+        # Subtest: should parse rate limit error
+        ok 1 - should parse rate limit error
+          ---
+          duration_ms: 0.564279
+          type: 'test'
+          ...
+        # Subtest: should parse authentication error
+        ok 2 - should parse authentication error
+          ---
+          duration_ms: 0.39774
+          type: 'test'
+          ...
+        # Subtest: should parse quota exceeded error
+        ok 3 - should parse quota exceeded error
+          ---
+          duration_ms: 0.317886
+          type: 'test'
+          ...
+        # Subtest: should preserve model in error context
+        ok 4 - should preserve model in error context
+          ---
+          duration_ms: 0.262221
+          type: 'test'
+          ...
+        1..4
+    ok 9 - API Error Handling
+      ---
+      duration_ms: 1.980843
+      type: 'suite'
+      ...
+    # Subtest: Model Selection
+        # Subtest: should use qwen-turbo for fast tasks
+        ok 1 - should use qwen-turbo for fast tasks
+          ---
+          duration_ms: 0.317219
+          type: 'test'
+          ...
+        # Subtest: should use qwen-coder-plus for code generation
+        ok 2 - should use qwen-coder-plus for code generation
+          ---
+          duration_ms: 0.300988
+          type: 'test'
+          ...
+        # Subtest: should use qwen-max-longcontext for large codebases
+        ok 3 - should use qwen-max-longcontext for large codebases
+          ---
+          duration_ms: 0.127312
+          type: 'test'
+          ...
+        1..3
+    ok 10 - Model Selection
+      ---
+      duration_ms: 0.958517
+      type: 'suite'
+      ...
+    1..10
+ok 24 - Qwen Module
+  ---
+  duration_ms: 59.803807
+  type: 'suite'
+  ...
+# Subtest: RAG - chunkText()
+    # Subtest: should split text into chunks with default parameters
+    ok 1 - should split text into chunks with default parameters
+      ---
+      duration_ms: 3.006325
+      type: 'test'
+      ...
+    # Subtest: should create overlapping chunks
+    ok 2 - should create overlapping chunks
+      ---
+      duration_ms: 0.480267
+      type: 'test'
+      ...
+    # Subtest: should handle text smaller than chunk size
+    ok 3 - should handle text smaller than chunk size
+      ---
+      duration_ms: 0.4843
+      type: 'test'
+      ...
+    # Subtest: should handle empty text
+    ok 4 - should handle empty text
+      ---
+      duration_ms: 0.335765
+      type: 'test'
+      ...
+    # Subtest: should use custom chunk size
+    ok 5 - should use custom chunk size
+      ---
+      duration_ms: 0.409605
+      type: 'test'
+      ...
+    # Subtest: should use custom overlap
+    ok 6 - should use custom overlap
+      ---
+      duration_ms: 0.491809
+      type: 'test'
+      ...
+    # Subtest: should preserve content accurately
+    ok 7 - should preserve content accurately
+      ---
+      duration_ms: 0.331794
+      type: 'test'
+      ...
+    # Subtest: should include start and end positions
+    ok 8 - should include start and end positions
+      ---
+      duration_ms: 0.70254
+      type: 'test'
+      ...
+    # Subtest: should handle very large text
+    ok 9 - should handle very large text
+      ---
+      duration_ms: 2.171407
+      type: 'test'
+      ...
+    1..9
+ok 25 - RAG - chunkText()
+  ---
+  duration_ms: 12.165468
+  type: 'suite'
+  ...
+# Subtest: RAG - hashContent()
+    # Subtest: should return 8-character hex string
+    ok 1 - should return 8-character hex string
+      ---
+      duration_ms: 1.590508
+      type: 'test'
+      ...
+    # Subtest: should produce consistent hashes
+    ok 2 - should produce consistent hashes
+      ---
+      duration_ms: 0.278896
+      type: 'test'
+      ...
+    # Subtest: should produce different hashes for different content
+    ok 3 - should produce different hashes for different content
+      ---
+      duration_ms: 0.192447
+      type: 'test'
+      ...
+    # Subtest: should handle empty string
+    ok 4 - should handle empty string
+      ---
+      duration_ms: 0.263244
+      type: 'test'
+      ...
+    # Subtest: should handle unicode content
+    ok 5 - should handle unicode content
+      ---
+      duration_ms: 0.318129
+      type: 'test'
+      ...
+    # Subtest: should handle binary-like content
+    ok 6 - should handle binary-like content
+      ---
+      duration_ms: 0.253134
+      type: 'test'
+      ...
+    # Subtest: should handle very long content
+    ok 7 - should handle very long content
+      ---
+      duration_ms: 7.454443
+      type: 'test'
+      ...
+    # Subtest: should produce correct MD5 prefix
+    ok 8 - should produce correct MD5 prefix
+      ---
+      duration_ms: 0.597362
+      type: 'test'
+      ...
+    1..8
+ok 26 - RAG - hashContent()
+  ---
+  duration_ms: 11.872145
+  type: 'suite'
+  ...
+# Subtest: RAG - calculateSimilarity()
+    # Subtest: should return 1.0 for exact match
+    ok 1 - should return 1.0 for exact match
+      ---
+      duration_ms: 0.82075
+      type: 'test'
+      ...
+    # Subtest: should return 0 for no matches
+    ok 2 - should return 0 for no matches
+      ---
+      duration_ms: 0.300273
+      type: 'test'
+      ...
+    # Subtest: should return partial score for partial matches
+    ok 3 - should return partial score for partial matches
+      ---
+      duration_ms: 0.185743
+      type: 'test'
+      ...
+    # Subtest: should be case insensitive
+    ok 4 - should be case insensitive
+      ---
+      duration_ms: 0.238616
+      type: 'test'
+      ...
+    # Subtest: should filter out short words (<=2 chars)
+    ok 5 - should filter out short words (<=2 chars)
+      ---
+      duration_ms: 0.44641
+      type: 'test'
+      ...
+    # Subtest: should handle empty query
+    ok 6 - should handle empty query
+      ---
+      duration_ms: 0.204554
+      type: 'test'
+      ...
+    # Subtest: should handle query with only short words
+    ok 7 - should handle query with only short words
+      ---
+      duration_ms: 0.189834
+      type: 'test'
+      ...
+    # Subtest: should handle special characters in query
+    ok 8 - should handle special characters in query
+      ---
+      duration_ms: 0.20521
+      type: 'test'
+      ...
+    # Subtest: should find words anywhere in text
+    ok 9 - should find words anywhere in text
+      ---
+      duration_ms: 0.338089
+      type: 'test'
+      ...
+    # Subtest: should handle numeric words
+    ok 10 - should handle numeric words
+      ---
+      duration_ms: 0.213885
+      type: 'test'
+      ...
+    1..10
+ok 27 - RAG - calculateSimilarity()
+  ---
+  duration_ms: 3.730857
+  type: 'suite'
+  ...
+# Subtest: RAG - getSupportedExtensions()
+    # Subtest: should return an array of extensions
+    ok 1 - should return an array of extensions
+      ---
+      duration_ms: 0.533891
+      type: 'test'
+      ...
+    # Subtest: should include JavaScript extensions
+    ok 2 - should include JavaScript extensions
+      ---
+      duration_ms: 0.195587
+      type: 'test'
+      ...
+    # Subtest: should include TypeScript extensions
+    ok 3 - should include TypeScript extensions
+      ---
+      duration_ms: 0.242256
+      type: 'test'
+      ...
+    # Subtest: should include Python extension
+    ok 4 - should include Python extension
+      ---
+      duration_ms: 0.257945
+      type: 'test'
+      ...
+    # Subtest: should include documentation formats
+    ok 5 - should include documentation formats
+      ---
+      duration_ms: 0.223748
+      type: 'test'
+      ...
+    # Subtest: should include config formats
+    ok 6 - should include config formats
+      ---
+      duration_ms: 0.225398
+      type: 'test'
+      ...
+    # Subtest: should include shell script extensions
+    ok 7 - should include shell script extensions
+      ---
+      duration_ms: 0.13339
+      type: 'test'
+      ...
+    # Subtest: should include web development extensions
+    ok 8 - should include web development extensions
+      ---
+      duration_ms: 0.472821
+      type: 'test'
+      ...
+    # Subtest: should include systems programming extensions
+    ok 9 - should include systems programming extensions
+      ---
+      duration_ms: 0.248729
+      type: 'test'
+      ...
+    # Subtest: should all start with a dot
+    ok 10 - should all start with a dot
+      ---
+      duration_ms: 0.260699
+      type: 'test'
+      ...
+    1..10
+ok 28 - RAG - getSupportedExtensions()
+  ---
+  duration_ms: 3.558422
+  type: 'suite'
+  ...
+# Subtest: RAG - Path Traversal Protection
+    # Subtest: should allow paths within the allowed base
+    ok 1 - should allow paths within the allowed base
+      ---
+      duration_ms: 0.440337
+      type: 'test'
+      ...
+    # Subtest: should reject paths outside the allowed base
+    ok 2 - should reject paths outside the allowed base
+      ---
+      duration_ms: 0.220023
+      type: 'test'
+      ...
+    # Subtest: should reject path traversal attempts
+    ok 3 - should reject path traversal attempts
+      ---
+      duration_ms: 0.734902
+      type: 'test'
+      ...
+    # Subtest: should handle double dot traversal
+    ok 4 - should handle double dot traversal
+      ---
+      duration_ms: 0.322725
+      type: 'test'
+      ...
+    # Subtest: should allow nested paths within base
+    ok 5 - should allow nested paths within base
+      ---
+      duration_ms: 0.206456
+      type: 'test'
+      ...
+    # Subtest: should handle relative paths
+    ok 6 - should handle relative paths
+      ---
+      duration_ms: 0.226813
+      type: 'test'
+      ...
+    # Subtest: should handle paths with trailing slash
+    ok 7 - should handle paths with trailing slash
+      ---
+      duration_ms: 0.236678
+      type: 'test'
+      ...
+    # Subtest: should handle Windows-style paths
+    ok 8 - should handle Windows-style paths
+      ---
+      duration_ms: 0.229364
+      type: 'test'
+      ...
+    1..8
+ok 29 - RAG - Path Traversal Protection
+  ---
+  duration_ms: 3.203764
+  type: 'suite'
+  ...
+# Subtest: RAG - searchIndex()
+    # Subtest: should return matching results for relevant query
+    ok 1 - should return matching results for relevant query
+      ---
+      duration_ms: 1.408899
+      type: 'test'
+      ...
+    # Subtest: should return empty array for non-matching query
+    ok 2 - should return empty array for non-matching query
+      ---
+      duration_ms: 1.43316
+      type: 'test'
+      ...
+    # Subtest: should sort results by score descending
+    ok 3 - should sort results by score descending
+      ---
+      duration_ms: 0.688697
+      type: 'test'
+      ...
+    # Subtest: should limit results to topK
+    ok 4 - should limit results to topK
+      ---
+      duration_ms: 0.429584
+      type: 'test'
+      ...
+    # Subtest: should include file path and filename
+    ok 5 - should include file path and filename
+      ---
+      duration_ms: 0.47022
+      type: 'test'
+      ...
+    # Subtest: should filter results with score below threshold
+    ok 6 - should filter results with score below threshold
+      ---
+      duration_ms: 0.407957
+      type: 'test'
+      ...
+    # Subtest: should handle empty index
+    ok 7 - should handle empty index
+      ---
+      duration_ms: 0.496726
+      type: 'test'
+      ...
+    # Subtest: should search across all chunks
+    ok 8 - should search across all chunks
+      ---
+      duration_ms: 0.456172
+      type: 'test'
+      ...
+    1..8
+ok 30 - RAG - searchIndex()
+  ---
+  duration_ms: 6.663646
+  type: 'suite'
+  ...
+# Subtest: RAG - ragStatus()
+    # Subtest: should return status for empty index
+    ok 1 - should return status for empty index
+      ---
+      duration_ms: 0.395962
+      type: 'test'
+      ...
+    # Subtest: should return status for populated index
+    ok 2 - should return status for populated index
+      ---
+      duration_ms: 0.37185
+      type: 'test'
+      ...
+    # Subtest: should include file paths and chunk counts
+    ok 3 - should include file paths and chunk counts
+      ---
+      duration_ms: 0.264826
+      type: 'test'
+      ...
+    1..3
+ok 31 - RAG - ragStatus()
+  ---
+  duration_ms: 1.414762
+  type: 'suite'
+  ...
+# Subtest: RAG - Edge Cases
+    # Subtest: should handle documents with empty chunks array
+    ok 1 - should handle documents with empty chunks array
+      ---
+      duration_ms: 0.558749
+      type: 'test'
+      ...
+    # Subtest: should handle very long file content
+    ok 2 - should handle very long file content
+      ---
+      duration_ms: 0.35635
+      type: 'test'
+      ...
+    # Subtest: should handle files with only whitespace
+    ok 3 - should handle files with only whitespace
+      ---
+      duration_ms: 0.318411
+      type: 'test'
+      ...
+    # Subtest: should handle query with only punctuation
+    ok 4 - should handle query with only punctuation
+      ---
+      duration_ms: 0.234134
+      type: 'test'
+      ...
+    # Subtest: should handle binary content gracefully
+    ok 5 - should handle binary content gracefully
+      ---
+      duration_ms: 0.29315
+      type: 'test'
+      ...
+    # Subtest: should handle file paths with spaces
+    ok 6 - should handle file paths with spaces
+      ---
+      duration_ms: 0.305231
+      type: 'test'
+      ...
+    # Subtest: should handle deeply nested directories
+    ok 7 - should handle deeply nested directories
+      ---
+      duration_ms: 0.324306
+      type: 'test'
+      ...
+    1..7
+ok 32 - RAG - Edge Cases
+  ---
+  duration_ms: 2.916927
+  type: 'suite'
+  ...
+# Subtest: RAG - File System Integration
+    # Subtest: should validate temp directory exists
+    ok 1 - should validate temp directory exists
+      ---
+      duration_ms: 2.555255
+      type: 'test'
+      ...
+    # Subtest: should be able to create test files
+    ok 2 - should be able to create test files
+      ---
+      duration_ms: 1.493139
+      type: 'test'
+      ...
+    # Subtest: should verify path safety for temp directory
+    ok 3 - should verify path safety for temp directory
+      ---
+      duration_ms: 0.815096
+      type: 'test'
+      ...
+    1..3
+ok 33 - RAG - File System Integration
+  ---
+  duration_ms: 9.559862
+  type: 'suite'
+  ...
+# Subtest: RateLimitExceededError
+    # Subtest: should create an error with correct properties
+    ok 1 - should create an error with correct properties
+      ---
+      duration_ms: 2.275259
+      type: 'test'
+      ...
+    # Subtest: should create an error without details
+    ok 2 - should create an error without details
+      ---
+      duration_ms: 0.425458
+      type: 'test'
+      ...
+    1..2
+ok 34 - RateLimitExceededError
+  ---
+  duration_ms: 4.765934
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - Instantiation
+    # Subtest: with default config
+        # Subtest: should create instance with default tier configurations
+        ok 1 - should create instance with default tier configurations
+          ---
+          duration_ms: 0.75454
+          type: 'test'
+          ...
+        # Subtest: should set default free tier limits
+        ok 2 - should set default free tier limits
+          ---
+          duration_ms: 0.396552
+          type: 'test'
+          ...
+        # Subtest: should set default pro tier limits
+        ok 3 - should set default pro tier limits
+          ---
+          duration_ms: 0.316692
+          type: 'test'
+          ...
+        # Subtest: should set default enterprise tier with bypass flag
+        ok 4 - should set default enterprise tier with bypass flag
+          ---
+          duration_ms: 0.610164
+          type: 'test'
+          ...
+        # Subtest: should set default failover strategy to fail-closed
+        ok 5 - should set default failover strategy to fail-closed
+          ---
+          duration_ms: 0.362359
+          type: 'test'
+          ...
+        # Subtest: should set default local cache size
+        ok 6 - should set default local cache size
+          ---
+          duration_ms: 0.773331
+          type: 'test'
+          ...
+        # Subtest: should initialize with default Redis URL
+        ok 7 - should initialize with default Redis URL
+          ---
+          duration_ms: 0.506289
+          type: 'test'
+          ...
+        # Subtest: should use REDIS_URL environment variable if set
+        ok 8 - should use REDIS_URL environment variable if set
+          ---
+          duration_ms: 0.670499
+          type: 'test'
+          ...
+        # Subtest: should initialize internal state correctly
+        ok 9 - should initialize internal state correctly
+          ---
+          duration_ms: 0.326924
+          type: 'test'
+          ...
+        # Subtest: should initialize metrics to zero
+        ok 10 - should initialize metrics to zero
+          ---
+          duration_ms: 0.289435
+          type: 'test'
+          ...
+        # Subtest: should initialize tier request metrics
+        ok 11 - should initialize tier request metrics
+          ---
+          duration_ms: 0.950429
+          type: 'test'
+          ...
+        1..11
+    ok 1 - with default config
+      ---
+      duration_ms: 7.171328
+      type: 'suite'
+      ...
+    # Subtest: with custom config
+        # Subtest: should allow custom tier configurations
+        ok 1 - should allow custom tier configurations
+          ---
+          duration_ms: 4.015989
+          type: 'test'
+          ...
+        # Subtest: should allow custom failover strategy
+        ok 2 - should allow custom failover strategy
+          ---
+          duration_ms: 0.268318
+          type: 'test'
+          ...
+        # Subtest: should allow custom local cache size
+        ok 3 - should allow custom local cache size
+          ---
+          duration_ms: 0.266553
+          type: 'test'
+          ...
+        # Subtest: should allow custom Redis configuration
+        ok 4 - should allow custom Redis configuration
+          ---
+          duration_ms: 0.28996
+          type: 'test'
+          ...
+        # Subtest: should allow endpoint-specific overrides
+        ok 5 - should allow endpoint-specific overrides
+          ---
+          duration_ms: 0.392737
+          type: 'test'
+          ...
+        # Subtest: should merge custom Redis configuration with defaults
+        ok 6 - should merge custom Redis configuration with defaults
+          ---
+          duration_ms: 0.24701
+          type: 'test'
+          ...
+        1..6
+    ok 2 - with custom config
+      ---
+      duration_ms: 5.958271
+      type: 'suite'
+      ...
+    1..2
+ok 35 - RedisRateLimiter - Instantiation
+  ---
+  duration_ms: 13.773758
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - extractApiKey()
+    # Subtest: should extract API key from x-api-key header (highest priority)
+    ok 1 - should extract API key from x-api-key header (highest priority)
+      ---
+      duration_ms: 1.767552
+      type: 'test'
+      ...
+    # Subtest: should extract API key from Authorization Bearer header
+    ok 2 - should extract API key from Authorization Bearer header
+      ---
+      duration_ms: 0.445179
+      type: 'test'
+      ...
+    # Subtest: should handle Authorization header case insensitively
+    ok 3 - should handle Authorization header case insensitively
+      ---
+      duration_ms: 0.518598
+      type: 'test'
+      ...
+    # Subtest: should handle mixed case Bearer prefix
+    ok 4 - should handle mixed case Bearer prefix
+      ---
+      duration_ms: 0.337348
+      type: 'test'
+      ...
+    # Subtest: should extract API key from query parameter
+    ok 5 - should extract API key from query parameter
+      ---
+      duration_ms: 0.425233
+      type: 'test'
+      ...
+    # Subtest: should fall back to IP address
+    ok 6 - should fall back to IP address
+      ---
+      duration_ms: 0.349065
+      type: 'test'
+      ...
+    # Subtest: should fall back to connection.remoteAddress
+    ok 7 - should fall back to connection.remoteAddress
+      ---
+      duration_ms: 0.303427
+      type: 'test'
+      ...
+    # Subtest: should return "anonymous" when no identifier available
+    ok 8 - should return "anonymous" when no identifier available
+      ---
+      duration_ms: 1.570713
+      type: 'test'
+      ...
+    # Subtest: should return "anonymous" when connection is undefined
+    ok 9 - should return "anonymous" when connection is undefined
+      ---
+      duration_ms: 0.644015
+      type: 'test'
+      ...
+    # Subtest: should handle empty x-api-key header (falsy value)
+    ok 10 - should handle empty x-api-key header (falsy value)
+      ---
+      duration_ms: 0.424501
+      type: 'test'
+      ...
+    # Subtest: should prioritize correctly: x-api-key > auth > query > IP
+    ok 11 - should prioritize correctly: x-api-key > auth > query > IP
+      ---
+      duration_ms: 0.492963
+      type: 'test'
+      ...
+    1..11
+ok 36 - RedisRateLimiter - extractApiKey()
+  ---
+  duration_ms: 8.01152
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - hashKey()
+    # Subtest: should return a 16-character hex string
+    ok 1 - should return a 16-character hex string
+      ---
+      duration_ms: 1.695778
+      type: 'test'
+      ...
+    # Subtest: should produce consistent hashes for same input
+    ok 2 - should produce consistent hashes for same input
+      ---
+      duration_ms: 0.4142
+      type: 'test'
+      ...
+    # Subtest: should produce different hashes for different inputs
+    ok 3 - should produce different hashes for different inputs
+      ---
+      duration_ms: 0.4798
+      type: 'test'
+      ...
+    # Subtest: should produce correct SHA-256 hash (first 16 chars)
+    ok 4 - should produce correct SHA-256 hash (first 16 chars)
+      ---
+      duration_ms: 0.396888
+      type: 'test'
+      ...
+    # Subtest: should handle empty string
+    ok 5 - should handle empty string
+      ---
+      duration_ms: 0.651972
+      type: 'test'
+      ...
+    # Subtest: should handle special characters
+    ok 6 - should handle special characters
+      ---
+      duration_ms: 0.669224
+      type: 'test'
+      ...
+    # Subtest: should handle unicode characters
+    ok 7 - should handle unicode characters
+      ---
+      duration_ms: 0.354979
+      type: 'test'
+      ...
+    # Subtest: should handle very long keys
+    ok 8 - should handle very long keys
+      ---
+      duration_ms: 0.518421
+      type: 'test'
+      ...
+    1..8
+ok 37 - RedisRateLimiter - hashKey()
+  ---
+  duration_ms: 5.946944
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - getTierConfig()
+    # Subtest: should return base tier config for standard paths
+    ok 1 - should return base tier config for standard paths
+      ---
+      duration_ms: 0.868885
+      type: 'test'
+      ...
+    # Subtest: should return pro tier config correctly
+    ok 2 - should return pro tier config correctly
+      ---
+      duration_ms: 0.384443
+      type: 'test'
+      ...
+    # Subtest: should return enterprise tier config correctly
+    ok 3 - should return enterprise tier config correctly
+      ---
+      duration_ms: 0.489483
+      type: 'test'
+      ...
+    # Subtest: should apply endpoint overrides for free tier
+    ok 4 - should apply endpoint overrides for free tier
+      ---
+      duration_ms: 0.39081
+      type: 'test'
+      ...
+    # Subtest: should apply endpoint overrides for pro tier
+    ok 5 - should apply endpoint overrides for pro tier
+      ---
+      duration_ms: 0.441039
+      type: 'test'
+      ...
+    # Subtest: should use base config when endpoint has no override for tier
+    ok 6 - should use base config when endpoint has no override for tier
+      ---
+      duration_ms: 0.499581
+      type: 'test'
+      ...
+    # Subtest: should fall back to free tier for unknown tiers
+    ok 7 - should fall back to free tier for unknown tiers
+      ---
+      duration_ms: 0.375398
+      type: 'test'
+      ...
+    # Subtest: should handle paths not in endpoints config
+    ok 8 - should handle paths not in endpoints config
+      ---
+      duration_ms: 0.304065
+      type: 'test'
+      ...
+    # Subtest: should preserve windowMs from base config when applying overrides
+    ok 9 - should preserve windowMs from base config when applying overrides
+      ---
+      duration_ms: 0.452396
+      type: 'test'
+      ...
+    # Subtest: should handle null/undefined path gracefully
+    ok 10 - should handle null/undefined path gracefully
+      ---
+      duration_ms: 0.676203
+      type: 'test'
+      ...
+    1..10
+ok 38 - RedisRateLimiter - getTierConfig()
+  ---
+  duration_ms: 5.831834
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - checkFailoverLimit()
+    # Subtest: fail-open strategy
+        # Subtest: should always allow requests in fail-open mode
+        ok 1 - should always allow requests in fail-open mode
+          ---
+          duration_ms: 0.976274
+          type: 'test'
+          ...
+        # Subtest: should return full remaining count in fail-open mode
+        ok 2 - should return full remaining count in fail-open mode
+          ---
+          duration_ms: 0.462399
+          type: 'test'
+          ...
+        # Subtest: should set appropriate reset time in fail-open mode
+        ok 3 - should set appropriate reset time in fail-open mode
+          ---
+          duration_ms: 0.393354
+          type: 'test'
+          ...
+        # Subtest: should increment failover activation counter
+        ok 4 - should increment failover activation counter
+          ---
+          duration_ms: 0.530974
+          type: 'test'
+          ...
+        1..4
+    ok 1 - fail-open strategy
+      ---
+      duration_ms: 2.74068
+      type: 'suite'
+      ...
+    # Subtest: fail-closed strategy
+        # Subtest: should allow requests within limit
+        ok 1 - should allow requests within limit
+          ---
+          duration_ms: 0.762684
+          type: 'test'
+          ...
+        # Subtest: should track remaining requests correctly
+        ok 2 - should track remaining requests correctly
+          ---
+          duration_ms: 0.394971
+          type: 'test'
+          ...
+        # Subtest: should deny requests exceeding limit
+        ok 3 - should deny requests exceeding limit
+          ---
+          duration_ms: 3.001657
+          type: 'test'
+          ...
+        # Subtest: should track different keys separately
+        ok 4 - should track different keys separately
+          ---
+          duration_ms: 0.577995
+          type: 'test'
+          ...
+        # Subtest: should evict oldest entries when cache is full
+        ok 5 - should evict oldest entries when cache is full
+          ---
+          duration_ms: 0.367136
+          type: 'test'
+          ...
+        # Subtest: should set correct reset time
+        ok 6 - should set correct reset time
+          ---
+          duration_ms: 0.513836
+          type: 'test'
+          ...
+        # Subtest: should increment failover activation counter
+        ok 7 - should increment failover activation counter
+          ---
+          duration_ms: 0.330006
+          type: 'test'
+          ...
+        1..7
+    ok 2 - fail-closed strategy
+      ---
+      duration_ms: 6.541765
+      type: 'suite'
+      ...
+    1..2
+ok 39 - RedisRateLimiter - checkFailoverLimit()
+  ---
+  duration_ms: 9.807421
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - setHeaders()
+    # Subtest: should set IETF standard RateLimit-Limit header
+    ok 1 - should set IETF standard RateLimit-Limit header
+      ---
+      duration_ms: 1.04461
+      type: 'test'
+      ...
+    # Subtest: should set IETF standard RateLimit-Remaining header
+    ok 2 - should set IETF standard RateLimit-Remaining header
+      ---
+      duration_ms: 0.317107
+      type: 'test'
+      ...
+    # Subtest: should set IETF standard RateLimit-Reset header as Unix timestamp
+    ok 3 - should set IETF standard RateLimit-Reset header as Unix timestamp
+      ---
+      duration_ms: 0.351265
+      type: 'test'
+      ...
+    # Subtest: should set legacy X-RateLimit-Limit header
+    ok 4 - should set legacy X-RateLimit-Limit header
+      ---
+      duration_ms: 0.216734
+      type: 'test'
+      ...
+    # Subtest: should set legacy X-RateLimit-Remaining header
+    ok 5 - should set legacy X-RateLimit-Remaining header
+      ---
+      duration_ms: 0.249466
+      type: 'test'
+      ...
+    # Subtest: should set legacy X-RateLimit-Reset header
+    ok 6 - should set legacy X-RateLimit-Reset header
+      ---
+      duration_ms: 0.518886
+      type: 'test'
+      ...
+    # Subtest: should set Retry-After header when remaining is 0
+    ok 7 - should set Retry-After header when remaining is 0
+      ---
+      duration_ms: 0.291401
+      type: 'test'
+      ...
+    # Subtest: should NOT set Retry-After header when remaining > 0
+    ok 8 - should NOT set Retry-After header when remaining > 0
+      ---
+      duration_ms: 0.212729
+      type: 'test'
+      ...
+    # Subtest: should set minimum Retry-After of 1 second
+    ok 9 - should set minimum Retry-After of 1 second
+      ---
+      duration_ms: 0.42397
+      type: 'test'
+      ...
+    # Subtest: should handle zero limit correctly
+    ok 10 - should handle zero limit correctly
+      ---
+      duration_ms: 0.28836
+      type: 'test'
+      ...
+    # Subtest: should handle large numbers
+    ok 11 - should handle large numbers
+      ---
+      duration_ms: 0.320325
+      type: 'test'
+      ...
+    # Subtest: should convert all values to strings
+    ok 12 - should convert all values to strings
+      ---
+      duration_ms: 0.329129
+      type: 'test'
+      ...
+    1..12
+ok 40 - RedisRateLimiter - setHeaders()
+  ---
+  duration_ms: 5.208735
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - generateRequestId()
+    # Subtest: should start with "req_" prefix
+    ok 1 - should start with "req_" prefix
+      ---
+      duration_ms: 0.99422
+      type: 'test'
+      ...
+    # Subtest: should contain a timestamp component
+    ok 2 - should contain a timestamp component
+      ---
+      duration_ms: 4.572683
+      type: 'test'
+      ...
+    # Subtest: should contain a random hex suffix
+    ok 3 - should contain a random hex suffix
+      ---
+      duration_ms: 0.53089
+      type: 'test'
+      ...
+    # Subtest: should match expected format pattern
+    ok 4 - should match expected format pattern
+      ---
+      duration_ms: 0.583179
+      type: 'test'
+      ...
+    # Subtest: should generate unique IDs
+    ok 5 - should generate unique IDs
+      ---
+      duration_ms: 20.713312
+      type: 'test'
+      ...
+    # Subtest: should generate IDs of consistent length
+    ok 6 - should generate IDs of consistent length
+      ---
+      duration_ms: 0.438135
+      type: 'test'
+      ...
+    1..6
+ok 41 - RedisRateLimiter - generateRequestId()
+  ---
+  duration_ms: 28.313459
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - getMetrics()
+    # Subtest: should return all base metrics
+    ok 1 - should return all base metrics
+      ---
+      duration_ms: 0.661283
+      type: 'test'
+      ...
+    # Subtest: should include Redis connection status
+    ok 2 - should include Redis connection status
+      ---
+      duration_ms: 3.801075
+      type: 'test'
+      ...
+    # Subtest: should include failover cache size
+    ok 3 - should include failover cache size
+      ---
+      duration_ms: 0.27919
+      type: 'test'
+      ...
+    # Subtest: should include tier cache size
+    ok 4 - should include tier cache size
+      ---
+      duration_ms: 0.459213
+      type: 'test'
+      ...
+    # Subtest: should calculate allow rate as "N/A" when no requests
+    ok 5 - should calculate allow rate as "N/A" when no requests
+      ---
+      duration_ms: 0.234565
+      type: 'test'
+      ...
+    # Subtest: should calculate deny rate as "N/A" when no requests
+    ok 6 - should calculate deny rate as "N/A" when no requests
+      ---
+      duration_ms: 0.197393
+      type: 'test'
+      ...
+    # Subtest: should calculate allow rate correctly with requests
+    ok 7 - should calculate allow rate correctly with requests
+      ---
+      duration_ms: 0.350515
+      type: 'test'
+      ...
+    # Subtest: should calculate deny rate correctly with requests
+    ok 8 - should calculate deny rate correctly with requests
+      ---
+      duration_ms: 0.265205
+      type: 'test'
+      ...
+    # Subtest: should include requests per second metric
+    ok 9 - should include requests per second metric
+      ---
+      duration_ms: 0.61149
+      type: 'test'
+      ...
+    # Subtest: should track failover cache size after usage
+    ok 10 - should track failover cache size after usage
+      ---
+      duration_ms: 0.319793
+      type: 'test'
+      ...
+    # Subtest: should track tier cache size after usage
+    ok 11 - should track tier cache size after usage
+      ---
+      duration_ms: 0.232347
+      type: 'test'
+      ...
+    # Subtest: should include requestsByTier breakdown
+    ok 12 - should include requestsByTier breakdown
+      ---
+      duration_ms: 0.378795
+      type: 'test'
+      ...
+    1..12
+ok 42 - RedisRateLimiter - getMetrics()
+  ---
+  duration_ms: 8.446398
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - resetMetrics()
+    # Subtest: should reset all metrics to zero
+    ok 1 - should reset all metrics to zero
+      ---
+      duration_ms: 0.426666
+      type: 'test'
+      ...
+    # Subtest: should reset requestsByTier to zero for all tiers
+    ok 2 - should reset requestsByTier to zero for all tiers
+      ---
+      duration_ms: 0.410488
+      type: 'test'
+      ...
+    1..2
+ok 43 - RedisRateLimiter - resetMetrics()
+  ---
+  duration_ms: 1.032044
+  type: 'suite'
+  ...
+# Subtest: createRateLimiter() Factory
+    # Subtest: should create a RedisRateLimiter instance
+    ok 1 - should create a RedisRateLimiter instance
+      ---
+      duration_ms: 0.204572
+      type: 'test'
+      ...
+    # Subtest: should pass config to the instance
+    ok 2 - should pass config to the instance
+      ---
+      duration_ms: 0.179498
+      type: 'test'
+      ...
+    # Subtest: should create independent instances
+    ok 3 - should create independent instances
+      ---
+      duration_ms: 0.195911
+      type: 'test'
+      ...
+    1..3
+ok 44 - createRateLimiter() Factory
+  ---
+  duration_ms: 0.823878
+  type: 'suite'
+  ...
+# Subtest: RedisRateLimiter - Edge Cases
+    # Subtest: should handle undefined headers object gracefully
+    ok 1 - should handle undefined headers object gracefully
+      ---
+      duration_ms: 0.284317
+      type: 'test'
+      ...
+    # Subtest: should handle tier cache at max capacity
+    ok 2 - should handle tier cache at max capacity
+      ---
+      duration_ms: 0.167865
+      type: 'test'
+      ...
+    # Subtest: should handle metrics calculation with very large numbers
+    ok 3 - should handle metrics calculation with very large numbers
+      ---
+      duration_ms: 0.361802
+      type: 'test'
+      ...
+    # Subtest: should handle empty endpoints config
+    ok 4 - should handle empty endpoints config
+      ---
+      duration_ms: 0.169556
+      type: 'test'
+      ...
+    # Subtest: should handle null tiers config gracefully
+    ok 5 - should handle null tiers config gracefully
+      ---
+      duration_ms: 0.212808
+      type: 'test'
+      ...
+    1..5
+ok 45 - RedisRateLimiter - Edge Cases
+  ---
+  duration_ms: 1.492592
+  type: 'suite'
+  ...
+# Running render-integration tests...
+# [Render Webhook] No webhook secret configured - skipping signature verification
+# [Render Webhook] Missing signature header
+# [Render Webhook] No webhook secret configured - skipping signature verification
+# [Render Webhook] Rejected webhook with stale timestamp: 2025-12-29T07:28:49.356Z
+# [Render Webhook] No webhook secret configured - skipping signature verification
+# [Auto-Fix] Starting for service srv-123, deploy dep-duplicate-test
+# [Render API] GET /services/srv-123/deploys/dep-duplicate-test/logs
+# Subtest: Encryption Module
+    # Subtest: should encrypt and decrypt text correctly
+    ok 1 - should encrypt and decrypt text correctly
+      ---
+      duration_ms: 223.219943
+      type: 'test'
+      ...
+    # Subtest: should produce different ciphertexts for same plaintext (random IV)
+    ok 2 - should produce different ciphertexts for same plaintext (random IV)
+      ---
+      duration_ms: 157.155919
+      type: 'test'
+      ...
+    # Subtest: should store encrypted ciphertext in correct format
+    ok 3 - should store encrypted ciphertext in correct format
+      ---
+      duration_ms: 82.518826
+      type: 'test'
+      ...
+    # Subtest: should throw on invalid ciphertext format
+    ok 4 - should throw on invalid ciphertext format
+      ---
+      duration_ms: 10.224677
+      type: 'test'
+      ...
+    # Subtest: should throw on tampered ciphertext
+    ok 5 - should throw on tampered ciphertext
+      ---
+      duration_ms: 159.259514
+      type: 'test'
+      ...
+    1..5
+ok 46 - Encryption Module
+  ---
+  duration_ms: 636.016097
+  type: 'suite'
+  ...
+# Subtest: Credential Storage
+    # Subtest: should store and retrieve credentials
+    ok 1 - should store and retrieve credentials
+      ---
+      duration_ms: 165.341805
+      type: 'test'
+      ...
+    # Subtest: should return null for non-existent credentials
+    ok 2 - should return null for non-existent credentials
+      ---
+      duration_ms: 13.595488
+      type: 'test'
+      ...
+    # Subtest: should delete credentials
+    ok 3 - should delete credentials
+      ---
+      duration_ms: 82.140895
+      type: 'test'
+      ...
+    # Subtest: should validate credential names
+    ok 4 - should validate credential names
+      ---
+      duration_ms: 8.107377
+      type: 'test'
+      ...
+    # Subtest: should list stored credentials
+    ok 5 - should list stored credentials
+      ---
+      duration_ms: 160.333087
+      type: 'test'
+      ...
+    # Subtest: should check credential existence
+    ok 6 - should check credential existence
+      ---
+      duration_ms: 81.624104
+      type: 'test'
+      ...
+    1..6
+ok 47 - Credential Storage
+  ---
+  duration_ms: 512.734634
+  type: 'suite'
+  ...
+# Subtest: Render Client
+    # Subtest: should validate API key format
+    ok 1 - should validate API key format
+      ---
+      duration_ms: 9.755168
+      type: 'test'
+      ...
+    # Subtest: should connect with valid API key
+    ok 2 - should connect with valid API key
+      ---
+      duration_ms: 82.453319
+      type: 'test'
+      ...
+    # Subtest: should store webhook secret if provided
+    ok 3 - should store webhook secret if provided
+      ---
+      duration_ms: 244.367749
+      type: 'test'
+      ...
+    # Subtest: should disconnect and clear credentials
+    ok 4 - should disconnect and clear credentials
+      ---
+      duration_ms: 152.828262
+      type: 'test'
+      ...
+    # Subtest: should detect Jules branches correctly
+    ok 5 - should detect Jules branches correctly
+      ---
+      duration_ms: 6.316242
+      type: 'test'
+      ...
+    1..5
+ok 48 - Render Client
+  ---
+  duration_ms: 496.376932
+  type: 'suite'
+  ...
+# Subtest: Error Analysis
+    # Subtest: should detect no actionable errors in clean logs
+    ok 1 - should detect no actionable errors in clean logs
+      ---
+      duration_ms: 7.425979
+      type: 'test'
+      ...
+    # Subtest: should detect npm errors
+    ok 2 - should detect npm errors
+      ---
+      duration_ms: 5.375213
+      type: 'test'
+      ...
+    # Subtest: should detect TypeScript errors
+    ok 3 - should detect TypeScript errors
+      ---
+      duration_ms: 5.698387
+      type: 'test'
+      ...
+    # Subtest: should detect module not found errors
+    ok 4 - should detect module not found errors
+      ---
+      duration_ms: 5.892137
+      type: 'test'
+      ...
+    # Subtest: should generate fix prompt context
+    ok 5 - should generate fix prompt context
+      ---
+      duration_ms: 5.811939
+      type: 'test'
+      ...
+    1..5
+ok 49 - Error Analysis
+  ---
+  duration_ms: 30.861233
+  type: 'suite'
+  ...
+# Subtest: Auto-Fix Module
+    # Subtest: should verify webhook signature correctly
+    ok 1 - should verify webhook signature correctly
+      ---
+      duration_ms: 5.842717
+      type: 'test'
+      ...
+    # Subtest: should parse deploy webhook events
+    ok 2 - should parse deploy webhook events
+      ---
+      duration_ms: 5.45651
+      type: 'test'
+      ...
+    # Subtest: should reject non-deploy events
+    ok 3 - should reject non-deploy events
+      ---
+      duration_ms: 5.117345
+      type: 'test'
+      ...
+    # Subtest: should reject successful deploys
+    ok 4 - should reject successful deploys
+      ---
+      duration_ms: 8.773256
+      type: 'test'
+      ...
+    # Subtest: should reject non-Jules branches
+    ok 5 - should reject non-Jules branches
+      ---
+      duration_ms: 5.582131
+      type: 'test'
+      ...
+    # Subtest: should check auto-fix conditions
+    ok 6 - should check auto-fix conditions
+      ---
+      duration_ms: 77.172544
+      type: 'test'
+      ...
+    # Subtest: should enable/disable auto-fix
+    ok 7 - should enable/disable auto-fix
+      ---
+      duration_ms: 6.124005
+      type: 'test'
+      ...
+    # Subtest: should manage monitored services
+    ok 8 - should manage monitored services
+      ---
+      duration_ms: 5.862877
+      type: 'test'
+      ...
+    # Subtest: should validate service ID format
+    ok 9 - should validate service ID format
+      ---
+      duration_ms: 5.632305
+      type: 'test'
+      ...
+    1..9
+ok 50 - Auto-Fix Module
+  ---
+  duration_ms: 126.411396
+  type: 'suite'
+  ...
+# Subtest: Webhook Signature Verification
+    # Subtest: should verify valid signature
+    ok 1 - should verify valid signature
+      ---
+      duration_ms: 229.218845
+      type: 'test'
+      ...
+    # Subtest: should reject invalid signature
+    ok 2 - should reject invalid signature
+      ---
+      duration_ms: 219.32424
+      type: 'test'
+      ...
+    # Subtest: should reject missing signature when secret is configured
+    ok 3 - should reject missing signature when secret is configured
+      ---
+      duration_ms: 221.072467
+      type: 'test'
+      ...
+    1..3
+ok 51 - Webhook Signature Verification
+  ---
+  duration_ms: 670.096214
+  type: 'suite'
+  ...
+# Subtest: Branch Filtering Edge Cases
+    # Subtest: should match jules-fix-v2 style branches
+    ok 1 - should match jules-fix-v2 style branches
+      ---
+      duration_ms: 6.125992
+      type: 'test'
+      ...
+    # Subtest: should match nested jules branches
+    ok 2 - should match nested jules branches
+      ---
+      duration_ms: 5.947322
+      type: 'test'
+      ...
+    # Subtest: should NOT match partial matches
+    ok 3 - should NOT match partial matches
+      ---
+      duration_ms: 5.358543
+      type: 'test'
+      ...
+    # Subtest: should NOT match production branches
+    ok 4 - should NOT match production branches
+      ---
+      duration_ms: 5.802141
+      type: 'test'
+      ...
+    # Subtest: should handle edge cases
+    ok 5 - should handle edge cases
+      ---
+      duration_ms: 5.887833
+      type: 'test'
+      ...
+    1..5
+ok 52 - Branch Filtering Edge Cases
+  ---
+  duration_ms: 29.785191
+  type: 'suite'
+  ...
+# Subtest: Webhook Security
+    # Subtest: should reject webhooks with stale timestamps
+    ok 1 - should reject webhooks with stale timestamps
+      ---
+      duration_ms: 80.951656
+      type: 'test'
+      ...
+# [Auto-Fix] Failed: Invalid Render API key
+# [Render Webhook] No webhook secret configured - skipping signature verification
+# [Render Webhook] Rejected duplicate webhook for deploy: dep-duplicate-test
+    # Subtest: should reject duplicate webhooks (replay prevention)
+    ok 2 - should reject duplicate webhooks (replay prevention)
+      ---
+      duration_ms: 371.863345
+      type: 'test'
+      ...
+    # Subtest: should sanitize branch names with special characters
+    ok 3 - should sanitize branch names with special characters
+      ---
+      duration_ms: 6.846631
+      type: 'test'
+      ...
+    1..3
+ok 53 - Webhook Security
+  ---
+  duration_ms: 460.130808
+  type: 'suite'
+  ...
+# Subtest: Error Analysis Edge Cases
+    # Subtest: should handle logs with mixed error types
+    ok 1 - should handle logs with mixed error types
+      ---
+      duration_ms: 6.691561
+      type: 'test'
+      ...
+    # Subtest: should handle unknown error patterns
+    ok 2 - should handle unknown error patterns
+      ---
+      duration_ms: 6.673425
+      type: 'test'
+      ...
+    # Subtest: should limit unknown errors to 5
+    ok 3 - should limit unknown errors to 5
+      ---
+      duration_ms: 7.2211
+      type: 'test'
+      ...
+    1..3
+ok 54 - Error Analysis Edge Cases
+  ---
+  duration_ms: 21.125933
+  type: 'suite'
+  ...
+# Running temporal-integration tests...
+# [Temporal] Schedule failed: { status: 500, body: 'Service unavailable' }
+# [Temporal] One-time schedule failed: { status: 500, body: 'Bad request' }
+# [Temporal] List tasks failed: { status: 500 }
+# [Temporal] Cancel task failed: { status: 500, taskId: 'nonexistent' }
+# Subtest: Schedule Templates
+    # Subtest: should have all 4 predefined templates
+    ok 1 - should have all 4 predefined templates
+      ---
+      duration_ms: 5.092383
+      type: 'test'
+      ...
+    # Subtest: should have valid cron expressions in all templates
+    ok 2 - should have valid cron expressions in all templates
+      ---
+      duration_ms: 2.750514
+      type: 'test'
+      ...
+    # Subtest: should have required fields in all templates
+    ok 3 - should have required fields in all templates
+      ---
+      duration_ms: 2.107338
+      type: 'test'
+      ...
+    # Subtest: should have valid IANA timezones
+    ok 4 - should have valid IANA timezones
+      ---
+      duration_ms: 2.10563
+      type: 'test'
+      ...
+    # Subtest: weeklyDependencyUpdate should run on Monday
+    ok 5 - weeklyDependencyUpdate should run on Monday
+      ---
+      duration_ms: 3.925915
+      type: 'test'
+      ...
+    # Subtest: hourlyPrMonitor should run every hour
+    ok 6 - hourlyPrMonitor should run every hour
+      ---
+      duration_ms: 2.891242
+      type: 'test'
+      ...
+    1..6
+ok 55 - Schedule Templates
+  ---
+  duration_ms: 25.335205
+  type: 'suite'
+  ...
+# Subtest: scheduleJulesSession
+    # Subtest: should throw on missing required parameters
+    ok 1 - should throw on missing required parameters
+      ---
+      duration_ms: 4.857029
+      type: 'test'
+      ...
+    # Subtest: should call temporal-agent with correct tool name
+    ok 2 - should call temporal-agent with correct tool name
+      ---
+      duration_ms: 3.689566
+      type: 'test'
+      ...
+    # Subtest: should include all required parameters
+    ok 3 - should include all required parameters
+      ---
+      duration_ms: 3.036488
+      type: 'test'
+      ...
+    # Subtest: should default timezone to UTC
+    ok 4 - should default timezone to UTC
+      ---
+      duration_ms: 2.55751
+      type: 'test'
+      ...
+    # Subtest: should default autoApprove to false
+    ok 5 - should default autoApprove to false
+      ---
+      duration_ms: 2.179257
+      type: 'test'
+      ...
+    # Subtest: should throw on API error
+    ok 6 - should throw on API error
+      ---
+      duration_ms: 7.368023
+      type: 'test'
+      ...
+    # Subtest: should include X-Scheduled-Task header in callback config
+    ok 7 - should include X-Scheduled-Task header in callback config
+      ---
+      duration_ms: 2.93117
+      type: 'test'
+      ...
+    1..7
+ok 56 - scheduleJulesSession
+  ---
+  duration_ms: 28.114975
+  type: 'suite'
+  ...
+# Subtest: scheduleOneTimeJulesSession
+    # Subtest: should call temporal-agent with schedule_task tool
+    ok 1 - should call temporal-agent with schedule_task tool
+      ---
+      duration_ms: 3.58737
+      type: 'test'
+      ...
+    # Subtest: should accept ISO string for scheduledFor
+    ok 2 - should accept ISO string for scheduledFor
+      ---
+      duration_ms: 2.269396
+      type: 'test'
+      ...
+    # Subtest: should accept Date object for scheduledFor
+    ok 3 - should accept Date object for scheduledFor
+      ---
+      duration_ms: 2.384868
+      type: 'test'
+      ...
+    # Subtest: should throw on API error
+    ok 4 - should throw on API error
+      ---
+      duration_ms: 2.543179
+      type: 'test'
+      ...
+    1..4
+ok 57 - scheduleOneTimeJulesSession
+  ---
+  duration_ms: 11.423692
+  type: 'suite'
+  ...
+# Subtest: listScheduledJulesTasks
+    # Subtest: should call list_tasks tool
+    ok 1 - should call list_tasks tool
+      ---
+      duration_ms: 2.229253
+      type: 'test'
+      ...
+    # Subtest: should filter to only Jules-related tasks
+    ok 2 - should filter to only Jules-related tasks
+      ---
+      duration_ms: 2.18742
+      type: 'test'
+      ...
+    # Subtest: should return empty array when no tasks
+    ok 3 - should return empty array when no tasks
+      ---
+      duration_ms: 3.656397
+      type: 'test'
+      ...
+    # Subtest: should handle missing tasks field
+    ok 4 - should handle missing tasks field
+      ---
+      duration_ms: 2.39637
+      type: 'test'
+      ...
+    # Subtest: should throw on API error
+    ok 5 - should throw on API error
+      ---
+      duration_ms: 4.216115
+      type: 'test'
+      ...
+    1..5
+ok 58 - listScheduledJulesTasks
+  ---
+  duration_ms: 15.202124
+  type: 'suite'
+  ...
+# Subtest: cancelScheduledJulesTask
+    # Subtest: should throw on invalid taskId
+    ok 1 - should throw on invalid taskId
+      ---
+      duration_ms: 2.866651
+      type: 'test'
+      ...
+    # Subtest: should call cancel_task tool with task ID
+    ok 2 - should call cancel_task tool with task ID
+      ---
+      duration_ms: 1.878619
+      type: 'test'
+      ...
+    # Subtest: should return cancellation result
+    ok 3 - should return cancellation result
+      ---
+      duration_ms: 1.829345
+      type: 'test'
+      ...
+    # Subtest: should throw on API error
+    ok 4 - should throw on API error
+      ---
+      duration_ms: 2.654434
+      type: 'test'
+      ...
+    1..4
+ok 59 - cancelScheduledJulesTask
+  ---
+  duration_ms: 9.65288
+  type: 'suite'
+  ...
+# Subtest: API Request Format
+    # Subtest: should use POST method for all requests
+    ok 1 - should use POST method for all requests
+      ---
+      duration_ms: 2.761733
+      type: 'test'
+      ...
+    # Subtest: should set Content-Type to application/json
+    ok 2 - should set Content-Type to application/json
+      ---
+      duration_ms: 2.094839
+      type: 'test'
+      ...
+    # Subtest: should call correct endpoint URL
+    ok 3 - should call correct endpoint URL
+      ---
+      duration_ms: 4.883347
+      type: 'test'
+      ...
+    1..3
+ok 60 - API Request Format
+  ---
+  duration_ms: 10.053723
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - LRU Cache
+    # Subtest: Basic Operations
+        # Subtest: should store and retrieve values
+        ok 1 - should store and retrieve values
+          ---
+          duration_ms: 2.353117
+          type: 'test'
+          ...
+        # Subtest: should return null for non-existent keys
+        ok 2 - should return null for non-existent keys
+          ---
+          duration_ms: 0.752671
+          type: 'test'
+          ...
+        # Subtest: should overwrite existing keys
+        ok 3 - should overwrite existing keys
+          ---
+          duration_ms: 0.561069
+          type: 'test'
+          ...
+        # Subtest: should clear all entries
+        ok 4 - should clear all entries
+          ---
+          duration_ms: 0.77509
+          type: 'test'
+          ...
+        1..4
+    ok 1 - Basic Operations
+      ---
+      duration_ms: 6.567984
+      type: 'suite'
+      ...
+    # Subtest: LRU Eviction
+        # Subtest: should evict oldest entry when at capacity
+        ok 1 - should evict oldest entry when at capacity
+          ---
+          duration_ms: 1.015466
+          type: 'test'
+          ...
+        # Subtest: should move accessed items to end
+        ok 2 - should move accessed items to end
+          ---
+          duration_ms: 0.628748
+          type: 'test'
+          ...
+        1..2
+    ok 2 - LRU Eviction
+      ---
+      duration_ms: 2.525266
+      type: 'suite'
+      ...
+    # Subtest: TTL Expiration
+        # Subtest: should expire entries after TTL
+        ok 1 - should expire entries after TTL
+          ---
+          duration_ms: 61.527167
+          type: 'test'
+          ...
+        # Subtest: should allow custom TTL per entry
+        ok 2 - should allow custom TTL per entry
+          ---
+          duration_ms: 61.557489
+          type: 'test'
+          ...
+        1..2
+    ok 3 - TTL Expiration
+      ---
+      duration_ms: 124.135251
+      type: 'suite'
+      ...
+    # Subtest: Pattern Invalidation
+        # Subtest: should invalidate matching keys
+        ok 1 - should invalidate matching keys
+          ---
+          duration_ms: 1.235819
+          type: 'test'
+          ...
+        1..1
+    ok 4 - Pattern Invalidation
+      ---
+      duration_ms: 1.538387
+      type: 'suite'
+      ...
+    # Subtest: Stats
+        # Subtest: should return correct stats
+        ok 1 - should return correct stats
+          ---
+          duration_ms: 0.633597
+          type: 'test'
+          ...
+        1..1
+    ok 5 - Stats
+      ---
+      duration_ms: 0.881452
+      type: 'suite'
+      ...
+    1..5
+ok 61 - v2.5.0 Features - LRU Cache
+  ---
+  duration_ms: 137.471389
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Session Queue
+    # Subtest: Adding Items
+        # Subtest: should add items with unique IDs
+        ok 1 - should add items with unique IDs
+          ---
+          duration_ms: 1.907135
+          type: 'test'
+          ...
+        # Subtest: should set default priority to 5
+        ok 2 - should set default priority to 5
+          ---
+          duration_ms: 0.657263
+          type: 'test'
+          ...
+        # Subtest: should set status to pending
+        ok 3 - should set status to pending
+          ---
+          duration_ms: 0.625408
+          type: 'test'
+          ...
+        # Subtest: should record addedAt timestamp
+        ok 4 - should record addedAt timestamp
+          ---
+          duration_ms: 0.356673
+          type: 'test'
+          ...
+        1..4
+    ok 1 - Adding Items
+      ---
+      duration_ms: 4.004549
+      type: 'suite'
+      ...
+    # Subtest: Priority Ordering
+        # Subtest: should sort by priority (lower = higher)
+        ok 1 - should sort by priority (lower = higher)
+          ---
+          duration_ms: 0.500847
+          type: 'test'
+          ...
+        # Subtest: should return highest priority item first
+        ok 2 - should return highest priority item first
+          ---
+          duration_ms: 0.524761
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Priority Ordering
+      ---
+      duration_ms: 1.373007
+      type: 'suite'
+      ...
+    # Subtest: Status Transitions
+        # Subtest: should mark item as processing
+        ok 1 - should mark item as processing
+          ---
+          duration_ms: 0.781837
+          type: 'test'
+          ...
+        # Subtest: should mark item as completed with session ID
+        ok 2 - should mark item as completed with session ID
+          ---
+          duration_ms: 0.641248
+          type: 'test'
+          ...
+        # Subtest: should mark item as failed with error
+        ok 3 - should mark item as failed with error
+          ---
+          duration_ms: 0.54974
+          type: 'test'
+          ...
+        # Subtest: should skip processing items when getting next
+        ok 4 - should skip processing items when getting next
+          ---
+          duration_ms: 0.467846
+          type: 'test'
+          ...
+        1..4
+    ok 3 - Status Transitions
+      ---
+      duration_ms: 2.898915
+      type: 'suite'
+      ...
+    # Subtest: Removing Items
+        # Subtest: should remove item by ID
+        ok 1 - should remove item by ID
+          ---
+          duration_ms: 0.620319
+          type: 'test'
+          ...
+        # Subtest: should return null for non-existent ID
+        ok 2 - should return null for non-existent ID
+          ---
+          duration_ms: 0.39816
+          type: 'test'
+          ...
+        1..2
+    ok 4 - Removing Items
+      ---
+      duration_ms: 1.572352
+      type: 'suite'
+      ...
+    # Subtest: Statistics
+        # Subtest: should calculate correct stats
+        ok 1 - should calculate correct stats
+          ---
+          duration_ms: 0.803566
+          type: 'test'
+          ...
+        1..1
+    ok 5 - Statistics
+      ---
+      duration_ms: 1.040875
+      type: 'suite'
+      ...
+    # Subtest: Clearing Queue
+        # Subtest: should clear only pending items
+        ok 1 - should clear only pending items
+          ---
+          duration_ms: 0.375742
+          type: 'test'
+          ...
+        # Subtest: should return count of cleared items
+        ok 2 - should return count of cleared items
+          ---
+          duration_ms: 0.492406
+          type: 'test'
+          ...
+        1..2
+    ok 6 - Clearing Queue
+      ---
+      duration_ms: 1.123918
+      type: 'suite'
+      ...
+    1..6
+ok 62 - v2.5.0 Features - Session Queue
+  ---
+  duration_ms: 13.016752
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Session Templates
+    # Subtest: Creating Templates
+        # Subtest: should create template with all fields
+        ok 1 - should create template with all fields
+          ---
+          duration_ms: 1.174266
+          type: 'test'
+          ...
+        # Subtest: should reject duplicate template names
+        ok 2 - should reject duplicate template names
+          ---
+          duration_ms: 0.486848
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Creating Templates
+      ---
+      duration_ms: 1.907684
+      type: 'suite'
+      ...
+    # Subtest: Listing Templates
+        # Subtest: should list all templates
+        ok 1 - should list all templates
+          ---
+          duration_ms: 3.279042
+          type: 'test'
+          ...
+        # Subtest: should return empty array when no templates
+        ok 2 - should return empty array when no templates
+          ---
+          duration_ms: 0.336647
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Listing Templates
+      ---
+      duration_ms: 3.855579
+      type: 'suite'
+      ...
+    # Subtest: Getting Templates
+        # Subtest: should get template by name
+        ok 1 - should get template by name
+          ---
+          duration_ms: 0.517739
+          type: 'test'
+          ...
+        # Subtest: should return undefined for non-existent template
+        ok 2 - should return undefined for non-existent template
+          ---
+          duration_ms: 0.316245
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Getting Templates
+      ---
+      duration_ms: 1.032143
+      type: 'suite'
+      ...
+    # Subtest: Deleting Templates
+        # Subtest: should delete existing template
+        ok 1 - should delete existing template
+          ---
+          duration_ms: 0.583384
+          type: 'test'
+          ...
+        # Subtest: should return error for non-existent template
+        ok 2 - should return error for non-existent template
+          ---
+          duration_ms: 0.297209
+          type: 'test'
+          ...
+        1..2
+    ok 4 - Deleting Templates
+      ---
+      duration_ms: 1.069283
+      type: 'suite'
+      ...
+    1..4
+ok 63 - v2.5.0 Features - Session Templates
+  ---
+  duration_ms: 8.300222
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Analytics
+    # Subtest: Success Rate Calculation
+        # Subtest: should calculate correct success rate
+        ok 1 - should calculate correct success rate
+          ---
+          duration_ms: 0.912743
+          type: 'test'
+          ...
+        # Subtest: should handle 100% success rate
+        ok 2 - should handle 100% success rate
+          ---
+          duration_ms: 0.990527
+          type: 'test'
+          ...
+        # Subtest: should handle 0% success rate
+        ok 3 - should handle 0% success rate
+          ---
+          duration_ms: 0.311623
+          type: 'test'
+          ...
+        # Subtest: should handle empty sessions
+        ok 4 - should handle empty sessions
+          ---
+          duration_ms: 0.220641
+          type: 'test'
+          ...
+        1..4
+    ok 1 - Success Rate Calculation
+      ---
+      duration_ms: 2.71156
+      type: 'suite'
+      ...
+    # Subtest: Date Filtering
+        # Subtest: should filter sessions by date range
+        ok 1 - should filter sessions by date range
+          ---
+          duration_ms: 0.411897
+          type: 'test'
+          ...
+        # Subtest: should include sessions within date range
+        ok 2 - should include sessions within date range
+          ---
+          duration_ms: 0.264809
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Date Filtering
+      ---
+      duration_ms: 0.848784
+      type: 'suite'
+      ...
+    # Subtest: Status Breakdown
+        # Subtest: should group sessions by status
+        ok 1 - should group sessions by status
+          ---
+          duration_ms: 0.421833
+          type: 'test'
+          ...
+        1..1
+    ok 3 - Status Breakdown
+      ---
+      duration_ms: 0.556814
+      type: 'suite'
+      ...
+    # Subtest: Average Per Day
+        # Subtest: should calculate average sessions per day
+        ok 1 - should calculate average sessions per day
+          ---
+          duration_ms: 0.287098
+          type: 'test'
+          ...
+        1..1
+    ok 4 - Average Per Day
+      ---
+      duration_ms: 0.41494
+      type: 'suite'
+      ...
+    1..4
+ok 64 - v2.5.0 Features - Analytics
+  ---
+  duration_ms: 4.955192
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - PR Integration Validation
+    # Subtest: Merge Method Validation
+        # Subtest: should accept valid merge methods
+        ok 1 - should accept valid merge methods
+          ---
+          duration_ms: 0.323239
+          type: 'test'
+          ...
+        # Subtest: should reject invalid merge methods
+        ok 2 - should reject invalid merge methods
+          ---
+          duration_ms: 0.235411
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Merge Method Validation
+      ---
+      duration_ms: 0.772904
+      type: 'suite'
+      ...
+    # Subtest: PR Number Validation
+        # Subtest: should validate PR number is positive integer
+        ok 1 - should validate PR number is positive integer
+          ---
+          duration_ms: 0.392107
+          type: 'test'
+          ...
+        # Subtest: should reject invalid PR numbers
+        ok 2 - should reject invalid PR numbers
+          ---
+          duration_ms: 0.258506
+          type: 'test'
+          ...
+        1..2
+    ok 2 - PR Number Validation
+      ---
+      duration_ms: 1.024188
+      type: 'suite'
+      ...
+    # Subtest: Comment Validation
+        # Subtest: should require non-empty comment body
+        ok 1 - should require non-empty comment body
+          ---
+          duration_ms: 0.335579
+          type: 'test'
+          ...
+        # Subtest: should accept valid comment body
+        ok 2 - should accept valid comment body
+          ---
+          duration_ms: 0.34608
+          type: 'test'
+          ...
+        1..2
+    ok 3 - Comment Validation
+      ---
+      duration_ms: 0.946781
+      type: 'suite'
+      ...
+    1..3
+ok 65 - v2.5.0 Features - PR Integration Validation
+  ---
+  duration_ms: 3.243323
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Session Search Validation
+    # Subtest: State Filter Validation
+        # Subtest: should accept valid session states
+        ok 1 - should accept valid session states
+          ---
+          duration_ms: 0.296308
+          type: 'test'
+          ...
+        # Subtest: should handle case sensitivity
+        ok 2 - should handle case sensitivity
+          ---
+          duration_ms: 0.226597
+          type: 'test'
+          ...
+        1..2
+    ok 1 - State Filter Validation
+      ---
+      duration_ms: 0.89706
+      type: 'suite'
+      ...
+    # Subtest: Limit Validation
+        # Subtest: should accept valid limits
+        ok 1 - should accept valid limits
+          ---
+          duration_ms: 0.320829
+          type: 'test'
+          ...
+        # Subtest: should reject invalid limits
+        ok 2 - should reject invalid limits
+          ---
+          duration_ms: 0.223309
+          type: 'test'
+          ...
+        1..2
+    ok 2 - Limit Validation
+      ---
+      duration_ms: 0.836204
+      type: 'suite'
+      ...
+    1..2
+ok 66 - v2.5.0 Features - Session Search Validation
+  ---
+  duration_ms: 1.989358
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Batch Operations
+    # Subtest: Batch Retry Logic
+        # Subtest: should identify failed sessions in batch
+        ok 1 - should identify failed sessions in batch
+          ---
+          duration_ms: 0.339507
+          type: 'test'
+          ...
+        # Subtest: should handle empty batch
+        ok 2 - should handle empty batch
+          ---
+          duration_ms: 0.22366
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Batch Retry Logic
+      ---
+      duration_ms: 0.780782
+      type: 'suite'
+      ...
+    1..1
+ok 67 - v2.5.0 Features - Batch Operations
+  ---
+  duration_ms: 0.993797
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Clone Session Validation
+    # Subtest: Session Clone Config
+        # Subtest: should preserve original config when cloning
+        ok 1 - should preserve original config when cloning
+          ---
+          duration_ms: 0.384224
+          type: 'test'
+          ...
+        # Subtest: should allow prompt override when cloning
+        ok 2 - should allow prompt override when cloning
+          ---
+          duration_ms: 0.206297
+          type: 'test'
+          ...
+        1..2
+    ok 1 - Session Clone Config
+      ---
+      duration_ms: 0.843561
+      type: 'suite'
+      ...
+    1..1
+ok 68 - v2.5.0 Features - Clone Session Validation
+  ---
+  duration_ms: 1.050375
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Security Validation
+    # Subtest: Path Traversal Prevention
+        # Subtest: should block path traversal in owner
+        ok 1 - should block path traversal in owner
+          ---
+          duration_ms: 1.164881
+          type: 'test'
+          ...
+        # Subtest: should block path traversal in repo
+        ok 2 - should block path traversal in repo
+          ---
+          duration_ms: 0.660104
+          type: 'test'
+          ...
+        # Subtest: should block forward slashes in owner
+        ok 3 - should block forward slashes in owner
+          ---
+          duration_ms: 0.274073
+          type: 'test'
+          ...
+        # Subtest: should block forward slashes in repo
+        ok 4 - should block forward slashes in repo
+          ---
+          duration_ms: 0.331138
+          type: 'test'
+          ...
+        1..4
+    ok 1 - Path Traversal Prevention
+      ---
+      duration_ms: 2.818127
+      type: 'suite'
+      ...
+    # Subtest: GitHub Owner Validation
+        # Subtest: should accept valid GitHub usernames
+        ok 1 - should accept valid GitHub usernames
+          ---
+          duration_ms: 0.542461
+          type: 'test'
+          ...
+        # Subtest: should reject empty owner
+        ok 2 - should reject empty owner
+          ---
+          duration_ms: 0.441092
+          type: 'test'
+          ...
+        # Subtest: should reject owner starting with hyphen
+        ok 3 - should reject owner starting with hyphen
+          ---
+          duration_ms: 0.241432
+          type: 'test'
+          ...
+        # Subtest: should reject owner ending with hyphen
+        ok 4 - should reject owner ending with hyphen
+          ---
+          duration_ms: 0.238626
+          type: 'test'
+          ...
+        # Subtest: should reject owner over 39 characters
+        ok 5 - should reject owner over 39 characters
+          ---
+          duration_ms: 0.331153
+          type: 'test'
+          ...
+        # Subtest: should reject owner with special characters
+        ok 6 - should reject owner with special characters
+          ---
+          duration_ms: 0.247659
+          type: 'test'
+          ...
+        1..6
+    ok 2 - GitHub Owner Validation
+      ---
+      duration_ms: 2.486959
+      type: 'suite'
+      ...
+    # Subtest: GitHub Repo Validation
+        # Subtest: should accept valid repository names
+        ok 1 - should accept valid repository names
+          ---
+          duration_ms: 0.625988
+          type: 'test'
+          ...
+        # Subtest: should reject empty repo
+        ok 2 - should reject empty repo
+          ---
+          duration_ms: 0.299475
+          type: 'test'
+          ...
+        # Subtest: should reject repo over 100 characters
+        ok 3 - should reject repo over 100 characters
+          ---
+          duration_ms: 0.346405
+          type: 'test'
+          ...
+        1..3
+    ok 3 - GitHub Repo Validation
+      ---
+      duration_ms: 1.588745
+      type: 'suite'
+      ...
+    # Subtest: PR Number Validation
+        # Subtest: should accept valid PR numbers
+        ok 1 - should accept valid PR numbers
+          ---
+          duration_ms: 0.388317
+          type: 'test'
+          ...
+        # Subtest: should reject PR number 0
+        ok 2 - should reject PR number 0
+          ---
+          duration_ms: 0.365782
+          type: 'test'
+          ...
+        # Subtest: should reject negative PR numbers
+        ok 3 - should reject negative PR numbers
+          ---
+          duration_ms: 0.230706
+          type: 'test'
+          ...
+        # Subtest: should reject PR number over limit
+        ok 4 - should reject PR number over limit
+          ---
+          duration_ms: 0.219829
+          type: 'test'
+          ...
+        # Subtest: should reject float PR numbers
+        ok 5 - should reject float PR numbers
+          ---
+          duration_ms: 0.226234
+          type: 'test'
+          ...
+        # Subtest: should reject NaN
+        ok 6 - should reject NaN
+          ---
+          duration_ms: 0.314667
+          type: 'test'
+          ...
+        1..6
+    ok 4 - PR Number Validation
+      ---
+      duration_ms: 4.219086
+      type: 'suite'
+      ...
+    # Subtest: Merge Method Validation
+        # Subtest: should accept valid merge methods
+        ok 1 - should accept valid merge methods
+          ---
+          duration_ms: 0.288619
+          type: 'test'
+          ...
+        # Subtest: should reject invalid merge methods
+        ok 2 - should reject invalid merge methods
+          ---
+          duration_ms: 0.468332
+          type: 'test'
+          ...
+        1..2
+    ok 5 - Merge Method Validation
+      ---
+      duration_ms: 1.087263
+      type: 'suite'
+      ...
+    # Subtest: Comment Validation
+        # Subtest: should accept valid comments
+        ok 1 - should accept valid comments
+          ---
+          duration_ms: 0.327807
+          type: 'test'
+          ...
+        # Subtest: should reject empty comments
+        ok 2 - should reject empty comments
+          ---
+          duration_ms: 0.205709
+          type: 'test'
+          ...
+        # Subtest: should reject comments over max length
+        ok 3 - should reject comments over max length
+          ---
+          duration_ms: 0.166891
+          type: 'test'
+          ...
+        # Subtest: should accept comments at max length
+        ok 4 - should accept comments at max length
+          ---
+          duration_ms: 0.15538
+          type: 'test'
+          ...
+        1..4
+    ok 6 - Comment Validation
+      ---
+      duration_ms: 1.090788
+      type: 'suite'
+      ...
+    1..6
+ok 69 - v2.5.0 Features - Security Validation
+  ---
+  duration_ms: 14.266035
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Template Size Limit
+    # Subtest: should enforce maximum template limit
+    ok 1 - should enforce maximum template limit
+      ---
+      duration_ms: 0.281368
+      type: 'test'
+      ...
+    # Subtest: should allow templates under limit
+    ok 2 - should allow templates under limit
+      ---
+      duration_ms: 0.151142
+      type: 'test'
+      ...
+    # Subtest: should validate template name length
+    ok 3 - should validate template name length
+      ---
+      duration_ms: 0.160698
+      type: 'test'
+      ...
+    1..3
+ok 70 - v2.5.0 Features - Template Size Limit
+  ---
+  duration_ms: 0.863375
+  type: 'suite'
+  ...
+# Subtest: v2.5.0 Features - Queue Memory Management
+    # Subtest: should limit retained completed/failed items
+    ok 1 - should limit retained completed/failed items
+      ---
+      duration_ms: 0.259643
+      type: 'test'
+      ...
+    # Subtest: should not remove active items during cleanup
+    ok 2 - should not remove active items during cleanup
+      ---
+      duration_ms: 0.61926
+      type: 'test'
+      ...
+    1..2
+ok 71 - v2.5.0 Features - Queue Memory Management
+  ---
+  duration_ms: 1.011126
+  type: 'suite'
+  ...
+1..71
+# tests 514
+# suites 129
+# pass 512
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 303597.528277
