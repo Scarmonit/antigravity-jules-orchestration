@@ -31,6 +31,19 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
 
+## v2.6.2 Improvements
+
+### Performance & Optimization
+- **RAG Optimization**:
+  - Added `.gitignore` support to exclude irrelevant files from indexing.
+  - Implemented file size limit (1MB) to prevent memory exhaustion.
+  - Optimized search algorithm with pre-computed tokenization.
+- **Batch Processing**:
+  - Upgraded to "sliding window" concurrency for more efficient parallel execution.
+  - Added automatic memory cleanup for old batch records.
+- **Dashboard**:
+  - Added real-time polling for workflow status updates.
+
 ## v2.0.0 Features
 
 ### GitHub Issue Integration
