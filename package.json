@@ -15,7 +15,8 @@
     "mcp:diagnostics": "node scripts/mcp-real-execution.js",
     "mcp:simulated": "MCP_MODE=SIMULATED node scripts/mcp-real-execution.js",
     "test:logger": "node scripts/test-logger.js",
-    "test:logger:pretty": "LOG_FORMAT=pretty node scripts/test-logger.js"
+    "test:logger:pretty": "LOG_FORMAT=pretty node scripts/test-logger.js",
+    "lint": "eslint ."
   },
   "keywords": [
     "mcp",
@@ -34,11 +35,15 @@
     "express": "^4.18.2",
     "joi": "^17.11.0",
     "lru-cache": "^10.0.0",
+    "p-limit": "^7.2.0",
     "redis": "^4.6.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@vitejs/plugin-react": "^5.1.2",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
     "sinon": "^21.0.1",
     "supertest": "^7.1.4",
     "vitest": "^1.6.1"
