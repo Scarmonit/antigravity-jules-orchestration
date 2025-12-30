@@ -10,6 +10,7 @@ export function RateLimiterMetrics() {
     uptime: 0,
     redisErrors: 0
   });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -21,6 +22,8 @@ export function RateLimiterMetrics() {
         }
       } catch (error) {
         console.error('Failed to fetch rate limit metrics:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -47,32 +50,68 @@ export function RateLimiterMetrics() {
   };
 
   return (
-    <section className="rate-limiter-metrics">
+    <section className="rate-limiter-metrics" aria-live="polite" aria-busy={isLoading}>
       <h2>Rate Limiter</h2>
       <div className="metrics-grid">
         <div className="metric-card">
           <div className="metric-label">Requests/sec</div>
-          <div className="metric-value">{getReqPerSec()}</div>
-          <div className="metric-subtitle">over {formatUptime(metrics.uptime)}</div>
+          {isLoading ? (
+            <>
+              <div className="skeleton text"></div>
+              <div className="skeleton subtitle"></div>
+            </>
+          ) : (
+            <>
+              <div className="metric-value">{getReqPerSec()}</div>
+              <div className="metric-subtitle">over {formatUptime(metrics.uptime)}</div>
+            </>
+          )}
         </div>
         <div className="metric-card">
           <div className="metric-label">Allowed</div>
-          <div className="metric-value allowed">{metrics.allowedRequests.toLocaleString()}</div>
-          <div className="metric-subtitle">requests passed</div>
+          {isLoading ? (
+            <>
+              <div className="skeleton text"></div>
+              <div className="skeleton subtitle"></div>
+            </>
+          ) : (
+            <>
+              <div className="metric-value allowed">{metrics.allowedRequests.toLocaleString()}</div>
+              <div className="metric-subtitle">requests passed</div>
+            </>
+          )}
         </div>
         <div className="metric-card">
           <div className="metric-label">Blocked (429)</div>
-          <div className="metric-value blocked">{metrics.blockedRequests.toLocaleString()}</div>
-          <div className="metric-subtitle">{getBlockRate()}% block rate</div>
+          {isLoading ? (
+            <>
+              <div className="skeleton text"></div>
+              <div className="skeleton subtitle"></div>
+            </>
+          ) : (
+            <>
+              <div className="metric-value blocked">{metrics.blockedRequests.toLocaleString()}</div>
+              <div className="metric-subtitle">{getBlockRate()}% block rate</div>
+            </>
+          )}
         </div>
-        <div className={'metric-card status-card ' + (metrics.redisConnected ? 'connected' : 'disconnected')}>
+        <div className={'metric-card status-card ' + (isLoading ? '' : (metrics.redisConnected ? 'connected' : 'disconnected'))}>
           <div className="metric-label">Redis Status</div>
-          <div className="metric-value status">
-            {metrics.redisConnected ? 'Connected' : 'Failover'}
-          </div>
-          <div className="metric-subtitle">
-            {metrics.redisErrors > 0 ? metrics.redisErrors + ' errors' : 'No errors'}
-          </div>
+          {isLoading ? (
+            <>
+              <div className="skeleton text"></div>
+              <div className="skeleton subtitle"></div>
+            </>
+          ) : (
+            <>
+              <div className="metric-value status">
+                {metrics.redisConnected ? 'Connected' : 'Failover'}
+              </div>
+              <div className="metric-subtitle">
+                {metrics.redisErrors > 0 ? metrics.redisErrors + ' errors' : 'No errors'}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </section>
