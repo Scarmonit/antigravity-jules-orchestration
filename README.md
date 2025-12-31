@@ -111,6 +111,18 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
 - **`jules_session_timeline`**: Gets a timeline of events for a Jules session.
   - **Endpoint**: `GET /api/sessions/:id/timeline`
 
+### Local LLM Support (Ollama)
+- **Code Generation**: Use `qwen2.5-coder` for local code generation tasks.
+- **RAG**: Index your local codebase and query it for context-aware answers.
+    - **Persistence**: RAG index is persisted to disk (`.jules/rag-index.json`) to survive restarts.
+    - **Optimization**: Uses inverted index for O(1) keyword lookups.
+- **Chat**: Multi-turn conversations with local models.
+
+### New in v2.6.0
+- **Refactored Architecture**: Modularized `index.js` into `lib/tool-registry.js` and `lib/jules-client.js`.
+- **Performance**: Optimized RAG search and added memory leak safeguards for batch processing.
+- **Render Integration**: Auto-fix build failures via Render webhooks.
+
 ## Workflow Architecture
 
 ### MCP Tool Chain Orchestration 🆕
