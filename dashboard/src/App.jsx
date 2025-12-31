@@ -81,18 +81,29 @@ function App() {
         <div className="header-top">
           <h1>🤖 Jules Orchestrator</h1>
           <div className="connection-status">
-            <span className={`status-indicator ${wsConnected ? 'connected' : 'disconnected'}`} />
+            <span
+              className={`status-indicator ${wsConnected ? 'connected' : 'disconnected'}`}
+              aria-hidden="true"
+            />
             {wsConnected ? 'Live' : 'Polling'}
           </div>
         </div>
-        <nav className="tab-nav">
+        <nav className="tab-nav" role="tablist" aria-label="Dashboard Sections">
           <button
+            id="tab-workflows"
+            role="tab"
+            aria-selected={activeTab === 'workflows'}
+            aria-controls="panel-workflows"
             className={`tab-btn ${activeTab === 'workflows' ? 'active' : ''}`}
             onClick={() => setActiveTab('workflows')}
           >
             📋 Workflows
           </button>
           <button
+            id="tab-metrics"
+            role="tab"
+            aria-selected={activeTab === 'metrics'}
+            aria-controls="panel-metrics"
             className={`tab-btn ${activeTab === 'metrics' ? 'active' : ''}`}
             onClick={() => setActiveTab('metrics')}
           >
@@ -121,7 +132,11 @@ function App() {
 
       <main>
         {activeTab === 'workflows' && (
-          <>
+          <div
+            id="panel-workflows"
+            role="tabpanel"
+            aria-labelledby="tab-workflows"
+          >
             <RateLimiterMetrics />
             <section className="quick-actions">
               <h2>Quick Actions</h2>
@@ -156,7 +171,12 @@ function App() {
                 {workflows.map(workflow => (
                   <div key={workflow.id} className="workflow-card">
                     <div className="workflow-header">
-                      <span className="workflow-icon" style={{ color: getStatusColor(workflow.status) }}>
+                      <span
+                        className="workflow-icon"
+                        style={{ color: getStatusColor(workflow.status) }}
+                        role="img"
+                        aria-label={`Status: ${workflow.status}`}
+                      >
                         {getStatusIcon(workflow.status)}
                       </span>
                       <div className="workflow-info">
@@ -188,8 +208,8 @@ function App() {
 
                     {workflow.status === 'awaiting_approval' && (
                       <div className="workflow-actions">
-                        <button className="approve">✓ Approve</button>
-                        <button className="reject">✗ Reject</button>
+                        <button className="approve" aria-label="Approve workflow">✓ Approve</button>
+                        <button className="reject" aria-label="Reject workflow">✗ Reject</button>
                       </div>
                     )}
                   </div>
@@ -227,11 +247,16 @@ function App() {
                 </div>
               </div>
             </section>
-          </>
+          </div>
         )}
 
         {activeTab === 'metrics' && (
-          <div className="metrics-dashboard">
+          <div
+            className="metrics-dashboard"
+            id="panel-metrics"
+            role="tabpanel"
+            aria-labelledby="tab-metrics"
+          >
             <div className="metrics-header">
               <h2>System Metrics</h2>
               <button
