@@ -31,7 +31,13 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
 
-## v2.0.0 Features
+## v2.6.2 Features
+
+### Performance Optimization
+- **Improved Rate Limiting**: Fixed memory leaks in rate limiting logic and optimized performance.
+- **LRU Cache**: Replaced custom implementation with optimized module.
+- **Efficient Session Queue**: Optimized queue management for high-throughput session handling.
+- **Task Scheduler**: New scheduling system for periodic maintenance tasks (cache cleanup, health checks).
 
 ### GitHub Issue Integration
 - **`jules_create_from_issue`**: Creates a Jules session from a GitHub issue.
