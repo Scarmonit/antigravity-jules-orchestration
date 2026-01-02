@@ -85,14 +85,22 @@ function App() {
             {wsConnected ? 'Live' : 'Polling'}
           </div>
         </div>
-        <nav className="tab-nav">
+        <nav className="tab-nav" role="tablist" aria-label="Dashboard Sections">
           <button
+            role="tab"
+            aria-selected={activeTab === 'workflows'}
+            aria-controls="workflows-panel"
+            id="workflows-tab"
             className={`tab-btn ${activeTab === 'workflows' ? 'active' : ''}`}
             onClick={() => setActiveTab('workflows')}
           >
             📋 Workflows
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'metrics'}
+            aria-controls="metrics-panel"
+            id="metrics-tab"
             className={`tab-btn ${activeTab === 'metrics' ? 'active' : ''}`}
             onClick={() => setActiveTab('metrics')}
           >
@@ -121,7 +129,7 @@ function App() {
 
       <main>
         {activeTab === 'workflows' && (
-          <>
+          <div role="tabpanel" id="workflows-panel" aria-labelledby="workflows-tab">
             <RateLimiterMetrics />
             <section className="quick-actions">
               <h2>Quick Actions</h2>
@@ -227,11 +235,16 @@ function App() {
                 </div>
               </div>
             </section>
-          </>
+          </div>
         )}
 
         {activeTab === 'metrics' && (
-          <div className="metrics-dashboard">
+          <div
+            role="tabpanel"
+            id="metrics-panel"
+            aria-labelledby="metrics-tab"
+            className="metrics-dashboard"
+          >
             <div className="metrics-header">
               <h2>System Metrics</h2>
               <button
