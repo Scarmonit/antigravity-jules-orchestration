@@ -4,6 +4,10 @@ import https from 'https';
 import { getIssue, getIssuesByLabel, formatIssueForPrompt } from './lib/github.js';
 import { BatchProcessor } from './lib/batch.js';
 import { SessionMonitor } from './lib/monitor.js';
+import { LRUCache } from './lib/lru-cache.js';
+import { SessionQueue } from './lib/session-queue.js';
+import { CircuitBreaker } from './lib/circuit-breaker.js';
+import { RateLimiter } from './lib/rate-limiter.js';
 import { ollamaCompletion, listOllamaModels, ollamaCodeGeneration, ollamaChat } from './lib/ollama.js';
 import { ragIndexDirectory, ragQuery, ragStatus, ragClear } from './lib/rag.js';
 import {
@@ -63,63 +67,6 @@ const VERSION = '2.6.0';
 
 // ============ v2.5.0 INFRASTRUCTURE ============
 
-// LRU Cache with TTL for API response caching
-class LRUCache {
-  constructor(maxSize = 100, defaultTTL = 10000) {
-    this.cache = new Map();
-    this.maxSize = maxSize;
-    this.defaultTTL = defaultTTL;
-  }
-  get(key) {
-    const item = this.cache.get(key);
-    if (!item) return null;
-    if (Date.now() > item.expires) { this.cache.delete(key); return null; }
-    this.cache.delete(key);
-    this.cache.set(key, item);
-    return item.value;
-  }
-  set(key, value, ttl = this.defaultTTL) {
-    // Fix: only evict if key doesn't already exist
-    if (this.cache.size >= this.maxSize && !this.cache.has(key)) {
-      const firstKey = this.cache.keys().next().value;
-      this.cache.delete(firstKey);
-    }
-    this.cache.set(key, { value, expires: Date.now() + ttl });
-  }
-  invalidate(pattern) { for (const key of this.cache.keys()) { if (key.includes(pattern)) this.cache.delete(key); } }
-  clear() { this.cache.clear(); }
-  stats() { return { size: this.cache.size, maxSize: this.maxSize }; }
-}
-
-// Session Queue with Priority
-class SessionQueue {
-  constructor(maxRetained = 100) { this.queue = []; this.processing = false; this.maxRetained = maxRetained; }
-  add(config, priority = 5) {
-    const id = `queue_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`;
-    const item = { id, config, priority, addedAt: new Date().toISOString(), status: 'pending' };
-    this.queue.push(item);
-    this.queue.sort((a, b) => a.priority - b.priority);
-    this._cleanup(); // Clean old completed/failed items
-    return item;
-  }
-  remove(id) { const idx = this.queue.findIndex(i => i.id === id); return idx >= 0 ? this.queue.splice(idx, 1)[0] : null; }
-  getNext() { return this.queue.find(i => i.status === 'pending'); }
-  markProcessing(id) { const item = this.queue.find(i => i.id === id); if (item) item.status = 'processing'; }
-  markComplete(id, sessionId) { const item = this.queue.find(i => i.id === id); if (item) { item.status = 'completed'; item.sessionId = sessionId; item.completedAt = new Date().toISOString(); } this._cleanup(); }
-  markFailed(id, error) { const item = this.queue.find(i => i.id === id); if (item) { item.status = 'failed'; item.error = error; item.failedAt = new Date().toISOString(); } this._cleanup(); }
-  list() { return this.queue.map(i => ({ id: i.id, title: i.config.title || 'Untitled', priority: i.priority, status: i.status, addedAt: i.addedAt, sessionId: i.sessionId })); }
-  stats() { return { total: this.queue.length, pending: this.queue.filter(i => i.status === 'pending').length, processing: this.queue.filter(i => i.status === 'processing').length, completed: this.queue.filter(i => i.status === 'completed').length, failed: this.queue.filter(i => i.status === 'failed').length }; }
-  clear() { const cleared = this.queue.filter(i => i.status === 'pending').length; this.queue = this.queue.filter(i => i.status !== 'pending'); return cleared; }
-  // Fix memory leak: remove old completed/failed items, keep only maxRetained
-  _cleanup() {
-    const terminal = this.queue.filter(i => i.status === 'completed' || i.status === 'failed');
-    if (terminal.length > this.maxRetained) {
-      const toRemove = terminal.slice(0, terminal.length - this.maxRetained);
-      toRemove.forEach(item => { const idx = this.queue.indexOf(item); if (idx >= 0) this.queue.splice(idx, 1); });
-    }
-  }
-}
-
 const apiCache = new LRUCache(100, 10000);
 const sessionQueue = new SessionQueue();
 const sessionTemplates = new Map();
@@ -167,69 +114,25 @@ app.use(express.json({
 }));
 
 // Circuit Breaker for Jules API
-const circuitBreaker = {
-  failures: 0,
-  lastFailure: null,
-  threshold: 5,        // Trip after 5 consecutive failures
-  resetTimeout: 60000, // Reset after 1 minute
-  isOpen() {
-    if (this.failures >= this.threshold) {
-      const timeSinceFailure = Date.now() - this.lastFailure;
-      if (timeSinceFailure < this.resetTimeout) {
-        return true; // Circuit is open, reject requests
-      }
-      this.failures = 0; // Reset after timeout
-    }
-    return false;
-  },
-  recordSuccess() {
-    this.failures = 0;
-  },
-  recordFailure() {
-    this.failures++;
-    this.lastFailure = Date.now();
-  }
-};
+const circuitBreaker = new CircuitBreaker(5, 60000);
 
 // Rate limiting - Simple in-memory implementation
-const rateLimitStore = new Map();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX = 100; // 100 requests per minute
+const rateLimiter = new RateLimiter(60 * 1000, 100);
 
 app.use('/mcp/', (req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
-  const now = Date.now();
-  const windowStart = now - RATE_LIMIT_WINDOW;
+  const result = rateLimiter.check(ip);
 
-  // Optimization: Use in-place modification to avoid array allocation on every request
-  let requests = rateLimitStore.get(ip);
-  if (!requests) {
-    requests = [];
-    rateLimitStore.set(ip, requests);
-  }
-
-  // Remove old requests (array is sorted by time)
-  let removeCount = 0;
-  while (removeCount < requests.length && requests[removeCount] <= windowStart) {
-    removeCount++;
-  }
-
-  if (removeCount > 0) {
-    requests.splice(0, removeCount);
-  }
-
-  requests.push(now);
-
-  if (requests.length > RATE_LIMIT_MAX) {
+  if (!result.allowed) {
     return res.status(429).json({
       error: 'Too many requests',
-      retryAfter: Math.ceil(RATE_LIMIT_WINDOW / 1000),
+      retryAfter: result.retryAfter,
       hint: 'Please wait before making more requests'
     });
   }
 
-  res.setHeader('X-RateLimit-Limit', RATE_LIMIT_MAX);
-  res.setHeader('X-RateLimit-Remaining', RATE_LIMIT_MAX - requests.length);
+  res.setHeader('X-RateLimit-Limit', result.limit);
+  res.setHeader('X-RateLimit-Remaining', result.remaining);
   next();
 });
 
@@ -298,10 +201,7 @@ app.get(['/health', '/api/v1/health'], async (req, res) => {
       github: GITHUB_TOKEN ? 'configured' : 'not_configured',
       semanticMemory: process.env.SEMANTIC_MEMORY_URL ? 'configured' : 'not_configured'
     },
-    circuitBreaker: {
-      failures: circuitBreaker.failures,
-      isOpen: circuitBreaker.isOpen()
-    }
+    circuitBreaker: circuitBreaker.stats()
   };
 
   // Quick test Jules API if configured

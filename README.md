@@ -31,6 +31,19 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
 
+## v2.6.1 Improvements & Optimizations
+
+### Core Infrastructure
+- **LRU Cache**: Extracted to `lib/lru-cache.js` with efficient eviction policies.
+- **Session Queue**: Extracted to `lib/session-queue.js`, optimized cleanup from O(N²) to O(N).
+- **Circuit Breaker**: Extracted to `lib/circuit-breaker.js` for modularity.
+- **Rate Limiter**: New `lib/rate-limiter.js` with memory leak safeguards and efficient cleanup.
+
+### RAG (Retrieval-Augmented Generation) 2.0
+- **Inverted Index**: Search performance optimized from O(N×M) to O(1) using keyword-based inverted indexing.
+- **Cumulative Indexing**: `ollama_rag_index` now supports a `clearIndex` parameter (default: true) to allow indexing multiple directories.
+- **Improved Tokenization**: Smarter text chunking and tokenization for better relevance.
+
 ## v2.0.0 Features
 
 ### GitHub Issue Integration
