@@ -196,6 +196,18 @@ const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
 const RATE_LIMIT_MAX = 100; // 100 requests per minute
 
+// Cleanup rate limit store every 5 minutes to prevent memory leaks
+const RATE_LIMIT_CLEANUP_INTERVAL = 5 * 60 * 1000;
+setInterval(() => {
+  const now = Date.now();
+  const windowStart = now - RATE_LIMIT_WINDOW;
+  for (const [ip, requests] of rateLimitStore.entries()) {
+    if (requests.length === 0 || requests[requests.length - 1] <= windowStart) {
+      rateLimitStore.delete(ip);
+    }
+  }
+}, RATE_LIMIT_CLEANUP_INTERVAL).unref(); // unref so it doesn't block process exit
+
 app.use('/mcp/', (req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
   const now = Date.now();
