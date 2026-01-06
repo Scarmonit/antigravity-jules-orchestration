@@ -80,8 +80,16 @@ function App() {
       <header>
         <div className="header-top">
           <h1>🤖 Jules Orchestrator</h1>
-          <div className="connection-status">
-            <span className={`status-indicator ${wsConnected ? 'connected' : 'disconnected'}`} />
+          <div
+            className="connection-status"
+            role="status"
+            aria-live="polite"
+            title={wsConnected ? 'Connected to real-time updates' : 'Polling for updates (WebSocket disconnected)'}
+          >
+            <span
+              className={`status-indicator ${wsConnected ? 'connected' : 'disconnected'}`}
+              aria-hidden="true"
+            />
             {wsConnected ? 'Live' : 'Polling'}
           </div>
         </div>
