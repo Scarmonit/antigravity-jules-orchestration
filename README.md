@@ -30,6 +30,7 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - `jules_approve_plan` - Approve execution plans
   - `jules_send_message` - Send messages to active agents
   - `jules_list_activities` - Monitor session activities
+  - `jules_system_stats` - Get system metrics (memory, uptime)
 
 ## v2.0.0 Features
 
@@ -110,6 +111,8 @@ Autonomous AI orchestration architecture combining **Google Antigravity** with t
   - **Endpoint**: `GET /api/sessions/active`
 - **`jules_session_timeline`**: Gets a timeline of events for a Jules session.
   - **Endpoint**: `GET /api/sessions/:id/timeline`
+- **`jules_system_stats`**: Gets system health metrics.
+  - **Endpoint**: `GET /api/system/stats` (via tool)
 
 ## Workflow Architecture
 
