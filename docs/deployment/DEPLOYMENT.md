@@ -70,7 +70,7 @@
 ```json
 {
   "status": "ok",
-  "version": "2.3.0",
+  "version": "2.6.2",
   "timestamp": "2025-12-17T04:32:01.380Z",
   "uptime": 53.53,
   "memory": {"used": "10MB", "total": "11MB"},

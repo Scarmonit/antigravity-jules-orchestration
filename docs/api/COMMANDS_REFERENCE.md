@@ -1,6 +1,6 @@
 # Slash Commands Reference
 
-**Version 2.4.0** | antigravity-jules-orchestration
+**Version 2.6.2** | antigravity-jules-orchestration
 
 Quick reference for all available slash commands in the Jules orchestration system.
 

@@ -1,6 +1,6 @@
 {
   "name": "jules-orchestrator-api",
-  "version": "2.3.0",
+  "version": "2.6.2",
   "type": "module",
   "description": "Orchestrator API for Jules Agent - Force Rebuild",
   "main": "src/index.js",

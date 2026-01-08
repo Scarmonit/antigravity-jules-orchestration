@@ -16,7 +16,7 @@ GET /api/v1/health
 ```json
 {
   "status": "ok",
-  "version": "2.5.0",
+  "version": "2.6.2",
   "timestamp": "2025-12-17T08:00:00.000Z",
   "uptime": 12345.678,
   "memory": {
@@ -97,7 +97,7 @@ Returns server information and available endpoints.
 ```json
 {
   "name": "Jules MCP Server",
-  "version": "2.5.0",
+  "version": "2.6.2",
   "description": "MCP server for Jules API integration",
   "endpoints": {
     "health": "/health",

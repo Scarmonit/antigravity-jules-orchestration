@@ -7,7 +7,7 @@
 - [How to Use](getting-started/HOW_TO_USE.md) - Detailed usage guide
 
 ### API Reference
-- [MCP Index](api/MCP_INDEX.md) - Complete MCP tools reference (45 tools)
+- [MCP Index](api/MCP_INDEX.md) - Complete MCP tools reference (65 tools)
 - [API Reference](api/API_REFERENCE.md) - HTTP API endpoints
 - [Commands Reference](api/COMMANDS_REFERENCE.md) - Slash commands
 - [MCP Quick Reference](api/MCP_QUICK_REFERENCE.md) - Quick lookup
@@ -27,7 +27,6 @@
 
 ### Integrations
 - [GitHub Copilot](integration/GITHUB_COPILOT_INTEGRATION.md) - Copilot integration
-- [Alibaba Lingma](integration/ALIBABA_LINGMA_INTEGRATION.md) - Lingma support
 - [Gemini](integration/GEMINI.md) - Gemini integration
 - [SonarQube](integration/SONARQUBE_MCP_INTEGRATION.md) - Code quality
 - [Integration Guide](integration/INTEGRATION_GUIDE.md) - General integrations
