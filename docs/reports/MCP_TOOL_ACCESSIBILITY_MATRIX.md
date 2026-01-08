@@ -354,7 +354,7 @@ if ($result.Success) {
 #### 1. Install Dependencies
 ```bash
 npm install
-# Dependencies: @modelcontextprotocol/sdk, zod, express, dotenv
+# Dependencies: express, dotenv, axios, joi, lru-cache
 ```
 
 #### 2. Run Real Diagnostics Chain

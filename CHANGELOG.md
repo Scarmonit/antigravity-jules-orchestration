@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.6.2] - 2025-01-08
 
 ### Removed
-- **Dead Code Cleanup**: Removed 6,750+ lines of unused code
+- **Dead Code Cleanup**: Removed 7,000+ lines of unused code
   - `lib/qwen.js` - Alibaba Qwen integration (never imported)
   - `lib/temporal-integration.js` - Scheduled sessions feature (not integrated)
   - `middleware/errorHandler.js` - Error handler (never imported)
@@ -18,12 +18,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `orchestration/` folder - Legacy orchestration code (superseded)
   - `config/rate-limiting.js` - Rate limiter configuration
   - `docs/rate-limiter-documentation.pdf` - Obsolete documentation
+  - `scripts/update-docs-pdf.py` - PDF generator for deleted rate limiter
   - Related test files and scripts
 
 ### Changed
 - Removed `redis` dependency (only used by removed rate limiter)
+- Removed `@modelcontextprotocol/sdk` dependency (never imported)
+- Removed `zod` dependency (never imported - project uses joi)
 - Updated CLAUDE.md architecture diagram
 - Updated `.claude/commands/` to remove deleted file references
+- Updated docs/deployment/DEPLOYMENT.md with correct dependency list
+- Updated docs/reports/MCP_TOOL_ACCESSIBILITY_MATRIX.md with correct dependencies
 
 ## [2.6.1] - 2024-12-19
 

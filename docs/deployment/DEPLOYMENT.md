@@ -42,8 +42,8 @@
 - **Start Command**: `npm run dev` → `node index.js`
 - **Dependencies**: 76 packages (0 vulnerabilities)
   - express
-  - @modelcontextprotocol/sdk
-  - zod
+  - axios
+  - joi
   - dotenv
 
 ---
