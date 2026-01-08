@@ -1,6 +1,6 @@
 {
   "name": "antigravity-jules-orchestration",
-  "version": "2.6.1",
+  "version": "2.6.2",
   "description": "MCP server for Jules API integration with Antigravity",
   "main": "index.js",
   "type": "module",
@@ -10,7 +10,6 @@
     "test": "node --test tests/unit/*.test.js",
     "test:unit": "node --test tests/unit/*.test.js",
     "test:integration": "vitest run tests/integration",
-    "test:load": "node tests/load/rate-limiter-load-test.js",
     "mcp:real-execution": "node scripts/mcp-real-execution.js",
     "mcp:diagnostics": "node scripts/mcp-real-execution.js",
     "mcp:simulated": "MCP_MODE=SIMULATED node scripts/mcp-real-execution.js",
@@ -34,7 +33,6 @@
     "express": "^4.18.2",
     "joi": "^17.11.0",
     "lru-cache": "^10.0.0",
-    "redis": "^4.6.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

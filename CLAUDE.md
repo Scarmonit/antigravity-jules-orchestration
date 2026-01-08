@@ -1,6 +1,6 @@
 # Claude Code Project Context
 
-**Version: 2.6.0** | [CHANGELOG](./CHANGELOG.md)
+**Version: 2.6.2** | [CHANGELOG](./CHANGELOG.md)
 
 ## Project Overview
 
@@ -21,12 +21,6 @@
 - **New lib/render-autofix.js**: Auto-fix orchestration pipeline
 - **New lib/suggested-tasks.js**: Codebase scanning for actionable comments
 - **SECURITY.md**: Comprehensive security documentation
-
-## What's New in v2.5.1
-
-- **Temporal Agent Integration**: Schedule recurring Jules sessions via temporal-agent-mcp
-- **New lib/temporal-integration.js**: Helper functions for scheduled workflows
-- **New template**: scheduled-jules-session.json for timed automation
 
 ## What's New in v2.5.0
 
@@ -56,13 +50,15 @@ antigravity-jules-orchestration/
 │   ├── github.js              # GitHub API integration
 │   ├── ollama.js              # Local Ollama LLM integration
 │   ├── rag.js                 # RAG codebase indexing
-│   ├── temporal-integration.js # Scheduled Jules sessions
-│   ├── encryption.js          # AES-256-GCM credential storage (NEW v2.6.0)
-│   ├── render-client.js       # Render API client (NEW v2.6.0)
-│   ├── render-autofix.js      # Auto-fix pipeline (NEW v2.6.0)
-│   └── suggested-tasks.js     # TODO/FIXME scanner (NEW v2.6.0)
+│   ├── memory-client.js       # Semantic memory integration
+│   ├── encryption.js          # AES-256-GCM credential storage
+│   ├── render-client.js       # Render API client
+│   ├── render-autofix.js      # Auto-fix pipeline
+│   └── suggested-tasks.js     # TODO/FIXME scanner
 ├── middleware/
-│   └── errorHandler.js        # Comprehensive error handling
+│   ├── compressionMiddleware.js # Response compression
+│   ├── cacheMiddleware.js     # Response caching
+│   └── validateRequest.js     # Request validation
 ├── scripts/                    # Deployment & automation scripts
 ├── templates/                  # Workflow templates (JSON)
 ├── SECURITY.md                # Security documentation (NEW v2.6.0)
@@ -290,26 +286,6 @@ cd dashboard && npm test          # Dashboard tests
 ### Quick Fix
 ```
 /quick-fix src/api/auth.js "Add rate limiting to login endpoint"
-```
-
-### Scheduled Jules Sessions (NEW v2.5.1)
-```
-// Schedule weekly dependency updates
-import { scheduleJulesSession, scheduleTemplates } from './lib/temporal-integration.js';
-
-await scheduleJulesSession({
-  name: 'weekly-deps',
-  cronExpression: scheduleTemplates.weeklyDependencyUpdate.cronExpression,
-  timezone: 'America/New_York',
-  repository: 'owner/repo',
-  task: scheduleTemplates.weeklyDependencyUpdate.task,
-});
-
-// List scheduled Jules tasks
-const tasks = await listScheduledJulesTasks();
-
-// Cancel a scheduled task
-await cancelScheduledJulesTask(taskId);
 ```
 
 ### Session Search & Clone

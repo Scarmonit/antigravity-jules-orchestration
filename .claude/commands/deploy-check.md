@@ -8,8 +8,8 @@ Run parallel pre-deployment checks before pushing to the `Scarmonit` branch.
 Check all JavaScript files for syntax errors:
 - Verify `index.js` syntax
 - Verify `orchestrator-api/src/index.js` syntax
-- Verify `orchestration/routes/jules.js` syntax
-- Verify `middleware/errorHandler.js` syntax
+- Verify `lib/*.js` syntax
+- Verify `middleware/*.js` syntax
 - Check for ESLint violations in dashboard
 
 ### Agent 2: Configuration Validation

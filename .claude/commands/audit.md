@@ -14,7 +14,7 @@ Analyze all source files for security vulnerabilities:
 
 ### Agent 2: Code Quality Review
 Review code quality across all components:
-- Check error handling patterns in `index.js`, `orchestrator-api/src/index.js`, `middleware/errorHandler.js`
+- Check error handling patterns in `index.js`, `orchestrator-api/src/index.js`
 - Review async/await usage and promise handling
 - Verify consistent code style
 - Check for code duplication
