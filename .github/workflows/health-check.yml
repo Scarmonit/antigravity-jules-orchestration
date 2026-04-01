@@ -1,14 +1,14 @@
 name: Service Health Check
 
 on:
-  # Cron schedule disabled - Render service is currently suspended.
-  # Uncomment the schedule block below once the service is reactivated on Render.
+  # Push trigger disabled - Render service is currently suspended.
+  # Uncomment the push and schedule blocks below once the service is reactivated on Render.
+  # push:
+  #   branches: [main]
   # schedule:
   #   # Run every 15 minutes
   #   - cron: '*/15 * * * *'
   workflow_dispatch:
-  push:
-    branches: [main]
 
 jobs:
   health-check:
